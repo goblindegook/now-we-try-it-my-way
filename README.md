@@ -1,46 +1,46 @@
-# Astro Starter Kit: Basics
+# [Now We Try It My Way](https://now-we-try-it-my-way.netlify.app)
+
+A personal recipe collection built with [Astro](https://astro.build) and [CookLang](https://cooklang.org). Recipes are plain `.cook` text files; the site renders them with interactive ingredient scaling, per-step timers, and a step checklist.
+
+## Features
+
+- Ingredient scaler — adjust servings and all quantities update live
+- Step timers — start a countdown directly from any timed step
+- Step checklist — check off steps as you cook
+
+## Adding a recipe
+
+1. Create a `.cook` file in `src/content/recipes/`.
+2. Add metadata comments at the top of the file:
+
+```cook
+>> title: Pasta Carbonara
+>> description: Classic Roman pasta with eggs, guanciale, and Pecorino.
+>> category: Pasta
+>> servings: 2
+>> prepTime: 10 mins
+>> cookTime: 20 mins
+>> photo: /images/pasta-carbonara.jpg
+```
+
+3. Write the recipe body in CookLang syntax. The parser picks up `@ingredients{}`, `#cookware{}`, and `~timers{}` automatically.
+
+## Development
 
 ```sh
-npm create astro@latest -- --template basics
+npm install
+npm run dev        # dev server at localhost:4321
+npm run build      # production build to ./dist/
+npm run preview    # preview the production build
+npm run lint       # check with Biome
+npm run lint:fix   # auto-fix lint issues
+npm run test       # unit tests (Vitest) + E2E tests (Playwright)
+npm run test:unit
+npm run test:e2e
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Requires Node >= 22.12.0.
 
-## 🚀 Project Structure
+## License
 
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
-
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+MIT

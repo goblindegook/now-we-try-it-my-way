@@ -1,0 +1,84 @@
+---
+interface Props {
+  categories: string[]
+  current?: string
+}
+const { categories, current } = Astro.props
+---
+
+<nav class="cat-nav">
+  <div class="cat-nav__inner">
+    <a href="/" class:list={['cat-nav__logo', { active: !current }]}>
+      Now We Try It My Way
+    </a>
+    <ul class="cat-nav__list">
+      {categories.map(cat => (
+        <li>
+          <a
+            href={`/${cat.toLowerCase()}`}
+            class:list={['cat-nav__link', { active: current === cat }]}
+          >
+            {cat}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</nav>
+
+<style>
+  .cat-nav {
+    border-bottom: 1px solid var(--color-border);
+  }
+  .cat-nav__inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 56px;
+  }
+  .cat-nav__logo {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    font-style: italic;
+    white-space: nowrap;
+    color: var(--color-text);
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+  }
+  .cat-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: stretch;
+    align-self: stretch;
+    gap: 1.5rem;
+    overflow-x: auto;
+  }
+  .cat-nav__list li {
+    display: flex;
+    align-items: stretch;
+  }
+  .cat-nav__link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+  }
+  .cat-nav__link:hover,
+  .cat-nav__link.active {
+    color: var(--color-text);
+    border-bottom-color: var(--color-accent);
+  }
+</style>

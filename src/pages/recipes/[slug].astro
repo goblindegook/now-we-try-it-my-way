@@ -1,0 +1,540 @@
+---
+import type { FixedValue, Ingredient, Item, QuantityPart, Range, TimerItem } from '@tmlmt/cooklang-parser'
+import RecipeLayout from '../../layouts/RecipeLayout.astro'
+import { sortCategories } from '../../lib/categories'
+import { loadAllRecipes } from '../../lib/cooklang'
+
+export async function getStaticPaths() {
+  const recipes = await loadAllRecipes()
+  return recipes.map((recipe) => ({
+    params: { slug: recipe.slug },
+    props: { slug: recipe.slug },
+  }))
+}
+
+const { slug } = Astro.props
+const allRecipes = await loadAllRecipes()
+const categories = sortCategories([...new Set(allRecipes.map((r) => r.category))])
+const recipe = allRecipes.find((r) => r.slug === slug)!
+
+type QuantityValue =
+  | { type: 'text'; value: string }
+  | { type: 'decimal'; value: number }
+  | { type: 'fraction'; num: number; den: number }
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+}
+
+function formatQuantityValue(value: QuantityValue): { amount: string; numeric: number } {
+  if (value.type === 'decimal') return { amount: String(value.value), numeric: value.value }
+  if (value.type === 'fraction') {
+    return {
+      amount: `${value.num}/${value.den}`,
+      numeric: value.den === 0 ? 0 : value.num / value.den,
+    }
+  }
+  const numeric = Number.parseFloat(value.value)
+  return { amount: value.value, numeric: Number.isFinite(numeric) ? numeric : 0 }
+}
+
+function formatQuantity(quantity?: FixedValue | Range): { amount: string; numeric: number } {
+  if (!quantity) return { amount: '', numeric: 0 }
+  if (quantity.type === 'fixed') return formatQuantityValue(quantity.value)
+
+  const min = formatQuantityValue(quantity.min)
+  const max = formatQuantityValue(quantity.max)
+  return { amount: `${min.amount}-${max.amount}`, numeric: min.numeric }
+}
+
+function timerSeconds(amount: number, unit: string): number {
+  const normalized = unit.toLowerCase().trim()
+  if (['s', 'sec', 'secs', 'second', 'seconds'].includes(normalized)) return amount
+  if (['m', 'min', 'mins', 'minute', 'minutes'].includes(normalized)) return amount * 60
+  if (['h', 'hr', 'hrs', 'hour', 'hours'].includes(normalized)) return amount * 3600
+  return amount
+}
+
+function quantityForIngredientItem(
+  ingredient: Ingredient,
+  partIndex?: number,
+): { amount: string; numeric: number; units: string } {
+  const part = partIndex === undefined ? undefined : (ingredient.quantityParts?.[partIndex] as QuantityPart | undefined)
+  const source = part?.value ?? ingredient.quantity
+  const units = part?.unit ?? ingredient.unit ?? ''
+  const base = formatQuantity(source)
+  return { amount: base.amount, numeric: base.numeric, units }
+}
+
+function renderItem(item: Item): string {
+  if (item.type === 'text') return escapeHtml(item.value)
+
+  if (item.type === 'ingredient') {
+    const ingredient = recipe.ingredients[item.index]
+    if (!ingredient) return ''
+
+    const { amount, numeric, units } = quantityForIngredientItem(ingredient, item.quantityPartIndex)
+    const hasQty = !!amount
+    const qtyPrefix = hasQty ? `${escapeHtml(amount)}${units ? ` ${escapeHtml(units)}` : ''} ` : ''
+    const name = escapeHtml(item.displayName || ingredient.name)
+    const prep = ingredient.preparation
+      ? ` <span class="step-preparation">(${escapeHtml(ingredient.preparation)})</span>`
+      : ''
+    const attrs =
+      hasQty && numeric > 0 ? ` data-quantity="${numeric}" data-units="${escapeHtml(units)}" data-name="${name}"` : ''
+
+    return `<strong class="step-ingredient"${attrs}>${qtyPrefix}${name}</strong>${prep}`
+  }
+
+  if (item.type === 'cookware') {
+    const cookware = recipe.cookware[item.index]
+    if (!cookware) return ''
+    return `<em class="step-cookware">${escapeHtml(cookware.name)}</em>`
+  }
+
+  const timer = recipe.timers[item.index]
+  if (!timer) return ''
+  const { amount } = formatQuantity(timer.duration)
+  return `<span class="step-timer-ref">${escapeHtml(amount)} ${escapeHtml(timer.unit)}</span>`
+}
+
+let runningStepNumber = 0
+const sectionViews = recipe.sections.map((section, sectionIndex) => {
+  const ingredientMap = new Map<number, { quantity: number; units: string }>()
+
+  for (const step of section.steps) {
+    for (const item of step.items) {
+      if (item.type !== 'ingredient') continue
+      const ingredient = recipe.ingredients[item.index]
+      if (!ingredient) continue
+      const parsed = quantityForIngredientItem(ingredient, item.quantityPartIndex)
+      const current = ingredientMap.get(item.index)
+      if (!current) {
+        ingredientMap.set(item.index, { quantity: parsed.numeric, units: parsed.units })
+      } else if (current.units === parsed.units) {
+        current.quantity += parsed.numeric
+      }
+    }
+  }
+
+  return {
+    id: `section-${sectionIndex + 1}`,
+    name: section.name || 'Main',
+    ingredients: Array.from(ingredientMap.entries()).map(([index, value]) => ({
+      index,
+      quantity: value.quantity,
+      units: value.units,
+      ingredient: recipe.ingredients[index],
+    })),
+    steps: section.steps.map((step) => {
+      runningStepNumber += 1
+      return {
+        number: runningStepNumber,
+        step,
+        timers: step.items.filter((item): item is TimerItem => item.type === 'timer'),
+      }
+    }),
+  }
+})
+---
+
+<RecipeLayout recipe={recipe} categories={categories}>
+  <div slot="sidebar" class="section-ingredients">
+    <div class="servings-control" data-enhanced="false">
+      <span class="servings-control__label">Serves</span>
+      <button id="servings-decrease" class="servings-control__btn" aria-label="Decrease servings" disabled>−</button>
+      <span id="servings-current" class="servings-control__count" aria-live="polite" data-base-servings={recipe.servings}>{recipe.servings}</span>
+      <button id="servings-increase" class="servings-control__btn" aria-label="Increase servings" disabled>+</button>
+    </div>
+
+    {sectionViews.filter((section) => section.ingredients.length > 0).map((section) => (
+      <section class="ingredients-section">
+        <h3 class="ingredients-section__title">{section.name}</h3>
+        <ul class="ingredients-list">
+          {section.ingredients.map(({ ingredient, quantity, units }) => (
+            <li>
+              <span class="ingredient__name">
+                <span>{ingredient.name}</span>
+                {ingredient.preparation && <span class="ingredient__prep">{ingredient.preparation}</span>}
+              </span>
+              <span class="ingredient__amount">
+                {quantity > 0 && (
+                  <span class="js-scaled-amount" data-quantity={quantity} data-units={units}>
+                    {quantity} {units}
+                  </span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+
+  <div data-step-checklist>
+  {sectionViews.map((section) => (
+    <section class="cooklang-section" id={section.id}>
+      <h2 class="cooklang-section__title">{section.name}</h2>
+      <ol class="steps">
+        {section.steps.map(({ number, step, timers }) => (
+          <li class="step" id={`step-${number}`} data-checked="false">
+            <button class="step__checkbox" aria-label={`Mark step ${number} complete`}>
+              <span class="step__num">{number}</span>
+              <span class="step__check">✓</span>
+            </button>
+            <div class="step__content">
+              <p class="step__text" set:html={step.items.map(renderItem).join('')} />
+              {timers.length > 0 && (
+                <div class="step__timers">
+                  {timers.map((timerItem, j) => {
+                    const timer = recipe.timers[timerItem.index]
+                    if (!timer) return null
+                    const { numeric } = formatQuantity(timer.duration)
+                    return (
+                    <step-timer
+                      duration={timerSeconds(numeric, timer.unit)}
+                      label={`Step ${number}`}
+                      timer-id={`${recipe.slug}-s${number}-t${j + 1}`}
+                      recipe-name={recipe.title}
+                      recipe-url={`/recipes/${recipe.slug}#step-${number}`}
+                    />
+                  )})}
+                </div>
+              )}
+              {step.note && <p class="step__note">{step.note}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  ))}
+  </div>
+</RecipeLayout>
+
+<style>
+  .cooklang-section + .cooklang-section {
+    margin-top: 2rem;
+  }
+  .cooklang-section__title {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    color: var(--color-accent);
+  }
+
+  .section-ingredients {
+    display: grid;
+    gap: 1.25rem;
+  }
+  .servings-control {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+  }
+  .servings-control[data-enhanced="false"] .servings-control__btn {
+    display: none;
+  }
+  .servings-control__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted, #7a746e);
+  }
+  .servings-control__btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border, #e5dfd6);
+    background: #fff;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .servings-control__count {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    min-width: 2ch;
+    text-align: center;
+  }
+
+  .ingredients-section__title {
+    margin: 0 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .ingredients-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .ingredients-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.9rem;
+  }
+  .ingredients-list li:last-child {
+    border-bottom: none;
+  }
+  .ingredient__name {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+  .ingredient__prep {
+    color: var(--color-muted);
+    font-style: italic;
+    font-size: 0.82em;
+    line-height: 1.2;
+  }
+  .ingredient__amount {
+    color: var(--color-accent);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 2.75rem 1fr;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--color-border);
+    transition: opacity 0.2s;
+  }
+  .step:last-child { border-bottom: none; }
+  .step[data-checked="true"] { opacity: 0.45; }
+
+  .step__checkbox {
+    all: unset;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: border-color 0.15s, background 0.15s;
+    margin-top: 0.15rem;
+  }
+  .step__checkbox:hover {
+    border-color: var(--color-accent);
+  }
+  .step[data-checked="true"] .step__checkbox {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .step__num {
+    font-family: var(--font-serif);
+    font-size: 1.25rem;
+    color: var(--color-accent);
+    font-style: italic;
+    line-height: 1;
+  }
+  .step__check {
+    display: none;
+    font-size: 0.875rem;
+    color: #fff;
+    font-style: normal;
+  }
+  .step[data-checked="true"] .step__num { display: none; }
+  .step[data-checked="true"] .step__check { display: block; }
+  .step__content { padding-top: 0.1rem; }
+  .step__text {
+    margin: 0 0 0.75rem;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  .step__text :global(.step-ingredient) {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--color-text);
+    background: var(--color-ingredient, rgba(184, 92, 56, 0.07));
+    padding: 0.1em 0.25em;
+    border-radius: 2px;
+  }
+  .step__text :global(.step-preparation) {
+    color: var(--color-muted);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .step__text :global(.step-cookware) {
+    font-style: italic;
+    color: var(--color-muted);
+  }
+  .step__timers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .step__note {
+    margin: 0.625rem 0 0;
+    font-family: var(--font-serif);
+    font-size: 0.9375rem;
+    font-style: italic;
+    color: var(--color-muted);
+    line-height: 1.55;
+  }
+  .step__text :global(.step-timer-ref) {
+    font-weight: 500;
+    color: var(--color-accent);
+  }
+
+  @keyframes step-check-pop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.045); }
+    70%  { transform: scale(0.975); }
+    100% { transform: scale(1); }
+  }
+  .step--pop .step__checkbox {
+    animation: step-check-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  .step__checkbox:active {
+    transform: scale(0.9);
+    transition: transform 0.08s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step--pop .step__checkbox { animation: none; }
+    .step__checkbox:active { transform: none; }
+  }
+</style>
+
+<script>
+  function checklistStorageKey(): string {
+    return `cookbook-checklist:${location.pathname}`;
+  }
+
+  function restoreChecklistState(root: Element): void {
+    try {
+      const raw = localStorage.getItem(checklistStorageKey());
+      if (!raw) return;
+      const state: boolean[] = JSON.parse(raw);
+      const steps = root.querySelectorAll<HTMLElement>('li.step');
+      steps.forEach((li, i) => {
+        if (state[i] !== undefined) li.setAttribute('data-checked', String(state[i]));
+      });
+    } catch (_) {}
+  }
+
+  function saveChecklistState(root: Element): void {
+    const steps = root.querySelectorAll<HTMLElement>('li.step');
+    const state = Array.from(steps).map((li) => li.getAttribute('data-checked') === 'true');
+    try {
+      localStorage.setItem(checklistStorageKey(), JSON.stringify(state));
+    } catch (_) {}
+  }
+
+  const checklistRoot = document.querySelector('[data-step-checklist]');
+  if (checklistRoot) {
+    restoreChecklistState(checklistRoot);
+
+    checklistRoot.addEventListener('click', (e: Event) => {
+      const btn = (e.target as Element).closest('.step__checkbox');
+      if (!btn) return;
+
+      const li = btn.closest('li.step');
+      if (!li) return;
+
+      const checked = li.getAttribute('data-checked') === 'true';
+      li.setAttribute('data-checked', String(!checked));
+      saveChecklistState(checklistRoot);
+
+      if (!checked) {
+        li.classList.remove('step--pop');
+        void (li as HTMLElement).offsetWidth;
+        li.classList.add('step--pop');
+        li.addEventListener('animationend', () => li.classList.remove('step--pop'), { once: true });
+      }
+    });
+  }
+
+  function fmtQty(n: number): string {
+    if (n === Math.floor(n)) return String(n);
+    const fracs: [number, string][] = [[0.25,'¼'],[0.5,'½'],[0.75,'¾'],[0.33,'⅓'],[0.67,'⅔']];
+    const whole = Math.floor(n);
+    const frac = n - whole;
+    const match = fracs.find(([v]) => Math.abs(v - frac) < 0.05);
+    if (match) return (whole > 0 ? whole + ' ' : '') + match[1];
+    return n.toFixed(1).replace(/\.0$/, '');
+  }
+
+  const countEl = document.getElementById('servings-current');
+  const dec = document.getElementById('servings-decrease');
+  const inc = document.getElementById('servings-increase');
+  const servingsControl = document.querySelector<HTMLElement>('.servings-control');
+
+  if (countEl && dec && inc && servingsControl) {
+    const base = parseFloat(countEl.dataset.baseServings || '4');
+    let current = base;
+
+    const emit = () => {
+      countEl.textContent = String(current);
+      dec.toggleAttribute('disabled', current <= 1);
+      document.dispatchEvent(new CustomEvent('servings-change', {
+        detail: { current, base },
+      }));
+    };
+
+    servingsControl.dataset.enhanced = 'true';
+    dec.removeAttribute('disabled');
+    inc.removeAttribute('disabled');
+
+    dec.addEventListener('click', () => {
+      if (current <= 1) return;
+      current -= 1;
+      emit();
+    });
+
+    inc.addEventListener('click', () => {
+      current += 1;
+      emit();
+    });
+
+    emit();
+  }
+
+  document.addEventListener('servings-change', (e: Event) => {
+    const { current, base } = (e as CustomEvent).detail as { current: number; base: number };
+    document.querySelectorAll<HTMLElement>('.step-ingredient[data-quantity]').forEach(el => {
+      const qty = parseFloat(el.dataset.quantity!);
+      if (!qty) return;
+      const units = el.dataset.units ?? '';
+      const name = el.dataset.name ?? '';
+      const scaled = qty * (current / base);
+      el.textContent = `${fmtQty(scaled)}${units ? ' ' + units : ''} ${name}`;
+    });
+
+    document.querySelectorAll<HTMLElement>('.js-scaled-amount[data-quantity]').forEach(el => {
+      const qty = parseFloat(el.dataset.quantity!);
+      if (!qty) return;
+      const units = el.dataset.units ?? '';
+      const scaled = qty * (current / base);
+      el.textContent = `${fmtQty(scaled)}${units ? ' ' + units : ''}`;
+    });
+  });
+</script>

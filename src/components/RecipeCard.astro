@@ -1,0 +1,97 @@
+---
+import type { RecipeMeta } from '../lib/cooklang'
+
+interface Props {
+  recipe: RecipeMeta
+}
+const { recipe } = Astro.props
+const href = `/recipes/${recipe.slug}`
+---
+
+<a href={href} class="card">
+  <div class="card__image-wrap">
+    {recipe.photo
+      ? <img src={recipe.photo} alt={recipe.title} class="card__image" loading="lazy" />
+      : <div class="card__placeholder" aria-hidden="true" />
+    }
+  </div>
+  <div class="card__body">
+    <p class="card__category">{recipe.category}</p>
+    <h2 class="card__title">{recipe.title}</h2>
+    {recipe.description && <p class="card__desc">{recipe.description}</p>}
+    <div class="card__meta">
+      {recipe.prepTime && <span>Prep: {recipe.prepTime}</span>}
+      {recipe.cookTime && <span>Cook: {recipe.cookTime}</span>}
+      <span>{recipe.servings} servings</span>
+    </div>
+  </div>
+</a>
+
+<style>
+  .card {
+    display: block;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    transition: box-shadow 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: var(--color-surface, #fff);
+  }
+  .card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transform: translateY(-3px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card { transition: box-shadow 0.15s, transform 0.15s; }
+  }
+  .card__image-wrap {
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    background: var(--color-border);
+  }
+  .card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+  .card:hover .card__image { transform: scale(1.03); }
+  .card__placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #ede8e1 0%, #d5cfc7 100%);
+  }
+  .card__body { padding: 1rem 1.25rem 1.25rem; }
+  .card__category {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin: 0 0 0.4rem;
+  }
+  .card__title {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem;
+    line-height: 1.25;
+  }
+  .card__desc {
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    margin: 0 0 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card__meta {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+  .card__meta span + span::before {
+    content: '·';
+    margin-right: 0.75rem;
+  }
+</style>

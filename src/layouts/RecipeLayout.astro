@@ -1,0 +1,163 @@
+---
+import CategoryNav from '../components/CategoryNav.astro'
+import type { ParsedRecipe } from '../lib/cooklang'
+import Layout from './Layout.astro'
+
+interface Props {
+  recipe: ParsedRecipe
+  categories: string[]
+}
+const { recipe, categories } = Astro.props
+---
+
+<Layout title={`${recipe.title} — Now We Try It My Way`} description={recipe.description}>
+  <CategoryNav categories={categories} current={recipe.category} />
+
+  <div class="hero">
+    {recipe.photo
+      ? <img src={recipe.photo} alt={recipe.title} class="hero__img" />
+      : <div class="hero__placeholder" />
+    }
+    <div class="hero__overlay">
+      <div class="hero__overlay-content">
+        <div class="hero__meta">{recipe.category}</div>
+        <h1 class="hero__title">{recipe.title}</h1>
+        <div class="hero__times">
+          {recipe.prepTime && <span>Prep: {recipe.prepTime}</span>}
+          {recipe.cookTime && <span>Cook: {recipe.cookTime}</span>}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe-body">
+    {recipe.description && <p class="recipe-description">{recipe.description}</p>}
+
+    <aside class="recipe-sidebar no-print">
+      <h2>Ingredients</h2>
+      <slot name="sidebar" />
+    </aside>
+
+    <main class="recipe-steps">
+      <slot />
+    </main>
+  </div>
+
+  <script>
+    import '../web-components/step-timer';
+  </script>
+</Layout>
+
+<style>
+  .hero {
+    position: relative;
+    height: clamp(300px, 40vw, 520px);
+    overflow: hidden;
+    background: var(--color-border);
+  }
+  .hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .hero__placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #ede8e1 0%, #c5bdb4 100%);
+  }
+  .hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.38) 40%, rgba(0,0,0,0.08) 70%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    color: #fff;
+  }
+  .hero__overlay-content {
+    width: 100%;
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+  }
+  .hero__meta {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 185, 130, 0.95);
+    margin-bottom: 0.625rem;
+  }
+  .hero__title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+    margin: 0 0 0.75rem;
+    line-height: 1.1;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  }
+  .hero__times {
+    display: flex;
+    gap: 1.25rem;
+    font-size: 0.9375rem;
+    color: rgba(255,255,255,0.85);
+  }
+  .hero__times span + span::before {
+    content: '·';
+    margin-right: 1.25rem;
+  }
+  .recipe-body {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    column-gap: 3rem;
+    align-items: start;
+  }
+  .recipe-description {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 1.0625rem;
+    color: var(--color-muted);
+    margin: 0 0 2rem;
+    font-style: italic;
+  }
+  .recipe-sidebar {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: 1.5rem;
+  }
+  .recipe-sidebar h2 {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin: 0 0 1rem;
+  }
+  .recipe-steps {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  @media (max-width: 700px) {
+    .recipe-body {
+      grid-template-columns: 1fr;
+      column-gap: 0;
+      row-gap: 2rem;
+    }
+    .recipe-description,
+    .recipe-sidebar,
+    .recipe-steps {
+      grid-column: 1;
+      grid-row: auto;
+    }
+    .recipe-sidebar {
+      position: static;
+    }
+  }
+  @media print {
+    .hero { height: 200px; }
+    .recipe-body { display: block; }
+  }
+</style>

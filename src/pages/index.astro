@@ -1,11 +1,151 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import CategoryNav from '../components/CategoryNav.astro'
+import RecipeCard from '../components/RecipeCard.astro'
+import Layout from '../layouts/Layout.astro'
+import { sortCategories } from '../lib/categories'
+import { loadAllRecipes } from '../lib/cooklang'
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const recipes = await loadAllRecipes()
+const categories = sortCategories([...new Set(recipes.map((r) => r.category))])
+
+const latest = recipes.slice(0, 6)
+
+const byCategory = categories.map((cat) => ({
+  name: cat,
+  recent: recipes.find((r) => r.category === cat),
+  total: recipes.filter((r) => r.category === cat).length,
+}))
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Now We Try It My Way" description="A personal recipe collection.">
+  <CategoryNav categories={categories} />
+
+  <main>
+    <section class="hero">
+      <div class="hero__inner">
+        <h1 class="hero__title"><em>Now We Try It My Way</em></h1>
+        <p class="hero__sub">A personal recipe collection.</p>
+        <a href="/recipes" class="hero__link">Browse all {recipes.length} recipes →</a>
+      </div>
+    </section>
+
+    <div class="content">
+      <section class="section">
+        <h2 class="section__heading">Latest recipes</h2>
+        <div class="grid">
+          {latest.map((recipe) => <RecipeCard recipe={recipe} />)}
+        </div>
+      </section>
+
+      <section class="section">
+        <h2 class="section__heading">By category</h2>
+        <div class="categories">
+          {byCategory.map(({ name, recent, total }) => (
+            <div class="cat">
+              <div class="cat__header">
+                <a href={`/${name.toLowerCase()}`} class="cat__name">{name}</a>
+                <span class="cat__count">{total} recipe{total !== 1 ? 's' : ''}</span>
+              </div>
+              {recent && <RecipeCard recipe={recent} />}
+              <a href={`/${name.toLowerCase()}`} class="cat__browse">Browse all {name.toLowerCase()} →</a>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  </main>
 </Layout>
+
+<style>
+  .hero {
+    background: linear-gradient(135deg, #ede8e1 0%, #c5bdb4 100%);
+    padding: 5rem 1.5rem 4rem;
+    text-align: center;
+  }
+  .hero__inner {
+    max-width: var(--max-prose);
+    margin: 0 auto;
+  }
+  .hero__title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    margin: 0 0 0.75rem;
+    color: var(--color-text);
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+  .hero__sub {
+    font-size: 1.125rem;
+    color: var(--color-muted);
+    margin: 0 0 2rem;
+  }
+  .hero__link {
+    display: inline-block;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-accent);
+    border: 1.5px solid var(--color-accent);
+    border-radius: 3px;
+    padding: 0.5rem 1.25rem;
+    transition: background 0.15s, color 0.15s;
+  }
+  .hero__link:hover {
+    background: var(--color-accent);
+    color: #fff;
+  }
+
+  .content {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  .section {
+    margin-bottom: 4rem;
+  }
+  .section__heading {
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    margin: 0 0 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.75rem;
+  }
+
+  .categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2.5rem;
+  }
+  .cat__header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .cat__name {
+    font-family: var(--font-serif);
+    font-size: 1.375rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .cat__name:hover { color: var(--color-accent); }
+  .cat__count {
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+  .cat__browse {
+    display: inline-block;
+    margin-top: 0.875rem;
+    font-size: 0.875rem;
+    color: var(--color-accent);
+    font-weight: 500;
+  }
+  .cat__browse:hover { color: var(--color-accent-hover); }
+</style>
