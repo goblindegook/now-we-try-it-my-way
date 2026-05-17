@@ -29,6 +29,7 @@ const { categories, current } = Astro.props
 <style>
   .cat-nav {
     border-bottom: 1px solid var(--color-border);
+    position: relative;
   }
   .cat-nav__inner {
     max-width: var(--max-width);
@@ -58,6 +59,19 @@ const { categories, current } = Astro.props
     align-self: stretch;
     gap: 1.5rem;
     overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    /* Fade-out shadow at right edge hints at hidden overflow */
+    mask-image: linear-gradient(to right, black calc(100% - 2.5rem), transparent 100%);
+  }
+  .cat-nav__list::-webkit-scrollbar { display: none; }
+  /* Only apply fade when overflowing */
+  .cat-nav__list:not(.overflows) {
+    mask-image: none;
+  }
+  /* Remove fade when fully scrolled to the end */
+  .cat-nav__list.scrolled-end {
+    mask-image: none;
   }
   .cat-nav__list li {
     display: flex;
@@ -82,3 +96,18 @@ const { categories, current } = Astro.props
     border-bottom-color: var(--color-accent);
   }
 </style>
+
+<script>
+  const list = document.querySelector<HTMLElement>('.cat-nav__list')
+  if (list) {
+    const update = () => {
+      const overflows = list.scrollWidth > list.clientWidth
+      list.classList.toggle('overflows', overflows)
+      const atEnd = list.scrollLeft + list.clientWidth >= list.scrollWidth - 2
+      list.classList.toggle('scrolled-end', atEnd)
+    }
+    update()
+    list.addEventListener('scroll', update, { passive: true })
+    window.addEventListener('resize', update, { passive: true })
+  }
+</script>

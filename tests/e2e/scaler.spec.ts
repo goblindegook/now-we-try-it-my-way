@@ -4,6 +4,8 @@ const RECIPE_URL = '/recipes/spaghetti-carbonara'
 
 test.beforeEach(async ({ page }) => {
   await page.goto(RECIPE_URL)
+  await page.evaluate(() => localStorage.clear())
+  await page.reload()
 })
 
 test('shows initial serving count matching the recipe default', async ({ page }) => {
@@ -47,4 +49,24 @@ test('minus button is disabled at 1 serving', async ({ page }) => {
   await minus.click()
   await expect(page.locator('#servings-current')).toHaveText('1')
   await expect(minus).toBeDisabled()
+})
+
+test('servings selection persists across reload for the same recipe', async ({ page }) => {
+  const minus = page.locator('#servings-decrease')
+  await minus.click()
+  await expect(page.locator('#servings-current')).toHaveText('3')
+  await page.reload()
+  await expect(page.locator('#servings-current')).toHaveText('3')
+})
+
+test('servings selection is scoped per recipe', async ({ page }) => {
+  const minus = page.locator('#servings-decrease')
+  await minus.click()
+  await expect(page.locator('#servings-current')).toHaveText('3')
+
+  await page.goto('/recipes/tomato-couscous')
+  await expect(page.locator('#servings-current')).toHaveText('6')
+
+  await page.goto(RECIPE_URL)
+  await expect(page.locator('#servings-current')).toHaveText('3')
 })

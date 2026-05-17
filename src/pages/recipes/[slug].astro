@@ -177,9 +177,10 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
   </div>
 
   <div data-step-checklist>
-  {sectionViews.map((section) => (
+  {sectionViews.map((section, i) => (
     <section class="cooklang-section" id={section.id}>
       <h2 class="cooklang-section__title">{section.name}</h2>
+      {i === 0 && <p class="step-hint no-print">Tap a step to check it off.</p>}
       <ol class="steps">
         {section.steps.map(({ number, step, timers }) => (
           <li class="step" id={`step-${number}`} data-checked="false">
@@ -214,6 +215,9 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
     </section>
   ))}
   </div>
+  <div class="checklist-reset no-print" hidden>
+    <button class="checklist-reset__btn" id="checklist-reset">Reset steps</button>
+  </div>
 </RecipeLayout>
 
 <style>
@@ -223,8 +227,9 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
   .cooklang-section__title {
     margin: 0 0 0.75rem;
     font-family: var(--font-serif);
-    font-size: 1.25rem;
-    color: var(--color-accent);
+    font-size: 1.125rem;
+    font-style: italic;
+    color: var(--color-text);
   }
 
   .section-ingredients {
@@ -248,8 +253,8 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
     color: var(--color-muted, #7a746e);
   }
   .servings-control__btn {
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     border: 1px solid var(--color-border, #e5dfd6);
     background: #fff;
@@ -258,6 +263,11 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .servings-control__btn:hover:not(:disabled) {
+    border-color: var(--color-accent);
+    background: var(--color-ingredient);
   }
   .servings-control__count {
     font-family: var(--font-serif);
@@ -342,6 +352,11 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
   }
   .step__checkbox:hover {
     border-color: var(--color-accent);
+    background: var(--color-ingredient);
+  }
+  .step__checkbox:active {
+    background: var(--color-ingredient);
+    border-color: var(--color-accent);
   }
   .step[data-checked="true"] .step__checkbox {
     background: var(--color-accent);
@@ -422,6 +437,31 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
     .step--pop .step__checkbox { animation: none; }
     .step__checkbox:active { transform: none; }
   }
+
+  .step-hint {
+    margin: -0.25rem 0 1rem 3.75rem;
+    font-size: 0.8125rem;
+    font-style: italic;
+    color: var(--color-muted);
+    transition: opacity 0.3s;
+  }
+  .step-hint.dismissed { opacity: 0; pointer-events: none; }
+
+  .checklist-reset {
+    padding: 1.5rem 0 0;
+    border-top: 1px solid var(--color-border);
+    margin-top: 0.5rem;
+  }
+  .checklist-reset__btn {
+    all: unset;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.15s;
+  }
+  .checklist-reset__btn:hover { color: var(--color-accent); }
 </style>
 
 <script>
@@ -450,8 +490,21 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
   }
 
   const checklistRoot = document.querySelector('[data-step-checklist]');
+  const resetWrap = document.querySelector<HTMLElement>('.checklist-reset');
+  const resetBtn = document.getElementById('checklist-reset');
+
+  const stepHint = document.querySelector<HTMLElement>('.step-hint');
+
+  function updateResetVisibility(): void {
+    if (!checklistRoot || !resetWrap) return;
+    const anyChecked = checklistRoot.querySelector('li.step[data-checked="true"]') !== null;
+    resetWrap.hidden = !anyChecked;
+    if (anyChecked && stepHint) stepHint.classList.add('dismissed');
+  }
+
   if (checklistRoot) {
     restoreChecklistState(checklistRoot);
+    updateResetVisibility();
 
     checklistRoot.addEventListener('click', (e: Event) => {
       const btn = (e.target as Element).closest('.step__checkbox');
@@ -463,6 +516,7 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
       const checked = li.getAttribute('data-checked') === 'true';
       li.setAttribute('data-checked', String(!checked));
       saveChecklistState(checklistRoot);
+      updateResetVisibility();
 
       if (!checked) {
         li.classList.remove('step--pop');
@@ -472,6 +526,15 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
       }
     });
   }
+
+  resetBtn?.addEventListener('click', () => {
+    if (!checklistRoot) return;
+    checklistRoot.querySelectorAll<HTMLElement>('li.step').forEach(li => {
+      li.setAttribute('data-checked', 'false');
+    });
+    try { localStorage.removeItem(checklistStorageKey()); } catch (_) {}
+    updateResetVisibility();
+  });
 
   function fmtQty(n: number): string {
     if (n === Math.floor(n)) return String(n);
@@ -489,12 +552,22 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
   const servingsControl = document.querySelector<HTMLElement>('.servings-control');
 
   if (countEl && dec && inc && servingsControl) {
+    const servingsStorageKey = `cookbook-servings:${location.pathname}`;
     const base = parseFloat(countEl.dataset.baseServings || '4');
     let current = base;
+
+    try {
+      const saved = localStorage.getItem(servingsStorageKey);
+      const parsed = saved ? Number.parseInt(saved, 10) : NaN;
+      if (Number.isFinite(parsed) && parsed >= 1) current = parsed;
+    } catch (_) {}
 
     const emit = () => {
       countEl.textContent = String(current);
       dec.toggleAttribute('disabled', current <= 1);
+      try {
+        localStorage.setItem(servingsStorageKey, String(current));
+      } catch (_) {}
       document.dispatchEvent(new CustomEvent('servings-change', {
         detail: { current, base },
       }));
