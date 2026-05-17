@@ -53,10 +53,14 @@ test('minus button is disabled at 1 serving', async ({ page }) => {
 
 test('servings selection persists across reload for the same recipe', async ({ page }) => {
   const minus = page.locator('#servings-decrease')
+  const spaghettiAmount = page.locator('.js-scaled-amount[data-quantity="400"]').first()
+
   await minus.click()
   await expect(page.locator('#servings-current')).toHaveText('3')
+  await expect(spaghettiAmount).toContainText('300')
   await page.reload()
   await expect(page.locator('#servings-current')).toHaveText('3')
+  await expect(spaghettiAmount).toContainText('300')
 })
 
 test('servings selection is scoped per recipe', async ({ page }) => {

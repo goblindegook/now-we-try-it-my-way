@@ -545,6 +545,29 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
     return n.toFixed(1).replace(/\.0$/, '');
   }
 
+  const applyServingsScale = ({ current, base }: { current: number; base: number }) => {
+    document.querySelectorAll<HTMLElement>('.step-ingredient[data-quantity]').forEach(el => {
+      const qty = parseFloat(el.dataset.quantity!);
+      if (!qty) return;
+      const units = el.dataset.units ?? '';
+      const name = el.dataset.name ?? '';
+      const scaled = qty * (current / base);
+      el.textContent = `${fmtQty(scaled)}${units ? ' ' + units : ''} ${name}`;
+    });
+
+    document.querySelectorAll<HTMLElement>('.js-scaled-amount[data-quantity]').forEach(el => {
+      const qty = parseFloat(el.dataset.quantity!);
+      if (!qty) return;
+      const units = el.dataset.units ?? '';
+      const scaled = qty * (current / base);
+      el.textContent = `${fmtQty(scaled)}${units ? ' ' + units : ''}`;
+    });
+  };
+
+  document.addEventListener('servings-change', (e: Event) => {
+    applyServingsScale((e as CustomEvent).detail as { current: number; base: number });
+  });
+
   const countEl = document.getElementById('servings-current');
   const dec = document.getElementById('servings-decrease');
   const inc = document.getElementById('servings-increase');
@@ -590,23 +613,4 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
     emit();
   }
 
-  document.addEventListener('servings-change', (e: Event) => {
-    const { current, base } = (e as CustomEvent).detail as { current: number; base: number };
-    document.querySelectorAll<HTMLElement>('.step-ingredient[data-quantity]').forEach(el => {
-      const qty = parseFloat(el.dataset.quantity!);
-      if (!qty) return;
-      const units = el.dataset.units ?? '';
-      const name = el.dataset.name ?? '';
-      const scaled = qty * (current / base);
-      el.textContent = `${fmtQty(scaled)}${units ? ' ' + units : ''} ${name}`;
-    });
-
-    document.querySelectorAll<HTMLElement>('.js-scaled-amount[data-quantity]').forEach(el => {
-      const qty = parseFloat(el.dataset.quantity!);
-      if (!qty) return;
-      const units = el.dataset.units ?? '';
-      const scaled = qty * (current / base);
-      el.textContent = `${fmtQty(scaled)}${units ? ' ' + units : ''}`;
-    });
-  });
 </script>
