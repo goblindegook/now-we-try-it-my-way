@@ -14,9 +14,6 @@ const { title = 'Now We Try It My Way', description = 'A personal cookbook.' } =
     <link rel="icon" href="/favicon.ico" />
     <meta name="description" content={description} />
     <title>{title}</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   </head>
   <body>
     <slot />
@@ -26,11 +23,75 @@ const { title = 'Now We Try It My Way', description = 'A personal cookbook.' } =
     <timer-dock></timer-dock>
     <script>
       import '../web-components/timer-dock';
+
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch((err) => {
+            console.error('Service worker registration failed', err)
+          })
+        })
+      }
     </script>
   </body>
 </html>
 
 <style is:global>
+  @font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter/inter-regular-400.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter/inter-500.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter/inter-600.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Inter';
+    src: url('/fonts/inter/inter-italic-400.ttf') format('truetype');
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Playfair Display';
+    src: url('/fonts/playfair-display/playfair-regular-400.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Playfair Display';
+    src: url('/fonts/playfair-display/playfair-600.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Playfair Display';
+    src: url('/fonts/playfair-display/playfair-italic-400.ttf') format('truetype');
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+  }
+
   :root {
     --color-bg: #faf9f7;
     --color-surface: #fffefb;

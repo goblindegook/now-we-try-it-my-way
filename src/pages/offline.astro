@@ -1,0 +1,34 @@
+---
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout title="Offline — Now We Try It My Way" description="Offline fallback page for the recipe site.">
+  <main class="offline">
+    <h1>You are offline</h1>
+    <p>The app is still available, and cached recipes can be opened without a connection.</p>
+    <a href="/" class="offline__link">Back to home</a>
+  </main>
+</Layout>
+
+<style>
+  .offline {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 5rem;
+  }
+
+  .offline h1 {
+    margin: 0 0 1rem;
+  }
+
+  .offline p {
+    margin: 0 0 1.5rem;
+    color: var(--color-muted);
+  }
+
+  .offline__link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+</style>
