@@ -204,7 +204,7 @@ export class StepTimer extends LitElement {
       color: #fff;
       animation: timer-done-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }
-    .timer__icon { font-size: 0.875rem; }
+    .timer__icon { display: inline-flex; align-items: center; }
     .timer__time { font-weight: 500; font-variant-numeric: tabular-nums; min-width: 4.5ch; text-align: right; }
     @media (prefers-reduced-motion: reduce) {
       .timer--running { animation: none; }
@@ -214,8 +214,12 @@ export class StepTimer extends LitElement {
   `
 
   render() {
-    const icon = this.done ? '✓' : this.running ? '⏸' : '▶'
     const cls = `timer${this.running ? ' timer--running' : ''}${this.done ? ' timer--done' : ''}`
+    const icon = this.done
+      ? html`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 8.5L6 12.5 14 4"/></svg>`
+      : this.running
+      ? html`<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="2.5" width="3.5" height="11" rx="1"/><rect x="9.5" y="2.5" width="3.5" height="11" rx="1"/></svg>`
+      : html`<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 3L13 8 4 13V3z"/></svg>`
     return html`
       <button
         class=${cls}

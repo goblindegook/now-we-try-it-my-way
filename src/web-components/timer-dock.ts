@@ -257,7 +257,10 @@ export class TimerDock extends LitElement {
             class="dock__toggle"
             @click=${() => this.toggleMinimized()}
             title=${this.minimized ? 'Expand timers' : 'Minimise timers'}
-          >${this.minimized ? '▲' : '▼'}</button>
+          >${this.minimized
+              ? html`<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9.5l5-5 5 5"/></svg>`
+              : html`<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4.5l5 5 5-5"/></svg>`
+            }</button>
         </div>
         ${
           !this.minimized
@@ -269,7 +272,10 @@ export class TimerDock extends LitElement {
               ${
                 t.done
                   ? html`<div class="timer-item__done">Done</div>`
-                  : html`<button class="dock-btn" @click=${() => this.toggleTimer(t)} title=${running ? 'Pause' : 'Resume'}>${running ? '⏸' : '▶'}</button>
+                  : html`<button class="dock-btn" @click=${() => this.toggleTimer(t)} title=${running ? 'Pause' : 'Resume'}>${running
+                      ? html`<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><rect x="4.5" y="3.5" width="4" height="13" rx="1.5"/><rect x="11.5" y="3.5" width="4" height="13" rx="1.5"/></svg>`
+                      : html`<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M6 4.25L16 10 6 15.75V4.25z"/></svg>`
+                    }</button>
                   <div class="timer-item__time">${this.fmt(remaining)}</div>`
               }
               <a class="timer-item__info" href=${t.recipeUrl}>
@@ -280,7 +286,7 @@ export class TimerDock extends LitElement {
                 class="dock-btn dock-btn--dismiss ${this.pendingClearId === t.id ? 'dock-btn--pending' : ''}"
                 @click=${() => this.handleClear(t.id)}
                 title=${this.pendingClearId === t.id ? 'Tap again to clear' : 'Clear'}
-              >✕</button>
+              ><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 2l12 12M14 2L2 14"/></svg></button>
             </div>
           `
               })
@@ -314,6 +320,7 @@ export class TimerDock extends LitElement {
       border-bottom: 1px solid rgba(255,255,255,0.1);
       cursor: grab;
       user-select: none;
+      touch-action: none;
     }
     .dock__header:active { cursor: grabbing; }
     .dock--minimized .dock__header { border-bottom: none; }
@@ -338,9 +345,9 @@ export class TimerDock extends LitElement {
       all: unset;
       cursor: pointer;
       color: rgba(255,255,255,0.35);
-      font-size: 0.5rem;
-      padding: 0.25rem;
-      line-height: 1;
+      padding: 0.375rem;
+      display: flex;
+      align-items: center;
       transition: color 0.15s;
     }
     .dock__toggle:hover { color: rgba(255,255,255,0.8); }

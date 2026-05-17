@@ -11,28 +11,28 @@ test.beforeEach(async ({ page }) => {
 test('shows initial idle state with play icon and duration', async ({ page }) => {
   const timer = page.locator('step-timer').first()
   const btn = timer.locator('button')
-  await expect(btn).toContainText('▶')
+  await expect(btn).toHaveAttribute('title', /^Start/)
   await expect(btn).toContainText('10:00')
 })
 
 test('transitions to running state after clicking start', async ({ page }) => {
   const btn = page.locator('step-timer').first().locator('button')
   await btn.click()
-  await expect(btn).toContainText('⏸')
+  await expect(btn).toHaveAttribute('title', /^Pause/)
 })
 
 test('pauses when clicked while running', async ({ page }) => {
   const btn = page.locator('step-timer').first().locator('button')
   await btn.click()
-  await expect(btn).toContainText('⏸')
+  await expect(btn).toHaveAttribute('title', /^Pause/)
   await btn.click()
-  await expect(btn).toContainText('▶')
+  await expect(btn).toHaveAttribute('title', /^Start/)
 })
 
 test('transitions to done state when time expires', async ({ page }) => {
   const btn = page.locator('step-timer').first().locator('button')
   await btn.click()
-  await expect(btn).toContainText('⏸')
+  await expect(btn).toHaveAttribute('title', /^Pause/)
 
   await page.evaluate(() => {
     const KEY = 'cookbook-timers'
@@ -43,7 +43,7 @@ test('transitions to done state when time expires', async ({ page }) => {
   })
 
   await expect(btn).toContainText('Done', { timeout: 3000 })
-  await expect(btn).toContainText('✓')
+  await expect(btn).toHaveAttribute('title', /^Reset/)
 })
 
 test('resets to idle after clicking in done state', async ({ page }) => {
@@ -58,7 +58,7 @@ test('resets to idle after clicking in done state', async ({ page }) => {
   })
   await expect(btn).toContainText('Done', { timeout: 3000 })
   await btn.click()
-  await expect(btn).toContainText('▶')
+  await expect(btn).toHaveAttribute('title', /^Start/)
   await expect(btn).toContainText('10:00')
 })
 
