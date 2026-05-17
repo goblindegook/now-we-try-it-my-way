@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1'
+const CACHE_VERSION = 'v2'
 const PRECACHE_CACHE = `precache-${CACHE_VERSION}`
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`
 const OFFLINE_URL = '/offline/'
@@ -50,7 +50,7 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname === '/sw.js') return
 
   if (STATIC_ASSET_EXTENSIONS.test(url.pathname)) {
-    event.respondWith(cacheFirst(request))
+    event.respondWith(networkFirst(request))
     return
   }
 
@@ -60,8 +60,6 @@ self.addEventListener('fetch', (event) => {
 async function handleNavigation(request) {
   const precache = await caches.open(PRECACHE_CACHE)
   const runtime = await caches.open(RUNTIME_CACHE)
-  const cached = (await runtime.match(request, { ignoreSearch: true })) || (await precache.match(request, { ignoreSearch: true }))
-  if (cached) return cached
 
   try {
     const response = await fetch(request)
@@ -81,26 +79,6 @@ async function handleNavigation(request) {
   }
 }
 
-async function cacheFirst(request) {
-  const cache = await caches.open(RUNTIME_CACHE)
-  const cached = await cache.match(request)
-  if (cached) {
-    void refreshInBackground(cache, request)
-    return cached
-  }
-
-  try {
-    const response = await fetch(request)
-    if (response.ok) cache.put(request, response.clone())
-    return response
-  } catch {
-    return (
-      (await caches.match(request)) ||
-      new Response('', { status: 504, statusText: 'Gateway Timeout' })
-    )
-  }
-}
-
 async function networkFirst(request) {
   const cache = await caches.open(RUNTIME_CACHE)
   try {
@@ -113,15 +91,6 @@ async function networkFirst(request) {
       (await caches.match(request, { ignoreSearch: true })) ||
       new Response('', { status: 504, statusText: 'Gateway Timeout' })
     )
-  }
-}
-
-async function refreshInBackground(cache, request) {
-  try {
-    const response = await fetch(request)
-    if (response.ok) cache.put(request, response.clone())
-  } catch {
-    // Keep stale cache when refresh fails.
   }
 }
 
