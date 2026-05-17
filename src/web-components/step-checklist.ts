@@ -33,13 +33,13 @@ export class StepChecklist extends LitElement {
     const steps = this.querySelectorAll<HTMLElement>('li.step')
     const state = Array.from(steps).map((li) => li.getAttribute('data-checked') === 'true')
     try {
-      localStorage.setItem(storageKey(), JSON.stringify(state))
+      sessionStorage.setItem(storageKey(), JSON.stringify(state))
     } catch (_) {}
   }
 
   private restoreState() {
     try {
-      const raw = localStorage.getItem(storageKey())
+      const raw = sessionStorage.getItem(storageKey())
       if (!raw) return
       const state: boolean[] = JSON.parse(raw)
       const steps = this.querySelectorAll<HTMLElement>('li.step')

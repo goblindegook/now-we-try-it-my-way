@@ -4,7 +4,7 @@ const RECIPE_URL = '/recipes/spaghetti-carbonara'
 
 test.beforeEach(async ({ page }) => {
   await page.goto(RECIPE_URL)
-  await page.evaluate(() => localStorage.clear())
+  await page.evaluate(() => sessionStorage.clear())
   await page.reload()
 })
 

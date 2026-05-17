@@ -124,7 +124,7 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
 
   return {
     id: `section-${sectionIndex + 1}`,
-    name: section.name || 'Main',
+    name: section.name,
     ingredients: Array.from(ingredientMap.entries()).map(([index, value]) => ({
       index,
       quantity: value.quantity,
@@ -154,7 +154,7 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
 
     {sectionViews.filter((section) => section.ingredients.length > 0).map((section) => (
       <section class="ingredients-section">
-        <h3 class="ingredients-section__title">{section.name}</h3>
+        {section.name && <h3 class="ingredients-section__title">{section.name}</h3>}
         <ul class="ingredients-list">
           {section.ingredients.map(({ ingredient, quantity, units }) => (
             <li>
@@ -177,10 +177,9 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
   </div>
 
   <div data-step-checklist>
-  {sectionViews.map((section, i) => (
+  {sectionViews.map((section) => (
     <section class="cooklang-section" id={section.id}>
-      <h2 class="cooklang-section__title">{section.name}</h2>
-      {i === 0 && <p class="step-hint no-print">Tap a step to check it off.</p>}
+      {section.name && <h2 class="cooklang-section__title">{section.name}</h2>}
       <ol class="steps">
         {section.steps.map(({ number, step, timers }) => (
           <li class="step" id={`step-${number}`} data-checked="false">
@@ -471,7 +470,7 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
 
   function restoreChecklistState(root: Element): void {
     try {
-      const raw = localStorage.getItem(checklistStorageKey());
+      const raw = sessionStorage.getItem(checklistStorageKey());
       if (!raw) return;
       const state: boolean[] = JSON.parse(raw);
       const steps = root.querySelectorAll<HTMLElement>('li.step');
@@ -485,7 +484,7 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
     const steps = root.querySelectorAll<HTMLElement>('li.step');
     const state = Array.from(steps).map((li) => li.getAttribute('data-checked') === 'true');
     try {
-      localStorage.setItem(checklistStorageKey(), JSON.stringify(state));
+      sessionStorage.setItem(checklistStorageKey(), JSON.stringify(state));
     } catch (_) {}
   }
 
@@ -532,7 +531,7 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
     checklistRoot.querySelectorAll<HTMLElement>('li.step').forEach(li => {
       li.setAttribute('data-checked', 'false');
     });
-    try { localStorage.removeItem(checklistStorageKey()); } catch (_) {}
+    try { sessionStorage.removeItem(checklistStorageKey()); } catch (_) {}
     updateResetVisibility();
   });
 
