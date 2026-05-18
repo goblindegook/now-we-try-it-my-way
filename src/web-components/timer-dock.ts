@@ -3,6 +3,7 @@ import type { TimerRecord } from './timer-store'
 import { getRemaining, getTimers, isRunning, markExpired, removeTimer, upsertTimer } from './timer-store'
 
 export class TimerDock extends LitElement {
+  private static readonly UI_STORAGE_KEY = 'cookbook-dock-ui'
   static properties = {
     timers: { state: true },
     minimized: { state: true },
@@ -14,6 +15,11 @@ export class TimerDock extends LitElement {
   pendingClearId: string | null = null
   private pendingClearTimeout: ReturnType<typeof setTimeout> | null = null
   private audioCtx: AudioContext | null = null
+
+  private unlockAudio = () => {
+    if (!this.audioCtx) this.audioCtx = new AudioContext()
+    if (this.audioCtx.state !== 'running') void this.audioCtx.resume()
+  }
 
   private pollInterval: ReturnType<typeof setInterval> | null = null
   private onStoreUpdate = () => this.refresh()
@@ -65,6 +71,8 @@ export class TimerDock extends LitElement {
     this.pollInterval = setInterval(() => this.refresh(), 500)
     window.addEventListener('cookbook-timers-updated', this.onStoreUpdate)
     window.addEventListener('storage', this.onStoreUpdate)
+    document.addEventListener('click', this.unlockAudio, { capture: true, once: true })
+    document.addEventListener('touchend', this.unlockAudio, { capture: true, once: true })
     this.restoreUiState()
   }
 
@@ -73,6 +81,8 @@ export class TimerDock extends LitElement {
     if (this.pollInterval) clearInterval(this.pollInterval)
     window.removeEventListener('cookbook-timers-updated', this.onStoreUpdate)
     window.removeEventListener('storage', this.onStoreUpdate)
+    document.removeEventListener('click', this.unlockAudio, true)
+    document.removeEventListener('touchend', this.unlockAudio, true)
     document.removeEventListener('pointermove', this.onDragMove)
     document.removeEventListener('pointerup', this.onDragEnd)
     if (this.pendingClearTimeout) {
@@ -83,7 +93,7 @@ export class TimerDock extends LitElement {
 
   private restoreUiState() {
     try {
-      const raw = localStorage.getItem('cookbook-dock-ui')
+      const raw = sessionStorage.getItem(TimerDock.UI_STORAGE_KEY)
       if (!raw) return
       const state = JSON.parse(raw) as {
         minimized: boolean
@@ -101,7 +111,7 @@ export class TimerDock extends LitElement {
           this.style.bottom = `${b}px`
           this.style.top = 'auto'
         } else {
-          const y = Math.max(8, Math.min(window.innerHeight - 44 - 8, state.top!))
+          const y = Math.max(8, Math.min(window.innerHeight - 44 - 8, state.top ?? 0))
           this.style.top = `${y}px`
           this.style.bottom = 'auto'
         }
@@ -139,7 +149,7 @@ export class TimerDock extends LitElement {
 
   private saveUiState(pos: { left: number | null; top: number | null; bottom: number | null }) {
     try {
-      localStorage.setItem('cookbook-dock-ui', JSON.stringify({ minimized: this.minimized, ...pos }))
+      sessionStorage.setItem(TimerDock.UI_STORAGE_KEY, JSON.stringify({ minimized: this.minimized, ...pos }))
     } catch (_) {}
   }
 
@@ -169,6 +179,7 @@ export class TimerDock extends LitElement {
   }
 
   private refresh() {
+    markExpired()
     const current = getTimers()
     const toPlay = current.filter((t) => t.done && !t.soundPlayed)
     if (toPlay.length > 0) {
@@ -189,6 +200,7 @@ export class TimerDock extends LitElement {
     try {
       if (!this.audioCtx) this.audioCtx = new AudioContext()
       await this.audioCtx.resume()
+      if (this.audioCtx.state !== 'running') return
       const ctx = this.audioCtx
       const now = ctx.currentTime
       ;[0, 0.25, 0.5].forEach((offset) => {

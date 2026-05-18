@@ -5,6 +5,7 @@ const RECIPE_URL = '/recipes/spaghetti-carbonara'
 test.beforeEach(async ({ page }) => {
   await page.goto(RECIPE_URL)
   await page.evaluate(() => localStorage.clear())
+  await page.evaluate(() => sessionStorage.clear())
   await page.reload()
 })
 
@@ -125,4 +126,32 @@ test('minimized dock shows no timer when all timers are done', async ({ page }) 
   const dock = page.locator('timer-dock')
   await dock.getByTitle('Minimise timers').click()
   await expect(dock).not.toContainText(/\d:\d\d/)
+})
+
+test('dock UI state (including position) is restored from session storage', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('cookbook-timers', JSON.stringify([{
+      id: 't1', label: 'Step 1', recipeName: 'Test', recipeUrl: '/recipes/test',
+      duration: 600, startedAt: null, elapsed: 300, done: false, soundPlayed: false,
+    }]))
+    localStorage.setItem('cookbook-dock-ui', JSON.stringify({
+      minimized: false,
+      left: 18,
+      top: 18,
+      bottom: null,
+    }))
+    sessionStorage.setItem('cookbook-dock-ui', JSON.stringify({
+      minimized: true,
+      left: 123,
+      top: 45,
+      bottom: null,
+    }))
+  })
+
+  await page.reload()
+
+  const dock = page.locator('timer-dock')
+  await expect(dock.getByTitle('Expand timers')).toBeVisible()
+  await expect(dock).toHaveCSS('left', '123px')
+  await expect(dock).toHaveCSS('top', '45px')
 })

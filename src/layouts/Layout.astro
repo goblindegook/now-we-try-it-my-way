@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from 'astro:transitions'
 interface Props {
   title?: string
   description?: string
@@ -16,13 +17,14 @@ const { title = 'Now We Try It My Way', description = 'A personal cookbook.' } =
     <meta name="theme-color" content="#b85c38" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <ClientRouter />
   </head>
   <body>
     <slot />
     <footer class="site-footer no-print">
       <p>&copy; 2026 <a href="https://goblindegook.com">Luís Rodrigues</a></p>
     </footer>
-    <timer-dock></timer-dock>
+    <timer-dock transition:persist></timer-dock>
     <script>
       import '../web-components/timer-dock';
 

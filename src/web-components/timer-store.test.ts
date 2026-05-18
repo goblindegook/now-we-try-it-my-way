@@ -135,5 +135,16 @@ describe('timer-store', () => {
     it('is a no-op when there are no timers', () => {
       expect(() => markExpired()).not.toThrow()
     })
+
+    it('marks a running timer done and sets soundPlayed false when elapsed time exceeds duration', () => {
+      // Simulates a timer that was started but whose step-timer component is no longer mounted
+      // (e.g. user navigated away from the recipe page). The dock must be able to detect this.
+      upsertTimer(makeTimer({ id: 'running-expired', duration: 30, elapsed: 0, startedAt: Date.now() - 60_000 }))
+      markExpired()
+      const timer = getTimers()[0]
+      expect(timer.done).toBe(true)
+      expect(timer.soundPlayed).toBe(false)
+      expect(timer.startedAt).toBeNull()
+    })
   })
 })
