@@ -48,12 +48,6 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
           {cuisineFlag && <span class="hero__cuisine-flag">{cuisineFlag}</span>}
           {recipe?.prepTime && <time class="dt-prep-time" datetime={recipe.prepTime}>Prep: {recipe.prepTime}</time>}
           {recipe?.cookTime && <time class="dt-cook-time" datetime={recipe.cookTime}>Cook: {recipe.cookTime}</time>}
-          {recipe?.tags.map((tag) => {
-            const normalizedTag = tag.toLowerCase()
-            return (
-              <a href={`/tags/${normalizedTag}`} class="tag-chip p-category">{normalizedTag}</a>
-            )
-          })}
         </div>
       </div>
     </div>
