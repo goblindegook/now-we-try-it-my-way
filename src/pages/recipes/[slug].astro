@@ -15,7 +15,7 @@ export async function getStaticPaths() {
 const { slug } = Astro.props
 const allRecipes = await loadAllRecipes()
 const categories = sortCategories([...new Set(allRecipes.map((r) => r.category))])
-const recipe = allRecipes.find((r) => r.slug === slug)!
+const recipe = allRecipes.find((r) => r.slug === slug)
 
 type QuantityValue =
   | { type: 'text'; value: string }
@@ -75,7 +75,7 @@ function renderItem(item: Item): string {
   if (item.type === 'text') return escapeHtml(item.value)
 
   if (item.type === 'ingredient') {
-    const ingredient = recipe.ingredients[item.index]
+    const ingredient = recipe?.ingredients[item.index]
     if (!ingredient) return ''
 
     const { amount, numeric, units } = quantityForIngredientItem(ingredient, item.quantityPartIndex)
@@ -92,19 +92,19 @@ function renderItem(item: Item): string {
   }
 
   if (item.type === 'cookware') {
-    const cookware = recipe.cookware[item.index]
+    const cookware = recipe?.cookware[item.index]
     if (!cookware) return ''
     return `<em class="step-cookware">${escapeHtml(cookware.name)}</em>`
   }
 
-  const timer = recipe.timers[item.index]
+  const timer = recipe?.timers[item.index]
   if (!timer) return ''
   const { amount } = formatQuantity(timer.duration)
   return `<span class="step-timer-ref">${escapeHtml(amount)} ${escapeHtml(timer.unit)}</span>`
 }
 
 let runningStepNumber = 0
-const sectionViews = recipe.sections.map((section, sectionIndex) => {
+const sectionViews = recipe?.sections.map((section, sectionIndex) => {
   const ingredientMap = new Map<number, { quantity: number; units: string }>()
 
   for (const step of section.steps) {
@@ -148,11 +148,11 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
     <div class="servings-control" data-enhanced="false">
       <span class="servings-control__label">Serves</span>
       <button id="servings-decrease" class="servings-control__btn" aria-label="Decrease servings" disabled>−</button>
-      <span id="servings-current" class="servings-control__count" aria-live="polite" data-base-servings={recipe.servings}>{recipe.servings}</span>
+      <span id="servings-current" class="servings-control__count" aria-live="polite" data-base-servings={recipe?.servings}>{recipe?.servings}</span>
       <button id="servings-increase" class="servings-control__btn" aria-label="Increase servings" disabled>+</button>
     </div>
 
-    {sectionViews.filter((section) => section.ingredients.length > 0).map((section) => (
+    {sectionViews?.filter((section) => section.ingredients.length > 0).map((section) => (
       <section class="ingredients-section">
         {section.name && <h3 class="ingredients-section__title">{section.name}</h3>}
         <ul class="ingredients-list">
@@ -177,7 +177,7 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
   </div>
 
   <div data-step-checklist>
-  {sectionViews.map((section) => (
+  {sectionViews?.map((section) => (
     <section class="cooklang-section" id={section.id}>
       {section.name && <h2 class="cooklang-section__title">{section.name}</h2>}
       <ol class="steps">
@@ -192,16 +192,16 @@ const sectionViews = recipe.sections.map((section, sectionIndex) => {
               {timers.length > 0 && (
                 <div class="step__timers">
                   {timers.map((timerItem, j) => {
-                    const timer = recipe.timers[timerItem.index]
+                    const timer = recipe?.timers[timerItem.index]
                     if (!timer) return null
                     const { numeric } = formatQuantity(timer.duration)
                     return (
                     <step-timer
                       duration={timerSeconds(numeric, timer.unit)}
                       label={`Step ${number}`}
-                      timer-id={`${recipe.slug}-s${number}-t${j + 1}`}
-                      recipe-name={recipe.title}
-                      recipe-url={`/recipes/${recipe.slug}#step-${number}`}
+                      timer-id={`${recipe?.slug}-s${number}-t${j + 1}`}
+                      recipe-name={recipe?.title}
+                      recipe-url={`/recipes/${recipe?.slug}#step-${number}`}
                     />
                   )})}
                 </div>

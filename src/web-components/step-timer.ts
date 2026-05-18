@@ -78,7 +78,7 @@ export class StepTimer extends LitElement {
       if (!this.timerId) return
       const record = getTimers().find((t) => t.id === this.timerId)
       if (!record || !isRunning(record)) {
-        clearInterval(this.interval!)
+        clearInterval(this.interval)
         this.interval = null
         this.running = false
         return
@@ -89,7 +89,7 @@ export class StepTimer extends LitElement {
         this.remaining = 0
         this.running = false
         this.done = true
-        clearInterval(this.interval!)
+        clearInterval(this.interval)
         this.interval = null
         upsertTimer({ ...record, done: true, startedAt: null })
       }

@@ -6,35 +6,35 @@ import { resolveRecipePhoto } from '../lib/recipe-images'
 import Layout from './Layout.astro'
 
 interface Props {
-  recipe: ParsedRecipe
+  recipe?: ParsedRecipe
   categories: string[]
 }
 const { recipe, categories } = Astro.props
-const recipePhoto = resolveRecipePhoto(recipe.photo, recipe.category)
+const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category)
 ---
 
-<Layout title={`${recipe.title} — Now We Try It My Way`} description={recipe.description}>
-  <CategoryNav categories={categories} current={recipe.category} />
+<Layout title={`${recipe?.title} — Now We Try It My Way`} description={recipe?.description}>
+  <CategoryNav categories={categories} current={recipe?.category} />
 
-  <div class:list={['hero', { 'hero--no-photo': !recipe.photo }]}>
+  <div class:list={['hero', { 'hero--no-photo': !recipe?.photo }]}>
     {recipePhoto
-      ? <Image src={recipePhoto} alt={recipe.title} class="hero__img" />
+      ? <Image src={recipePhoto} alt={recipe?.title ?? ''} class="hero__img" />
       : <div class="hero__placeholder" />
     }
     <div class="hero__overlay">
       <div class="hero__overlay-content">
-        <div class="hero__meta">{recipe.category}</div>
-        <h1 class="hero__title">{recipe.title}</h1>
+        <div class="hero__meta">{recipe?.category}</div>
+        <h1 class="hero__title">{recipe?.title}</h1>
         <div class="hero__times">
-          {recipe.prepTime && <span>Prep: {recipe.prepTime}</span>}
-          {recipe.cookTime && <span>Cook: {recipe.cookTime}</span>}
+          {recipe?.prepTime && <span>Prep: {recipe?.prepTime}</span>}
+          {recipe?.cookTime && <span>Cook: {recipe?.cookTime}</span>}
         </div>
       </div>
     </div>
   </div>
 
   <div class="recipe-body">
-    {recipe.description && <p class="recipe-description">{recipe.description}</p>}
+    {recipe?.description && <p class="recipe-description">{recipe.description}</p>}
 
     <aside class="recipe-sidebar no-print">
       <h2>Ingredients</h2>

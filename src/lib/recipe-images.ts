@@ -34,7 +34,7 @@ function normalizeRecipePhotoPathWithCategory(photo: string, category?: string):
   return `/src/assets/recipes/${folder}/${value}`
 }
 
-export function resolveRecipePhoto(photo: string, category?: string): ImageMetadata | null {
+export function resolveRecipePhoto(photo?: string, category?: string): ImageMetadata | null {
   const normalized = normalizeRecipePhotoPathWithCategory(photo, category)
   if (!normalized) return null
   return recipeImagesByPath.get(normalized) ?? null
