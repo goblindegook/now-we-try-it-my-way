@@ -1,10 +1,14 @@
 ---
+import { getImage } from 'astro:assets'
+import { BloomSearch } from '@pacote/bloom-search'
 import CategoryNav from '../../components/CategoryNav.astro'
 import RecipeCard from '../../components/RecipeCard.astro'
 import Layout from '../../layouts/Layout.astro'
 import { sortCategories } from '../../lib/categories'
 import { loadAllRecipes } from '../../lib/cooklang'
 import { pluralize } from '../../lib/pluralize'
+import { resolveRecipePhoto } from '../../lib/recipe-images'
+import { buildConfig, toSearchDocument } from '../../lib/search'
 
 export async function getStaticPaths() {
   const recipes = await loadAllRecipes()
@@ -21,6 +25,15 @@ export async function getStaticPaths() {
 const { category, recipes } = Astro.props
 const allRecipes = await loadAllRecipes()
 const categories = sortCategories([...new Set(allRecipes.map((r) => r.category))])
+
+const bs = new BloomSearch(buildConfig)
+for (const recipe of recipes) {
+  const photo = resolveRecipePhoto(recipe.photo, recipe.category)
+  const processed = photo ? await getImage({ src: photo }) : null
+  const photoSrc = processed?.src ?? null
+  bs.add(recipe.slug, toSearchDocument(recipe, photoSrc))
+}
+const searchIndexJson = JSON.stringify(bs.index)
 ---
 
 <Layout title={`${category} — Now We Try It My Way`}>
@@ -30,11 +43,20 @@ const categories = sortCategories([...new Set(allRecipes.map((r) => r.category))
       <h1>{category}</h1>
       <p>{pluralize(recipes.length, 'recipe')}</p>
     </div>
-    <div class="grid">
+    <recipe-search target="recipes-grid"></recipe-search>
+    <div class="grid" id="recipes-grid">
       {recipes.map(recipe => <RecipeCard recipe={recipe} />)}
     </div>
   </main>
 </Layout>
+
+<script is:inline define:vars={{ searchIndexJson }}>
+  window.__SEARCH_INDEX__ = JSON.parse(searchIndexJson)
+</script>
+
+<script>
+  import '../../web-components/recipe-search'
+</script>
 
 <style>
   .listing {

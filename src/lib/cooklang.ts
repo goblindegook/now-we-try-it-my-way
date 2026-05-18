@@ -118,9 +118,7 @@ export function getAllTags(recipes: RecipeMeta[]): { tag: string; count: number 
     }
   }
 
-  return [...counts.entries()]
-    .map(([tag, count]) => ({ tag, count }))
-    .sort((a, b) => a.tag.localeCompare(b.tag))
+  return [...counts.entries()].map(([tag, count]) => ({ tag, count })).sort((a, b) => a.tag.localeCompare(b.tag))
 }
 
 export function parseRecipe(content: string, slug: string): ParsedRecipe {

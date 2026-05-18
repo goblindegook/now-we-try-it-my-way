@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  getAllTags,
-  parseRecipe,
-  sortRecipesAlphabetically,
-  sortRecipesByRecency,
-  type ParsedRecipe,
-} from './cooklang'
+import { getAllTags, type ParsedRecipe, parseRecipe, sortRecipesAlphabetically, sortRecipesByRecency } from './cooklang'
 
 function withFrontmatter(meta: string, body = 'Boil water.'): string {
   return `---\n${meta}\n---\n\n${body}`
@@ -161,18 +155,12 @@ describe('sorting helpers', () => {
   }
 
   it('orders recipes alphabetically by title', () => {
-    const sorted = sortRecipesAlphabetically([
-      recipe('Zucchini', '2026-05-18'),
-      recipe('Apple Pie', '2026-05-17'),
-    ])
+    const sorted = sortRecipesAlphabetically([recipe('Zucchini', '2026-05-18'), recipe('Apple Pie', '2026-05-17')])
     expect(sorted.map((r) => r.title)).toEqual(['Apple Pie', 'Zucchini'])
   })
 
   it('orders newer dated recipes before older ones for homepage recency', () => {
-    const sorted = sortRecipesByRecency([
-      recipe('Yesterday', '2026-05-17'),
-      recipe('Today', '2026-05-18'),
-    ])
+    const sorted = sortRecipesByRecency([recipe('Yesterday', '2026-05-17'), recipe('Today', '2026-05-18')])
     expect(sorted.map((r) => r.title)).toEqual(['Today', 'Yesterday'])
   })
 })
