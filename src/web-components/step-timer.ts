@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit'
-import { getRemaining, getTimers, isRunning, markExpired, removeTimer, upsertTimer } from './timer-store'
+import { getRemaining, getTimers, isRunning, markExpired, removeTimer, upsertTimer } from '../lib/timer-store'
 
 export class StepTimer extends LitElement {
   static properties = {

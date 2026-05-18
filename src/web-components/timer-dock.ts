@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit'
-import type { TimerRecord } from './timer-store'
-import { getRemaining, getTimers, isRunning, markExpired, removeTimer, upsertTimer } from './timer-store'
+import type { TimerRecord } from '../lib/timer-store'
+import { getRemaining, getTimers, isRunning, markExpired, removeTimer, upsertTimer } from '../lib/timer-store'
 
 export class TimerDock extends LitElement {
   private static readonly UI_STORAGE_KEY = 'cookbook-dock-ui'

@@ -10,20 +10,20 @@ export type TimerRecord = {
   soundPlayed: boolean
 }
 
-const KEY = 'cookbook-timers'
-const EV = 'cookbook-timers-updated'
+const TIMER_STORAGE_KEY = 'cookbook-timers'
+const TIMER_UPDATE_EVENT = 'cookbook-timers-updated'
 
 export function getTimers(): TimerRecord[] {
   try {
-    return JSON.parse(localStorage.getItem(KEY) ?? '[]')
+    return JSON.parse(localStorage.getItem(TIMER_STORAGE_KEY) ?? '[]')
   } catch {
     return []
   }
 }
 
 function persist(timers: TimerRecord[]) {
-  localStorage.setItem(KEY, JSON.stringify(timers))
-  window.dispatchEvent(new CustomEvent(EV))
+  localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timers))
+  window.dispatchEvent(new CustomEvent(TIMER_UPDATE_EVENT))
 }
 
 export function upsertTimer(t: TimerRecord) {
