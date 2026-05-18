@@ -8,26 +8,37 @@ import Layout from './Layout.astro'
 interface Props {
   recipe?: ParsedRecipe
   categories: string[]
+  recipeSchemaJson?: string
 }
-const { recipe, categories } = Astro.props
+const { recipe, categories, recipeSchemaJson = '' } = Astro.props
 const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category)
 ---
 
 <Layout title={`${recipe?.title} — Now We Try It My Way`} description={recipe?.description}>
+  {recipeSchemaJson && (
+    <script
+      slot="head"
+      type="application/ld+json"
+      data-schema="recipe"
+      set:html={recipeSchemaJson}
+    />
+  )}
   <CategoryNav categories={categories} current={recipe?.category} />
 
+  <article class="h-recipe">
   <div class:list={['hero', { 'hero--no-photo': !recipe?.photo }]}>
     {recipePhoto
-      ? <Image src={recipePhoto} alt={recipe?.title ?? ''} class="hero__img" />
+      ? <Image src={recipePhoto} alt={recipe?.title ?? ''} class="hero__img u-photo" />
       : <div class="hero__placeholder" />
     }
     <div class="hero__overlay">
       <div class="hero__overlay-content">
-        <div class="hero__meta">{recipe?.category}</div>
-        <h1 class="hero__title">{recipe?.title}</h1>
+        <div class="hero__meta p-category">{recipe?.category}</div>
+        <h1 class="hero__title p-name">{recipe?.title}</h1>
+        {recipe?.description && <p class="p-summary" hidden>{recipe.description}</p>}
         <div class="hero__times">
-          {recipe?.prepTime && <span>Prep: {recipe?.prepTime}</span>}
-          {recipe?.cookTime && <span>Cook: {recipe?.cookTime}</span>}
+          {recipe?.prepTime && <time class="dt-prep-time" datetime={recipe.prepTime}>Prep: {recipe.prepTime}</time>}
+          {recipe?.cookTime && <time class="dt-cook-time" datetime={recipe.cookTime}>Cook: {recipe.cookTime}</time>}
         </div>
       </div>
     </div>
@@ -45,6 +56,7 @@ const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category)
       <slot />
     </main>
   </div>
+  </article>
 
   <script>
     import '../web-components/step-timer';

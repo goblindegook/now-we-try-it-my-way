@@ -18,6 +18,7 @@ const { title = 'Now We Try It My Way', description = 'A personal cookbook.' } =
     <meta name="theme-color" content="#b85c38" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <slot name="head" />
     <ClientRouter />
   </head>
   <body>
