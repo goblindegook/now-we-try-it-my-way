@@ -45,6 +45,12 @@ const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category)
         <div class="hero__times">
           {recipe?.prepTime && <time class="dt-prep-time" datetime={recipe.prepTime}>Prep: {recipe.prepTime}</time>}
           {recipe?.cookTime && <time class="dt-cook-time" datetime={recipe.cookTime}>Cook: {recipe.cookTime}</time>}
+          {recipe?.tags.map((tag) => {
+            const normalizedTag = tag.toLowerCase()
+            return (
+              <a href={`/tags/${normalizedTag}`} class="tag-chip p-category">{normalizedTag}</a>
+            )
+          })}
         </div>
       </div>
     </div>
@@ -130,6 +136,21 @@ const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category)
   .hero__times time + time::before {
     content: '·';
     margin: 0 0.625rem;
+  }
+  .tag-chip {
+    display: inline-block;
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.92);
+    text-transform: lowercase;
+  }
+  .tag-chip:hover {
+    border-color: rgba(255, 255, 255, 0.75);
+    color: #fff;
   }
   .recipe-body {
     max-width: var(--max-width);

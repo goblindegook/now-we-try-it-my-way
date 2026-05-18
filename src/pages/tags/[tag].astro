@@ -3,21 +3,35 @@ import CategoryNav from '../../components/CategoryNav.astro'
 import RecipeCard from '../../components/RecipeCard.astro'
 import Layout from '../../layouts/Layout.astro'
 import { sortCategories } from '../../lib/categories'
-import { loadAllRecipes } from '../../lib/cooklang'
+import { getAllTags, loadAllRecipes } from '../../lib/cooklang'
 
-const recipes = await loadAllRecipes()
-const categories = sortCategories([...new Set(recipes.map((r) => r.category))])
+export async function getStaticPaths() {
+  const recipes = await loadAllRecipes()
+  const tags = getAllTags(recipes)
+
+  return tags.map(({ tag }) => ({
+    params: { tag },
+    props: {
+      tag,
+      recipes: recipes.filter((recipe) => recipe.tags.some((recipeTag) => recipeTag.toLowerCase() === tag)),
+    },
+  }))
+}
+
+const { tag, recipes } = Astro.props
+const allRecipes = await loadAllRecipes()
+const categories = sortCategories([...new Set(allRecipes.map((r) => r.category))])
 ---
 
-<Layout title="All Recipes — Now We Try It My Way">
+<Layout title={`Tagged: ${tag} — Now We Try It My Way`}>
   <CategoryNav categories={categories} />
   <main class="listing">
     <div class="listing__header">
-      <h1>All Recipes</h1>
+      <h1>Tagged: <em>{tag}</em></h1>
       <p>{recipes.length} recipes</p>
     </div>
     <div class="grid">
-      {recipes.map(recipe => <RecipeCard recipe={recipe} />)}
+      {recipes.map((recipe) => <RecipeCard recipe={recipe} />)}
     </div>
   </main>
 </Layout>

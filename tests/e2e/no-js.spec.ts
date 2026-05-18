@@ -22,7 +22,7 @@ test('recipe page renders key content with JavaScript disabled', async ({ page }
   const schema = JSON.parse(schemaJson ?? '{}')
   expect(schema['@context']).toBe('https://schema.org')
   expect(schema['@type']).toBe('Recipe')
-  expect(schema.name).toBe('Spaghetti Carbonara')
+  expect(schema.name).toBe('Spaghetti carbonara')
   expect(schema.image).toContain('now-we-try-it-my-way.netlify.app')
   expect(schema.image).not.toContain('/src/assets/')
   expect(schema.prepTime).toBe('PT10M')
@@ -33,7 +33,7 @@ test('recipe page renders key content with JavaScript disabled', async ({ page }
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image')
 
   await expect(page.locator('.h-recipe')).toHaveCount(1)
-  await expect(page.locator('.h-recipe .p-name')).toContainText('Spaghetti Carbonara')
+  await expect(page.locator('.h-recipe .p-name')).toContainText('Spaghetti carbonara')
 
   const ingredients = page.locator('.ingredients-list li')
   expect(await ingredients.count()).toBeGreaterThan(0)

@@ -1,24 +1,31 @@
 ---
 import CategoryNav from '../../components/CategoryNav.astro'
-import RecipeCard from '../../components/RecipeCard.astro'
 import Layout from '../../layouts/Layout.astro'
 import { sortCategories } from '../../lib/categories'
-import { loadAllRecipes } from '../../lib/cooklang'
+import { getAllTags, loadAllRecipes } from '../../lib/cooklang'
 
 const recipes = await loadAllRecipes()
 const categories = sortCategories([...new Set(recipes.map((r) => r.category))])
+const tags = getAllTags(recipes)
 ---
 
-<Layout title="All Recipes — Now We Try It My Way">
+<Layout title="Tags — Now We Try It My Way">
   <CategoryNav categories={categories} />
   <main class="listing">
     <div class="listing__header">
-      <h1>All Recipes</h1>
-      <p>{recipes.length} recipes</p>
+      <h1>Tags</h1>
+      <p>{tags.length} tags</p>
     </div>
-    <div class="grid">
-      {recipes.map(recipe => <RecipeCard recipe={recipe} />)}
-    </div>
+    <ul class="tags-list">
+      {tags.map(({ tag, count }) => (
+        <li>
+          <a href={`/tags/${tag}`} class="tags-list__link">
+            <span>{tag}</span>
+            <span>{count} recipes</span>
+          </a>
+        </li>
+      ))}
+    </ul>
   </main>
 </Layout>
 
@@ -29,7 +36,7 @@ const categories = sortCategories([...new Set(recipes.map((r) => r.category))])
     padding: 3rem 1.5rem 4rem;
   }
   .listing__header {
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     border-bottom: 1px solid var(--color-border);
     padding-bottom: 1.5rem;
   }
@@ -43,9 +50,23 @@ const categories = sortCategories([...new Set(recipes.map((r) => r.category))])
     font-size: 0.8125rem;
     margin: 0;
   }
-  .grid {
+  .tags-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.75rem;
+    gap: 0.5rem;
+  }
+  .tags-list__link {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    text-transform: lowercase;
+  }
+  .tags-list__link:hover {
+    border-color: var(--color-accent);
   }
 </style>

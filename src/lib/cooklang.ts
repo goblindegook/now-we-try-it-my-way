@@ -106,6 +106,23 @@ export function sortRecipesAlphabetically(recipes: ParsedRecipe[]): ParsedRecipe
   return recipes.sort((a, b) => a.title.localeCompare(b.title))
 }
 
+export function getAllTags(recipes: RecipeMeta[]): { tag: string; count: number }[] {
+  const counts = new Map<string, number>()
+
+  for (const recipe of recipes) {
+    for (const tag of recipe.tags) {
+      if (typeof tag !== 'string') continue
+      const normalized = tag.trim().toLowerCase()
+      if (!normalized) continue
+      counts.set(normalized, (counts.get(normalized) ?? 0) + 1)
+    }
+  }
+
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => a.tag.localeCompare(b.tag))
+}
+
 export function parseRecipe(content: string, slug: string): ParsedRecipe {
   const frontmatter = extractFrontmatter(content)
   const recipe = new Recipe(content)

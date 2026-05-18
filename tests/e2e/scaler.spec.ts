@@ -42,6 +42,24 @@ test('ingredient amounts scale proportionally when servings change', async ({ pa
   await expect(spaghettiAmount).toContainText('200')
 })
 
+test('step ingredient text scales when servings change', async ({ page }) => {
+  const minus = page.locator('#servings-decrease')
+  const stepSpaghetti = page.locator('.step-ingredient[data-quantity="400"]').first()
+
+  await expect(stepSpaghetti).toContainText('400 g spaghetti')
+  await minus.click() // 3 servings
+  await expect(stepSpaghetti).toContainText('300 g spaghetti')
+})
+
+test('scaled ingredients render fractional quantities with glyphs', async ({ page }) => {
+  const minus = page.locator('#servings-decrease')
+  const eggAmount = page.locator('.js-scaled-amount[data-quantity="1"]').first()
+
+  await expect(eggAmount).toContainText('1')
+  await minus.click() // 3 servings => 0.75
+  await expect(eggAmount).toContainText('¾')
+})
+
 test('minus button is disabled at 1 serving', async ({ page }) => {
   const minus = page.locator('#servings-decrease')
   await minus.click()

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  getAllTags,
   parseRecipe,
   sortRecipesAlphabetically,
   sortRecipesByRecency,
@@ -34,6 +35,11 @@ describe('parseRecipe', () => {
 
     it('parses tags into an array', () => {
       const r = parseRecipe(withFrontmatter('tags: [Italian, Quick, Pasta]'), 'r')
+      expect(r.tags).toEqual(['Italian', 'Quick', 'Pasta'])
+    })
+
+    it('parses block-list tags into an array', () => {
+      const r = parseRecipe(withFrontmatter('tags:\n  - Italian\n  - Quick\n  - Pasta'), 'r')
       expect(r.tags).toEqual(['Italian', 'Quick', 'Pasta'])
     })
 
@@ -168,5 +174,42 @@ describe('sorting helpers', () => {
       recipe('Today', '2026-05-18'),
     ])
     expect(sorted.map((r) => r.title)).toEqual(['Today', 'Yesterday'])
+  })
+})
+
+describe('getAllTags', () => {
+  function recipeWithTags(title: string, tags: string[]): ParsedRecipe {
+    return {
+      slug: title.toLowerCase().replace(/\s+/g, '-'),
+      title,
+      description: '',
+      category: 'Mains',
+      tags,
+      servings: 4,
+      photo: '',
+      prepTime: '',
+      cookTime: '',
+      date: '',
+      ingredients: [],
+      timers: [],
+      sections: [],
+      steps: [],
+      cookware: [],
+    }
+  }
+
+  it('normalizes tags to lowercase, filters blanks, deduplicates, counts, and sorts alphabetically', () => {
+    const result = getAllTags([
+      recipeWithTags('A', ['Italian', 'Quick', '', '  ', 'Pasta']),
+      recipeWithTags('B', ['quick', 'PASTA', 'weeknight']),
+      recipeWithTags('C', ['italian', 'Weeknight', '']),
+    ])
+
+    expect(result).toEqual([
+      { tag: 'italian', count: 2 },
+      { tag: 'pasta', count: 2 },
+      { tag: 'quick', count: 2 },
+      { tag: 'weeknight', count: 2 },
+    ])
   })
 })
