@@ -15,6 +15,7 @@ export type RecipeMeta = {
   title: string
   description: string
   category: string
+  cuisine: string
   tags: string[]
   servings: number
   photo: string
@@ -68,6 +69,7 @@ function toRecipeMeta(recipe: Recipe, slug: string): RecipeMeta {
     title: pickFirstString(metadata.title) || slug.replace(/-/g, ' '),
     description: pickFirstString(metadata.description, metadata.introduction),
     category: pickFirstString(metadata.category, metadata.course) || 'Other',
+    cuisine: pickFirstString(metadata.cuisine).toLowerCase(),
     tags: metadata.tags ?? [],
     servings: recipe.servings ?? 4,
     photo: pickFirstString(metadata.image, metadata.picture, metadata.images?.[0], metadata.pictures?.[0]),

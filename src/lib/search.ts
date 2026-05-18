@@ -6,6 +6,7 @@ export type RecipeSearchDoc = {
   title: string
   tags: string
   ingredients: string
+  cuisine: string
   slug: string
   category: string
   prepTime: string
@@ -13,13 +14,13 @@ export type RecipeSearchDoc = {
   photoSrc: string | null
 }
 
-export type SearchIndexField = 'title' | 'tags' | 'ingredients'
-export type SearchSummaryField = 'slug' | 'title' | 'category' | 'prepTime' | 'cookTime' | 'photoSrc'
+export type SearchIndexField = 'title' | 'tags' | 'ingredients' | 'cuisine'
+export type SearchSummaryField = 'slug' | 'title' | 'category' | 'cuisine' | 'prepTime' | 'cookTime' | 'photoSrc'
 
 export const queryConfig: Options<RecipeSearchDoc, SearchSummaryField, SearchIndexField> = {
   errorRate: 0.00005,
-  fields: { title: 3, tags: 2, ingredients: 2 },
-  summary: ['slug', 'title', 'category', 'prepTime', 'cookTime', 'photoSrc'],
+  fields: { title: 3, tags: 2, ingredients: 2, cuisine: 1 },
+  summary: ['slug', 'title', 'category', 'cuisine', 'prepTime', 'cookTime', 'photoSrc'],
   stemmer,
 }
 
@@ -33,6 +34,7 @@ export function toSearchDocument(recipe: ParsedRecipe, photoSrc: string | null):
     title: recipe.title,
     tags: recipe.tags.join(' '),
     ingredients: recipe.ingredients.map((i) => i.name).join(' '),
+    cuisine: recipe.cuisine,
     slug: recipe.slug,
     category: recipe.category,
     prepTime: recipe.prepTime,

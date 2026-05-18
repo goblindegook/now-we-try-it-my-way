@@ -1,4 +1,5 @@
 import { BloomSearch, type Index } from '@pacote/bloom-search'
+import { cuisineToFlag } from '../lib/cuisine'
 import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
 
 declare global {
@@ -129,7 +130,9 @@ function renderCard(result: SearchResult): string {
   const img = result.photoSrc
     ? `<img src="${escapeHtml(result.photoSrc)}" alt="${escapeHtml(result.title)}" class="recipe-search-card__image" loading="lazy" />`
     : `<div class="recipe-search-card__placeholder" aria-hidden="true"></div>`
+  const flag = cuisineToFlag(result.cuisine ?? '')
   const meta = [
+    flag ? `<span>${flag}</span>` : '',
     result.prepTime ? `<span>Prep: ${escapeHtml(result.prepTime)}</span>` : '',
     result.cookTime ? `<span>Cook: ${escapeHtml(result.cookTime)}</span>` : '',
   ]

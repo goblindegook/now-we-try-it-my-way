@@ -61,6 +61,16 @@ describe('parseRecipe', () => {
       const r = parseRecipe(withFrontmatter('created: 2026-05-18\nupdated: 2026-05-17'), 'r')
       expect(r.date).toBe('2026-05-18')
     })
+
+    it('extracts cuisine normalized to lowercase', () => {
+      const r = parseRecipe(withFrontmatter('cuisine: Italian'), 'r')
+      expect(r.cuisine).toBe('italian')
+    })
+
+    it('defaults cuisine to empty string when absent', () => {
+      const r = parseRecipe('Boil water.', 'r')
+      expect(r.cuisine).toBe('')
+    })
   })
 
   describe('ingredients', () => {
@@ -140,6 +150,7 @@ describe('sorting helpers', () => {
       title,
       description: '',
       category: 'Mains',
+      cuisine: '',
       tags: [],
       servings: 4,
       photo: '',
@@ -172,6 +183,7 @@ describe('getAllTags', () => {
       title,
       description: '',
       category: 'Mains',
+      cuisine: '',
       tags,
       servings: 4,
       photo: '',

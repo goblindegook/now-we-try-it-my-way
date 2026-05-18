@@ -10,6 +10,7 @@ function makeRecipe(overrides: Partial<ParsedRecipe> = {}): ParsedRecipe {
     title: 'Test Recipe',
     description: '',
     category: 'Mains',
+    cuisine: '',
     tags: [],
     servings: 4,
     photo: '',
@@ -58,6 +59,11 @@ describe('toSearchDocument', () => {
   it('stores null photoSrc when second argument is null', () => {
     expect(toSearchDocument(makeRecipe(), null).photoSrc).toBeNull()
   })
+
+  it('includes cuisine from recipe', () => {
+    const doc = toSearchDocument(makeRecipe({ cuisine: 'italian' }), null)
+    expect(doc.cuisine).toBe('italian')
+  })
 })
 
 describe('search index', () => {
@@ -96,5 +102,13 @@ describe('search index', () => {
   it('applies stemmer so "pasta" matches ingredient indexed as "pastas"', () => {
     const bs = buildIndex([makeRecipe({ slug: 'pasta-dish', ingredients: [makeIngredient('pastas')] })])
     expect(bs.search('pasta').map((r) => r.slug)).toContain('pasta-dish')
+  })
+
+  it('returns slug for matching cuisine query', () => {
+    const bs = buildIndex([
+      makeRecipe({ slug: 'carbonara', cuisine: 'italian' }),
+      makeRecipe({ slug: 'moussaka', cuisine: 'greek' }),
+    ])
+    expect(bs.search('italian').map((r) => r.slug)).toContain('carbonara')
   })
 })
