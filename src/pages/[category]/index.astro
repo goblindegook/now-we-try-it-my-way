@@ -4,6 +4,7 @@ import RecipeCard from '../../components/RecipeCard.astro'
 import Layout from '../../layouts/Layout.astro'
 import { sortCategories } from '../../lib/categories'
 import { loadAllRecipes } from '../../lib/cooklang'
+import { pluralize } from '../../lib/pluralize'
 
 export async function getStaticPaths() {
   const recipes = await loadAllRecipes()
@@ -27,7 +28,7 @@ const categories = sortCategories([...new Set(allRecipes.map((r) => r.category))
   <main class="listing">
     <div class="listing__header">
       <h1>{category}</h1>
-      <p>{recipes.length} recipes</p>
+      <p>{pluralize(recipes.length, 'recipe')}</p>
     </div>
     <div class="grid">
       {recipes.map(recipe => <RecipeCard recipe={recipe} />)}

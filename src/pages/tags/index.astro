@@ -3,6 +3,7 @@ import CategoryNav from '../../components/CategoryNav.astro'
 import Layout from '../../layouts/Layout.astro'
 import { sortCategories } from '../../lib/categories'
 import { getAllTags, loadAllRecipes } from '../../lib/cooklang'
+import { pluralize } from '../../lib/pluralize'
 
 const recipes = await loadAllRecipes()
 const categories = sortCategories([...new Set(recipes.map((r) => r.category))])
@@ -21,7 +22,7 @@ const tags = getAllTags(recipes)
         <li>
           <a href={`/tags/${tag}`} class="tags-list__link">
             <span>{tag}</span>
-            <span>{count} recipes</span>
+            <span>{pluralize(count, 'recipe')}</span>
           </a>
         </li>
       ))}
