@@ -94,13 +94,23 @@ const STYLES = `
   .recipe-search-card__body {
     padding: 1rem 1.25rem 1.25rem;
   }
+  .recipe-search-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 0 0 0.4rem;
+  }
   .recipe-search-card__category {
     font-size: 0.75rem;
     font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--color-accent, #8b5e3c);
-    margin: 0 0 0.4rem;
+    margin: 0;
+  }
+  .recipe-search-card__flag {
+    font-size: 1.1rem;
+    line-height: 1;
   }
   .recipe-search-card__title {
     font-family: var(--font-serif, Georgia, serif);
@@ -132,7 +142,6 @@ function renderCard(result: SearchResult): string {
     : `<div class="recipe-search-card__placeholder" aria-hidden="true"></div>`
   const flag = cuisineToFlag(result.cuisine ?? '')
   const meta = [
-    flag ? `<span>${flag}</span>` : '',
     result.prepTime ? `<span>Prep: ${escapeHtml(result.prepTime)}</span>` : '',
     result.cookTime ? `<span>Cook: ${escapeHtml(result.cookTime)}</span>` : '',
   ]
@@ -141,7 +150,10 @@ function renderCard(result: SearchResult): string {
   return `<a href="${escapeHtml(href)}" class="recipe-search-card">
     <div class="recipe-search-card__image-wrap">${img}</div>
     <div class="recipe-search-card__body">
-      <p class="recipe-search-card__category">${escapeHtml(result.category)}</p>
+      <div class="recipe-search-card__top">
+        <p class="recipe-search-card__category">${escapeHtml(result.category)}</p>
+        ${flag ? `<span class="recipe-search-card__flag">${flag}</span>` : ''}
+      </div>
       <h2 class="recipe-search-card__title">${escapeHtml(result.title)}</h2>
       ${meta ? `<div class="recipe-search-card__meta">${meta}</div>` : ''}
     </div>

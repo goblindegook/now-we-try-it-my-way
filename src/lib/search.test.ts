@@ -111,4 +111,12 @@ describe('search index', () => {
     ])
     expect(bs.search('italian').map((r) => r.slug)).toContain('carbonara')
   })
+
+  it('returns slug for matching category query', () => {
+    const bs = buildIndex([
+      makeRecipe({ slug: 'carbonara', category: 'Mains' }),
+      makeRecipe({ slug: 'bruschetta', category: 'Starters' }),
+    ])
+    expect(bs.search('starters').map((r) => r.slug)).toContain('bruschetta')
+  })
 })

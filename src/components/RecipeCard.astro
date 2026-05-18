@@ -21,10 +21,12 @@ const cuisineFlag = cuisineToFlag(recipe.cuisine)
     }
   </div>
   <div class="card__body">
-    <p class="card__category">{recipe.category}</p>
+    <div class="card__top">
+      <p class="card__category">{recipe.category}</p>
+      {cuisineFlag && <span class="card__flag">{cuisineFlag}</span>}
+    </div>
     <h2 class="card__title">{recipe.title}</h2>
     <div class="card__meta">
-      {cuisineFlag && <span>{cuisineFlag}</span>}
       {recipe.prepTime && <span>Prep: {recipe.prepTime}</span>}
       {recipe.cookTime && <span>Cook: {recipe.cookTime}</span>}
     </div>
@@ -66,13 +68,23 @@ const cuisineFlag = cuisineToFlag(recipe.cuisine)
     height: 100%;
   }
   .card__body { padding: 1rem 1.25rem 1.25rem; }
+  .card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 0 0 0.4rem;
+  }
   .card__category {
     font-size: 0.75rem;
     font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--color-accent);
-    margin: 0 0 0.4rem;
+    margin: 0;
+  }
+  .card__flag {
+    font-size: 1.1rem;
+    line-height: 1;
   }
   .card__title {
     font-family: var(--font-serif);
