@@ -152,9 +152,14 @@ class RecipeSearch extends HTMLElement {
 
   connectedCallback() {
     this.injectStyles()
-    this.initIndex()
     this.buildDOM()
-    this.attachListener()
+    // Defer index init until astro:page-load so the inline script that sets
+    // window.__SEARCH_INDEX__ has already run (View Transitions swaps DOM first,
+    // then runs page scripts, so connectedCallback fires too early).
+    document.addEventListener('astro:page-load', () => {
+      this.initIndex()
+      this.attachListener()
+    }, { once: true })
   }
 
   private injectStyles() {
