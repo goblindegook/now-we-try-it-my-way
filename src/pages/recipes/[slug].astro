@@ -546,9 +546,15 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
 
   function restoreChecklistState(root: Element): void {
     try {
-      const raw = sessionStorage.getItem(checklistStorageKey());
+      const raw = localStorage.getItem(checklistStorageKey());
       if (!raw) return;
-      const state: boolean[] = JSON.parse(raw);
+      const parsed = JSON.parse(raw);
+      const TTL = 24 * 60 * 60 * 1000;
+      if (!parsed.savedAt || Date.now() - parsed.savedAt > TTL) {
+        localStorage.removeItem(checklistStorageKey());
+        return;
+      }
+      const state: boolean[] = parsed.state;
       const steps = root.querySelectorAll<HTMLElement>('li.step');
       steps.forEach((li, i) => {
         if (state[i] !== undefined) li.setAttribute('data-checked', String(state[i]));
@@ -560,7 +566,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     const steps = root.querySelectorAll<HTMLElement>('li.step');
     const state = Array.from(steps).map((li) => li.getAttribute('data-checked') === 'true');
     try {
-      sessionStorage.setItem(checklistStorageKey(), JSON.stringify(state));
+      localStorage.setItem(checklistStorageKey(), JSON.stringify({ state, savedAt: Date.now() }));
     } catch (_) {}
   }
 
@@ -639,7 +645,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
         checklistRoot.querySelectorAll<HTMLElement>('li.step').forEach(li => {
           li.setAttribute('data-checked', 'false');
         });
-        try { sessionStorage.removeItem(checklistStorageKey()); } catch (_) {}
+        try { localStorage.removeItem(checklistStorageKey()); } catch (_) {}
         updateResetVisibility();
       });
     }

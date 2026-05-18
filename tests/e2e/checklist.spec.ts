@@ -4,7 +4,9 @@ const RECIPE_URL = '/recipes/spaghetti-carbonara'
 
 test.beforeEach(async ({ page }) => {
   await page.goto(RECIPE_URL)
-  await page.evaluate(() => sessionStorage.clear())
+  await page.evaluate(() => {
+    localStorage.removeItem(`cookbook-checklist:${location.pathname}`)
+  })
   await page.reload()
 })
 
@@ -45,4 +47,40 @@ test('only the clicked step is checked — others remain unchecked', async ({ pa
   await steps.first().locator('.step__checkbox').click()
   await expect(steps.first()).toHaveAttribute('data-checked', 'true')
   await expect(steps.nth(1)).toHaveAttribute('data-checked', 'false')
+})
+
+test('saves checked state to localStorage', async ({ page }) => {
+  await page.locator('li.step').first().locator('.step__checkbox').click()
+  const stored = await page.evaluate(() => {
+    const key = `cookbook-checklist:${location.pathname}`
+    return localStorage.getItem(key)
+  })
+  expect(stored).not.toBeNull()
+})
+
+test('persists checked steps across tab close', async ({ browser }) => {
+  const context = await browser.newContext()
+  const page1 = await context.newPage()
+  await page1.goto(RECIPE_URL)
+  await page1.evaluate(() => localStorage.removeItem(`cookbook-checklist:${location.pathname}`))
+  await page1.reload()
+
+  await page1.locator('li.step').first().locator('.step__checkbox').click()
+  await expect(page1.locator('li.step').first()).toHaveAttribute('data-checked', 'true')
+  await page1.close()
+
+  const page2 = await context.newPage()
+  await page2.goto(RECIPE_URL)
+  await expect(page2.locator('li.step').first()).toHaveAttribute('data-checked', 'true')
+  await context.close()
+})
+
+test('discards checked steps saved more than 24 hours ago', async ({ page }) => {
+  await page.evaluate(() => {
+    const key = `cookbook-checklist:${location.pathname}`
+    const oneDayAgo = Date.now() - 25 * 60 * 60 * 1000
+    localStorage.setItem(key, JSON.stringify({ state: [true], savedAt: oneDayAgo }))
+  })
+  await page.reload()
+  await expect(page.locator('li.step').first()).toHaveAttribute('data-checked', 'false')
 })

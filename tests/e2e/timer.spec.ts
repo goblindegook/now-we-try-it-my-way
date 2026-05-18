@@ -115,6 +115,25 @@ test('done timer is dismissed on first click without confirmation', async ({ pag
   await expect(dock).not.toContainText('Timers')
 })
 
+test('timer dock fits within viewport on small screen (375px wide)', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 })
+  await page.goto(RECIPE_URL)
+  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear() })
+  await page.reload()
+
+  await page.locator('step-timer').first().locator('button').click()
+  const dock = page.locator('timer-dock')
+  await expect(dock.getByText('Timers')).toBeVisible({ timeout: 2000 })
+
+  const overflows = await page.evaluate(() => {
+    const el = document.querySelector('timer-dock')
+    if (!el) return true
+    const rect = el.getBoundingClientRect()
+    return rect.left < 0 || rect.right > window.innerWidth
+  })
+  expect(overflows).toBe(false)
+})
+
 test('minimized dock shows no timer when all timers are done', async ({ page }) => {
   await page.evaluate(() => {
     localStorage.setItem('cookbook-timers', JSON.stringify([{

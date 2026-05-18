@@ -103,7 +103,8 @@ export class TimerDock extends LitElement {
       }
       this.minimized = !!state.minimized
       if (state.left != null && (state.top != null || state.bottom != null)) {
-        const x = Math.max(8, Math.min(window.innerWidth - 380 - 8, state.left))
+        const maxDockWidth = Math.min(380, window.innerWidth - 32)
+        const x = Math.max(8, Math.min(window.innerWidth - maxDockWidth - 8, state.left))
         this.style.left = `${x}px`
         this.style.right = 'auto'
         if (state.bottom != null) {
@@ -339,7 +340,7 @@ export class TimerDock extends LitElement {
       background: #1c1c1c;
       color: #f5f2ee;
       border-radius: 0.75rem;
-      width: 380px;
+      width: min(380px, calc(100vw - 2rem));
       box-shadow: 0 8px 24px rgba(0,0,0,0.25);
       overflow: hidden;
     }

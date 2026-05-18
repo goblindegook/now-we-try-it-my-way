@@ -33,15 +33,21 @@ export class StepChecklist extends LitElement {
     const steps = this.querySelectorAll<HTMLElement>('li.step')
     const state = Array.from(steps).map((li) => li.getAttribute('data-checked') === 'true')
     try {
-      sessionStorage.setItem(storageKey(), JSON.stringify(state))
+      localStorage.setItem(storageKey(), JSON.stringify({ state, savedAt: Date.now() }))
     } catch (_) {}
   }
 
   private restoreState() {
     try {
-      const raw = sessionStorage.getItem(storageKey())
+      const raw = localStorage.getItem(storageKey())
       if (!raw) return
-      const state: boolean[] = JSON.parse(raw)
+      const parsed = JSON.parse(raw)
+      const TTL = 24 * 60 * 60 * 1000
+      if (!parsed.savedAt || Date.now() - parsed.savedAt > TTL) {
+        localStorage.removeItem(storageKey())
+        return
+      }
+      const state: boolean[] = parsed.state
       const steps = this.querySelectorAll<HTMLElement>('li.step')
       steps.forEach((li, i) => {
         if (state[i] !== undefined) li.setAttribute('data-checked', String(state[i]))
