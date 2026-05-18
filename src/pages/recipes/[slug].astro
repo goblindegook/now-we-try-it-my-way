@@ -564,53 +564,6 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     } catch (_) {}
   }
 
-  const checklistRoot = document.querySelector('[data-step-checklist]');
-  const resetWrap = document.querySelector<HTMLElement>('.checklist-reset');
-  const resetBtn = document.getElementById('checklist-reset');
-
-  const stepHint = document.querySelector<HTMLElement>('.step-hint');
-
-  function updateResetVisibility(): void {
-    if (!checklistRoot || !resetWrap) return;
-    const anyChecked = checklistRoot.querySelector('li.step[data-checked="true"]') !== null;
-    resetWrap.hidden = !anyChecked;
-    if (anyChecked && stepHint) stepHint.classList.add('dismissed');
-  }
-
-  if (checklistRoot) {
-    restoreChecklistState(checklistRoot);
-    updateResetVisibility();
-
-    checklistRoot.addEventListener('click', (e: Event) => {
-      const btn = (e.target as Element).closest('.step__checkbox');
-      if (!btn) return;
-
-      const li = btn.closest('li.step');
-      if (!li) return;
-
-      const checked = li.getAttribute('data-checked') === 'true';
-      li.setAttribute('data-checked', String(!checked));
-      saveChecklistState(checklistRoot);
-      updateResetVisibility();
-
-      if (!checked) {
-        li.classList.remove('step--pop');
-        void (li as HTMLElement).offsetWidth;
-        li.classList.add('step--pop');
-        li.addEventListener('animationend', () => li.classList.remove('step--pop'), { once: true });
-      }
-    });
-  }
-
-  resetBtn?.addEventListener('click', () => {
-    if (!checklistRoot) return;
-    checklistRoot.querySelectorAll<HTMLElement>('li.step').forEach(li => {
-      li.setAttribute('data-checked', 'false');
-    });
-    try { sessionStorage.removeItem(checklistStorageKey()); } catch (_) {}
-    updateResetVisibility();
-  });
-
   function fmtQty(n: number): string {
     if (n === Math.floor(n)) return String(n);
     const fracs: [number, string][] = [[0.25,'¼'],[0.5,'½'],[0.75,'¾'],[0.33,'⅓'],[0.67,'⅔']];
@@ -621,7 +574,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     return n.toFixed(1).replace(/\.0$/, '');
   }
 
-  const applyServingsScale = ({ current, base }: { current: number; base: number }) => {
+  function applyServingsScale({ current, base }: { current: number; base: number }): void {
     document.querySelectorAll<HTMLElement>('.step-ingredient[data-quantity]').forEach(el => {
       const qty = parseFloat(el.dataset.quantity!);
       if (!qty) return;
@@ -638,55 +591,106 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
       const scaled = qty * (current / base);
       el.textContent = `${fmtQty(scaled)}${units ? ' ' + units : ''}`;
     });
-  };
+  }
 
   document.addEventListener('servings-change', (e: Event) => {
     applyServingsScale((e as CustomEvent).detail as { current: number; base: number });
   });
 
-  const countEl = document.getElementById('servings-current');
-  const dec = document.getElementById('servings-decrease');
-  const inc = document.getElementById('servings-increase');
-  const servingsControl = document.querySelector<HTMLElement>('.servings-control');
+  function initPage(): void {
+    const checklistRoot = document.querySelector<HTMLElement>('[data-step-checklist]');
+    const resetWrap = document.querySelector<HTMLElement>('.checklist-reset');
+    const resetBtn = document.getElementById('checklist-reset');
+    const stepHint = document.querySelector<HTMLElement>('.step-hint');
 
-  if (countEl && dec && inc && servingsControl) {
-    const servingsStorageKey = `cookbook-servings:${location.pathname}`;
-    const base = parseFloat(countEl.dataset.baseServings || '4');
-    let current = base;
+    function updateResetVisibility(): void {
+      if (!checklistRoot || !resetWrap) return;
+      const anyChecked = checklistRoot.querySelector('li.step[data-checked="true"]') !== null;
+      resetWrap.hidden = !anyChecked;
+      if (anyChecked && stepHint) stepHint.classList.add('dismissed');
+    }
 
-    try {
-      const saved = localStorage.getItem(servingsStorageKey);
-      const parsed = saved ? Number.parseInt(saved, 10) : NaN;
-      if (Number.isFinite(parsed) && parsed >= 1) current = parsed;
-    } catch (_) {}
+    if (checklistRoot && !checklistRoot.dataset.initialized) {
+      checklistRoot.dataset.initialized = 'true';
+      restoreChecklistState(checklistRoot);
+      updateResetVisibility();
 
-    const emit = () => {
-      countEl.textContent = String(current);
-      dec.toggleAttribute('disabled', current <= 1);
+      checklistRoot.addEventListener('click', (e: Event) => {
+        const btn = (e.target as Element).closest('.step__checkbox');
+        if (!btn) return;
+
+        const li = btn.closest('li.step');
+        if (!li) return;
+
+        const checked = li.getAttribute('data-checked') === 'true';
+        li.setAttribute('data-checked', String(!checked));
+        saveChecklistState(checklistRoot);
+        updateResetVisibility();
+
+        if (!checked) {
+          li.classList.remove('step--pop');
+          void (li as HTMLElement).offsetWidth;
+          li.classList.add('step--pop');
+          li.addEventListener('animationend', () => li.classList.remove('step--pop'), { once: true });
+        }
+      });
+
+      resetBtn?.addEventListener('click', () => {
+        checklistRoot.querySelectorAll<HTMLElement>('li.step').forEach(li => {
+          li.setAttribute('data-checked', 'false');
+        });
+        try { sessionStorage.removeItem(checklistStorageKey()); } catch (_) {}
+        updateResetVisibility();
+      });
+    }
+
+    const countEl = document.getElementById('servings-current');
+    const dec = document.getElementById('servings-decrease');
+    const inc = document.getElementById('servings-increase');
+    const servingsControl = document.querySelector<HTMLElement>('.servings-control');
+
+    if (countEl && dec && inc && servingsControl && !servingsControl.dataset.initialized) {
+      servingsControl.dataset.initialized = 'true';
+      const servingsStorageKey = `cookbook-servings:${location.pathname}`;
+      const base = parseFloat(countEl.dataset.baseServings || '4');
+      let current = base;
+
       try {
-        localStorage.setItem(servingsStorageKey, String(current));
+        const saved = localStorage.getItem(servingsStorageKey);
+        const parsed = saved ? Number.parseInt(saved, 10) : NaN;
+        if (Number.isFinite(parsed) && parsed >= 1) current = parsed;
       } catch (_) {}
-      document.dispatchEvent(new CustomEvent('servings-change', {
-        detail: { current, base },
-      }));
-    };
 
-    servingsControl.dataset.enhanced = 'true';
-    dec.removeAttribute('disabled');
-    inc.removeAttribute('disabled');
+      const emit = () => {
+        countEl.textContent = String(current);
+        dec.toggleAttribute('disabled', current <= 1);
+        try {
+          localStorage.setItem(servingsStorageKey, String(current));
+        } catch (_) {}
+        document.dispatchEvent(new CustomEvent('servings-change', {
+          detail: { current, base },
+        }));
+      };
 
-    dec.addEventListener('click', () => {
-      if (current <= 1) return;
-      current -= 1;
+      servingsControl.dataset.enhanced = 'true';
+      dec.removeAttribute('disabled');
+      inc.removeAttribute('disabled');
+
+      dec.addEventListener('click', () => {
+        if (current <= 1) return;
+        current -= 1;
+        emit();
+      });
+
+      inc.addEventListener('click', () => {
+        current += 1;
+        emit();
+      });
+
       emit();
-    });
-
-    inc.addEventListener('click', () => {
-      current += 1;
-      emit();
-    });
-
-    emit();
+    }
   }
 
+  document.addEventListener('astro:page-load', initPage);
+  initPage();
 </script>
