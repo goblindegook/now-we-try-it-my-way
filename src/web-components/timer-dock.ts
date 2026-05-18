@@ -230,6 +230,11 @@ export class TimerDock extends LitElement {
   }
 
   private handleClear(id: string) {
+    const timer = this.timers.find((t) => t.id === id)
+    if (timer?.done) {
+      this.dismissTimer(id)
+      return
+    }
     if (this.pendingClearId === id) {
       if (this.pendingClearTimeout) clearTimeout(this.pendingClearTimeout)
       this.pendingClearTimeout = null
@@ -245,14 +250,24 @@ export class TimerDock extends LitElement {
     }
   }
 
+  private renderMinimizedSummary() {
+    const active = this.timers.filter((t) => !t.done)
+    if (active.length === 0) return html``
+    const smallest = active.reduce((min, t) => (getRemaining(t) < getRemaining(min) ? t : min))
+    const remaining = Math.ceil(getRemaining(smallest))
+    const moreCount = this.timers.length - 1
+    return html`
+      <span class="dock__min-timer">${this.fmt(remaining)}${moreCount > 0 ? html` <span class="dock__min-more">and ${moreCount} more</span>` : html``}</span>
+    `
+  }
+
   render() {
     if (this.timers.length === 0) return html``
-    const activeCount = this.timers.filter((t) => isRunning(t)).length
     return html`
       <div class="dock ${this.minimized ? 'dock--minimized' : ''}">
         <div class="dock__header" @pointerdown=${this.handleDragStart}>
           <span class="dock__title">Timers</span>
-          ${this.minimized && activeCount > 0 ? html`<span class="dock__badge">${activeCount}</span>` : html``}
+          ${this.minimized ? this.renderMinimizedSummary() : html``}
           <button
             class="dock__toggle"
             @click=${() => this.toggleMinimized()}
@@ -334,14 +349,16 @@ export class TimerDock extends LitElement {
       text-transform: uppercase;
       color: rgba(255,255,255,0.5);
     }
-    .dock__badge {
-      background: #b85c38;
-      color: #fff;
-      border-radius: 99px;
-      padding: 0.0625rem 0.4rem;
-      font-size: 0.6875rem;
+    .dock__min-timer {
+      font-size: 0.8125rem;
       font-weight: 600;
-      line-height: 1.4;
+      font-variant-numeric: tabular-nums;
+      color: rgba(255,255,255,0.85);
+      white-space: nowrap;
+    }
+    .dock__min-more {
+      font-weight: 400;
+      color: rgba(255,255,255,0.45);
     }
     .dock__toggle {
       all: unset;

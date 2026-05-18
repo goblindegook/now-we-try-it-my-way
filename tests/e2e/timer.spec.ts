@@ -70,3 +70,59 @@ test('timer-dock appears when a timer is started', async ({ page }) => {
 test('timer-dock does not render when no timers are in storage', async ({ page }) => {
   await expect(page.locator('timer-dock')).not.toContainText('Timers')
 })
+
+test('minimized dock shows the timer countdown instead of a number badge', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('cookbook-timers', JSON.stringify([{
+      id: 't1', label: 'Step 1', recipeName: 'Test', recipeUrl: '/recipes/test',
+      duration: 600, startedAt: null, elapsed: 300, done: false, soundPlayed: false,
+    }]))
+    window.dispatchEvent(new CustomEvent('cookbook-timers-updated'))
+  })
+  const dock = page.locator('timer-dock')
+  await dock.getByTitle('Minimise timers').click()
+  await expect(dock.getByText('5:00')).toBeVisible()
+})
+
+test('minimized dock shows smallest timer and "and X more" with multiple timers', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('cookbook-timers', JSON.stringify([
+      { id: 't1', label: 'Step 1', recipeName: 'Test', recipeUrl: '/recipes/test',
+        duration: 600, startedAt: null, elapsed: 300, done: false, soundPlayed: false }, // 5:00 remaining
+      { id: 't2', label: 'Step 2', recipeName: 'Test', recipeUrl: '/recipes/test',
+        duration: 600, startedAt: null, elapsed: 480, done: false, soundPlayed: false }, // 2:00 remaining — smallest
+    ]))
+    window.dispatchEvent(new CustomEvent('cookbook-timers-updated'))
+  })
+  const dock = page.locator('timer-dock')
+  await dock.getByTitle('Minimise timers').click()
+  await expect(dock.getByText('2:00')).toBeVisible()
+  await expect(dock.getByText('and 1 more')).toBeVisible()
+})
+
+test('done timer is dismissed on first click without confirmation', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('cookbook-timers', JSON.stringify([{
+      id: 't1', label: 'Step 1', recipeName: 'Test', recipeUrl: '/recipes/test',
+      duration: 600, startedAt: null, elapsed: 600, done: true, soundPlayed: true,
+    }]))
+    window.dispatchEvent(new CustomEvent('cookbook-timers-updated'))
+  })
+  const dock = page.locator('timer-dock')
+  await expect(dock.getByText('Done')).toBeVisible()
+  await dock.getByTitle('Clear').click()
+  await expect(dock).not.toContainText('Timers')
+})
+
+test('minimized dock shows no timer when all timers are done', async ({ page }) => {
+  await page.evaluate(() => {
+    localStorage.setItem('cookbook-timers', JSON.stringify([{
+      id: 't1', label: 'Step 1', recipeName: 'Test', recipeUrl: '/recipes/test',
+      duration: 600, startedAt: null, elapsed: 600, done: true, soundPlayed: true,
+    }]))
+    window.dispatchEvent(new CustomEvent('cookbook-timers-updated'))
+  })
+  const dock = page.locator('timer-dock')
+  await dock.getByTitle('Minimise timers').click()
+  await expect(dock).not.toContainText(/\d:\d\d/)
+})
