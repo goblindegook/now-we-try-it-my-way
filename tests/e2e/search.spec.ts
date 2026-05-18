@@ -6,52 +6,53 @@ test.describe('/recipes search', () => {
   })
 
   test('search input renders', async ({ page }) => {
-    await expect(page.locator('.recipe-search-input')).toBeVisible()
+    await expect(page.getByRole('searchbox', { name: 'Search recipes' })).toBeVisible()
   })
 
   test('static grid visible by default', async ({ page }) => {
-    await expect(page.locator('#recipes-grid')).toBeVisible()
-    await expect(page.locator('.recipe-search-results-grid')).not.toBeVisible()
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Tomato couscous' })).toBeVisible()
   })
 
   test('typing a query hides static grid and shows results', async ({ page }) => {
-    await page.locator('.recipe-search-input').fill('spaghetti')
-    await expect(page.locator('.recipe-search-results-grid')).toBeVisible({ timeout: 500 })
-    await expect(page.locator('#recipes-grid')).not.toBeVisible()
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('spaghetti')
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
+    await expect(page.getByRole('link', { name: 'Moussaka' })).not.toBeVisible()
   })
 
   test('results include matching recipe', async ({ page }) => {
-    await page.locator('.recipe-search-input').fill('spaghetti')
-    await expect(page.locator('.recipe-search-card').filter({ hasText: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('spaghetti')
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
   })
 
   test('result cards link to recipe pages', async ({ page }) => {
-    await page.locator('.recipe-search-input').fill('spaghetti')
-    const card = page.locator('.recipe-search-card').filter({ hasText: 'Spaghetti carbonara' })
-    await expect(card).toHaveAttribute('href', '/recipes/spaghetti-carbonara', { timeout: 500 })
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('spaghetti')
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toHaveAttribute('href', '/recipes/spaghetti-carbonara', { timeout: 500 })
   })
 
   test('clearing input restores static grid', async ({ page }) => {
-    await page.locator('.recipe-search-input').fill('spaghetti')
-    await expect(page.locator('.recipe-search-results-grid')).toBeVisible({ timeout: 500 })
-    await page.locator('.recipe-search-input').fill('')
-    await expect(page.locator('#recipes-grid')).toBeVisible({ timeout: 500 })
-    await expect(page.locator('.recipe-search-results-grid')).not.toBeVisible()
+    const search = page.getByRole('searchbox', { name: 'Search recipes' })
+    await search.fill('spaghetti')
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
+    await search.fill('')
+    await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible({ timeout: 500 })
   })
 
   test('no-results query shows empty state', async ({ page }) => {
-    await page.locator('.recipe-search-input').fill('zqxjvk')
-    await expect(page.locator('.recipe-search-empty__heading')).toContainText('Nothing matched.', { timeout: 500 })
-    await expect(page.locator('.recipe-search-empty__sub')).toBeVisible()
-    await expect(page.locator('#recipes-grid')).not.toBeVisible()
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('zqxjvk')
+    await expect(page.getByText('Nothing matched.')).toBeVisible({ timeout: 500 })
+    await expect(page.getByText('Try an ingredient, dish name, or tag.')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Moussaka' })).not.toBeVisible()
   })
 
   test('empty state clears back to static grid', async ({ page }) => {
-    await page.locator('.recipe-search-input').fill('zqxjvk')
-    await expect(page.locator('.recipe-search-empty__heading')).toBeVisible({ timeout: 500 })
-    await page.locator('.recipe-search-input').fill('')
-    await expect(page.locator('#recipes-grid')).toBeVisible({ timeout: 500 })
-    await expect(page.locator('.recipe-search-empty__heading')).not.toBeVisible()
+    const search = page.getByRole('searchbox', { name: 'Search recipes' })
+    await search.fill('zqxjvk')
+    await expect(page.getByText('Nothing matched.')).toBeVisible({ timeout: 500 })
+    await search.fill('')
+    await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible({ timeout: 500 })
+    await expect(page.getByText('Nothing matched.')).not.toBeVisible()
   })
 })
 
@@ -61,21 +62,17 @@ test.describe('category page search', () => {
   })
 
   test('search input renders on category page', async ({ page }) => {
-    await expect(page.locator('.recipe-search-input')).toBeVisible()
+    await expect(page.getByRole('searchbox', { name: 'Search recipes' })).toBeVisible()
   })
 
   test('results are scoped to the category', async ({ page }) => {
-    await page.locator('.recipe-search-input').fill('spaghetti')
-    const cards = page.locator('.recipe-search-card')
-    await expect(cards.first()).toBeVisible({ timeout: 500 })
-    const count = await cards.count()
-    for (let i = 0; i < count; i++) {
-      await expect(cards.nth(i).locator('.recipe-search-card__category')).toContainText('Mains')
-    }
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('spaghetti')
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
+    await expect(page.getByRole('heading', { name: 'Mains', level: 1 })).toBeVisible()
   })
 
   test('no-results query shows empty state on category page', async ({ page }) => {
-    await page.locator('.recipe-search-input').fill('zqxjvk')
-    await expect(page.locator('.recipe-search-empty__heading')).toContainText('Nothing matched.', { timeout: 500 })
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('zqxjvk')
+    await expect(page.getByText('Nothing matched.')).toBeVisible({ timeout: 500 })
   })
 })

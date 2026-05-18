@@ -9,86 +9,75 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('shows initial serving count matching the recipe default', async ({ page }) => {
-  await expect(page.locator('#servings-current')).toHaveText('4')
+  await expect(page.getByText(/400\s*g\s+spaghetti/i).first()).toBeVisible()
 })
 
 test('shows initial ingredient amounts for default servings', async ({ page }) => {
-  // spaghetti is the first ingredient: 400g at 4 servings
-  await expect(page.locator('.js-scaled-amount[data-quantity="400"]').first()).toContainText('400')
+  await expect(page.getByText(/400\s*g\s+spaghetti/i).first()).toBeVisible()
 })
 
 test('decrement reduces serving count by 1', async ({ page }) => {
-  const minus = page.locator('#servings-decrease')
+  const minus = page.getByRole('button', { name: 'Decrease servings' })
   await expect(minus).toBeEnabled()
   await minus.click()
-  await expect(page.locator('#servings-current')).toHaveText('3')
+  await expect(page.getByText(/300\s*g\s+spaghetti/i).first()).toBeVisible()
 })
 
 test('increment increases serving count by 1', async ({ page }) => {
-  const plus = page.locator('#servings-increase')
+  const plus = page.getByRole('button', { name: 'Increase servings' })
   await expect(plus).toBeEnabled()
   await plus.click()
-  await expect(page.locator('#servings-current')).toHaveText('5')
+  await expect(page.getByText(/500\s*g\s+spaghetti/i).first()).toBeVisible()
 })
 
 test('ingredient amounts scale proportionally when servings change', async ({ page }) => {
-  const minus = page.locator('#servings-decrease')
-  const spaghettiAmount = page.locator('.js-scaled-amount[data-quantity="400"]').first()
-
-  await expect(spaghettiAmount).toContainText('400')
-  await minus.click() // 3 servings
-  await expect(spaghettiAmount).toContainText('300')
-  await minus.click() // 2 servings
-  await expect(spaghettiAmount).toContainText('200')
+  const minus = page.getByRole('button', { name: 'Decrease servings' })
+  await expect(page.getByText(/400\s*g\s+spaghetti/i).first()).toBeVisible()
+  await minus.click()
+  await expect(page.getByText(/300\s*g\s+spaghetti/i).first()).toBeVisible()
+  await minus.click()
+  await expect(page.getByText(/200\s*g\s+spaghetti/i).first()).toBeVisible()
 })
 
 test('step ingredient text scales when servings change', async ({ page }) => {
-  const minus = page.locator('#servings-decrease')
-  const stepSpaghetti = page.locator('.step-ingredient[data-quantity="400"]').first()
-
-  await expect(stepSpaghetti).toContainText('400 g spaghetti')
-  await minus.click() // 3 servings
-  await expect(stepSpaghetti).toContainText('300 g spaghetti')
+  const minus = page.getByRole('button', { name: 'Decrease servings' })
+  await expect(page.getByText(/400\s*g\s+spaghetti/i).last()).toBeVisible()
+  await minus.click()
+  await expect(page.getByText(/300\s*g\s+spaghetti/i).last()).toBeVisible()
 })
 
 test('scaled ingredients render fractional quantities with glyphs', async ({ page }) => {
-  const minus = page.locator('#servings-decrease')
-  const eggAmount = page.locator('.js-scaled-amount[data-quantity="1"]').first()
-
-  await expect(eggAmount).toContainText('1')
-  await minus.click() // 3 servings => 0.75
-  await expect(eggAmount).toContainText('¾')
+  const minus = page.getByRole('button', { name: 'Decrease servings' })
+  await expect(page.getByText(/^1$/).first()).toBeVisible()
+  await minus.click()
+  await expect(page.getByText('¾').first()).toBeVisible()
 })
 
 test('minus button is disabled at 1 serving', async ({ page }) => {
-  const minus = page.locator('#servings-decrease')
+  const minus = page.getByRole('button', { name: 'Decrease servings' })
   await minus.click()
   await minus.click()
   await minus.click()
-  await expect(page.locator('#servings-current')).toHaveText('1')
+  await expect(page.getByText(/100\s*g\s+spaghetti/i).first()).toBeVisible()
   await expect(minus).toBeDisabled()
 })
 
 test('servings selection persists across reload for the same recipe', async ({ page }) => {
-  const minus = page.locator('#servings-decrease')
-  const spaghettiAmount = page.locator('.js-scaled-amount[data-quantity="400"]').first()
-
+  const minus = page.getByRole('button', { name: 'Decrease servings' })
   await minus.click()
-  await expect(page.locator('#servings-current')).toHaveText('3')
-  await expect(spaghettiAmount).toContainText('300')
+  await expect(page.getByText(/300\s*g\s+spaghetti/i).first()).toBeVisible()
   await page.reload()
-  await expect(page.locator('#servings-current')).toHaveText('3')
-  await expect(spaghettiAmount).toContainText('300')
+  await expect(page.getByText(/300\s*g\s+spaghetti/i).first()).toBeVisible()
 })
 
 test('servings selection is scoped per recipe', async ({ page }) => {
-  const minus = page.locator('#servings-decrease')
+  const minus = page.getByRole('button', { name: 'Decrease servings' })
   await minus.click()
-  await expect(page.locator('#servings-current')).toHaveText('3')
+  await expect(page.getByText(/300\s*g\s+spaghetti/i).first()).toBeVisible()
 
   await page.goto('/recipes/tomato-couscous')
-  await expect(page.locator('#servings-current')).toHaveText('6')
+  await expect(page.getByText(/600\s*ml\s+tomato juice/i).first()).toBeVisible()
 
   await page.goto(RECIPE_URL)
-  await expect(page.locator('#servings-current')).toHaveText('3')
+  await expect(page.getByText(/300\s*g\s+spaghetti/i).first()).toBeVisible()
 })

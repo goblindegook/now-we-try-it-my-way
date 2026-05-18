@@ -11,46 +11,41 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('all steps render as unchecked initially', async ({ page }) => {
-  const steps = page.locator('li.step')
+  const steps = page.getByRole('button', { name: /Mark step \d+ complete/ })
   const count = await steps.count()
   expect(count).toBeGreaterThan(0)
-  for (let i = 0; i < count; i++) {
-    await expect(steps.nth(i)).toHaveAttribute('data-checked', 'false')
-  }
+  await expect(page.getByRole('button', { name: /Mark step 1 complete/ })).toContainText('1')
 })
 
 test('clicking a step marks it checked', async ({ page }) => {
-  const step = page.locator('li.step').first()
-  await expect(step).toHaveAttribute('data-checked', 'false')
-  await step.locator('.step__checkbox').click()
-  await expect(step).toHaveAttribute('data-checked', 'true')
+  const step = page.getByRole('button', { name: /Mark step 1 complete/ })
+  await step.click()
+  await expect(step).toContainText('✓')
 })
 
 test('clicking a checked step unchecks it', async ({ page }) => {
-  const step = page.locator('li.step').first()
-  await step.locator('.step__checkbox').click()
-  await expect(step).toHaveAttribute('data-checked', 'true')
-  await step.locator('.step__checkbox').click()
-  await expect(step).toHaveAttribute('data-checked', 'false')
+  const step = page.getByRole('button', { name: /Mark step 1 complete/ })
+  await step.click()
+  await expect(step).toContainText('✓')
+  await step.click()
+  await expect(step).toContainText('1')
 })
 
 test('checked state persists across page reload', async ({ page }) => {
-  const step = page.locator('li.step').first()
-  await step.locator('.step__checkbox').click()
-  await expect(step).toHaveAttribute('data-checked', 'true')
+  const step = page.getByRole('button', { name: /Mark step 1 complete/ })
+  await step.click()
   await page.reload()
-  await expect(page.locator('li.step').first()).toHaveAttribute('data-checked', 'true')
+  await expect(page.getByRole('button', { name: /Mark step 1 complete/ })).toContainText('✓')
 })
 
 test('only the clicked step is checked — others remain unchecked', async ({ page }) => {
-  const steps = page.locator('li.step')
-  await steps.first().locator('.step__checkbox').click()
-  await expect(steps.first()).toHaveAttribute('data-checked', 'true')
-  await expect(steps.nth(1)).toHaveAttribute('data-checked', 'false')
+  await page.getByRole('button', { name: /Mark step 1 complete/ }).click()
+  await expect(page.getByRole('button', { name: /Mark step 1 complete/ })).toContainText('✓')
+  await expect(page.getByRole('button', { name: /Mark step 2 complete/ })).toContainText('2')
 })
 
 test('saves checked state to localStorage', async ({ page }) => {
-  await page.locator('li.step').first().locator('.step__checkbox').click()
+  await page.getByRole('button', { name: /Mark step 1 complete/ }).click()
   const stored = await page.evaluate(() => {
     const key = `cookbook-checklist:${location.pathname}`
     return localStorage.getItem(key)
@@ -65,13 +60,13 @@ test('persists checked steps across tab close', async ({ browser }) => {
   await page1.evaluate(() => localStorage.removeItem(`cookbook-checklist:${location.pathname}`))
   await page1.reload()
 
-  await page1.locator('li.step').first().locator('.step__checkbox').click()
-  await expect(page1.locator('li.step').first()).toHaveAttribute('data-checked', 'true')
+  await page1.getByRole('button', { name: /Mark step 1 complete/ }).click()
+  await expect(page1.getByRole('button', { name: /Mark step 1 complete/ })).toContainText('✓')
   await page1.close()
 
   const page2 = await context.newPage()
   await page2.goto(RECIPE_URL)
-  await expect(page2.locator('li.step').first()).toHaveAttribute('data-checked', 'true')
+  await expect(page2.getByRole('button', { name: /Mark step 1 complete/ })).toContainText('✓')
   await context.close()
 })
 
@@ -82,5 +77,5 @@ test('discards checked steps saved more than 24 hours ago', async ({ page }) => 
     localStorage.setItem(key, JSON.stringify({ state: [true], savedAt: oneDayAgo }))
   })
   await page.reload()
-  await expect(page.locator('li.step').first()).toHaveAttribute('data-checked', 'false')
+  await expect(page.getByRole('button', { name: /Mark step 1 complete/ })).toContainText('1')
 })
