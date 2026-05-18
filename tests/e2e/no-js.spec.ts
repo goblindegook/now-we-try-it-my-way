@@ -25,6 +25,8 @@ test('recipe page renders key content with JavaScript disabled', async ({ page }
   expect(schema.name).toBe('Spaghetti Carbonara')
   expect(schema.image).toContain('now-we-try-it-my-way.netlify.app')
   expect(schema.image).not.toContain('/src/assets/')
+  expect(schema.prepTime).toBe('PT10M')
+  expect(schema.cookTime).toBe('PT20M')
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article')
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', schema.image)
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', schema.image)

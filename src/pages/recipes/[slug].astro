@@ -130,6 +130,21 @@ function textForItem(item: Item): string {
   return `${amount} ${timer.unit}`
 }
 
+function toIsoDuration(value: string): string | undefined {
+  const normalized = value.trim().toLowerCase()
+  if (!normalized) return undefined
+
+  const match = normalized.match(/^(\d+(?:\.\d+)?)\s*(minute|minutes|min|mins|hour|hours|hr|hrs)$/)
+  if (!match) return undefined
+
+  const amount = Number.parseFloat(match[1])
+  if (!Number.isFinite(amount) || amount <= 0) return undefined
+
+  const unit = match[2]
+  if (['hour', 'hours', 'hr', 'hrs'].includes(unit)) return `PT${amount}H`
+  return `PT${amount}M`
+}
+
 const recipeSchema = recipe
   ? {
       '@context': 'https://schema.org',
@@ -139,6 +154,8 @@ const recipeSchema = recipe
       recipeCategory: recipe.category || undefined,
       image: recipeImageUrl,
       url: new URL(`/recipes/${recipe.slug}`, Astro.site).toString(),
+      prepTime: toIsoDuration(recipe.prepTime),
+      cookTime: toIsoDuration(recipe.cookTime),
       recipeYield: recipe.servings ? `${recipe.servings}` : undefined,
       recipeIngredient: recipe.ingredients.map((ingredient) => ingredient.name),
       recipeInstructions: recipe.steps.map((step, index) => ({
