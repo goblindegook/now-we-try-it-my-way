@@ -1,8 +1,10 @@
 ---
+import { getImage } from 'astro:assets'
 import type { FixedValue, Ingredient, Item, QuantityPart, Range, TimerItem } from '@tmlmt/cooklang-parser'
 import RecipeLayout from '../../layouts/RecipeLayout.astro'
 import { sortCategories } from '../../lib/categories'
 import { loadAllRecipes } from '../../lib/cooklang'
+import { resolveRecipePhoto } from '../../lib/recipe-images'
 
 export async function getStaticPaths() {
   const recipes = await loadAllRecipes()
@@ -16,6 +18,9 @@ const { slug } = Astro.props
 const allRecipes = await loadAllRecipes()
 const categories = sortCategories([...new Set(allRecipes.map((r) => r.category))])
 const recipe = allRecipes.find((r) => r.slug === slug)
+const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category)
+const recipeImage = recipePhoto ? await getImage({ src: recipePhoto }) : null
+const recipeImageUrl = recipeImage ? new URL(recipeImage.src, Astro.site).toString() : undefined
 
 type QuantityValue =
   | { type: 'text'; value: string }
@@ -132,7 +137,7 @@ const recipeSchema = recipe
       name: recipe.title,
       description: recipe.description || undefined,
       recipeCategory: recipe.category || undefined,
-      image: recipe.photo || undefined,
+      image: recipeImageUrl,
       url: new URL(`/recipes/${recipe.slug}`, Astro.site).toString(),
       recipeYield: recipe.servings ? `${recipe.servings}` : undefined,
       recipeIngredient: recipe.ingredients.map((ingredient) => ingredient.name),
@@ -185,7 +190,12 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
 })
 ---
 
-<RecipeLayout recipe={recipe} categories={categories} recipeSchemaJson={recipeSchemaJson}>
+<RecipeLayout
+  recipe={recipe}
+  categories={categories}
+  recipeSchemaJson={recipeSchemaJson}
+  socialImage={recipeImage?.src}
+>
   <div slot="sidebar" class="section-ingredients">
     <div class="servings-control" data-enhanced="false">
       <span class="servings-control__label">Serves</span>

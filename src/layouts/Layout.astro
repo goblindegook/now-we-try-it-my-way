@@ -4,8 +4,19 @@ import { ClientRouter } from 'astro:transitions'
 interface Props {
   title?: string
   description?: string
+  socialImage?: string
+  ogType?: 'website' | 'article'
 }
-const { title = 'Now We Try It My Way', description = 'A personal cookbook.' } = Astro.props
+const {
+  title = 'Now We Try It My Way',
+  description = 'A personal cookbook.',
+  socialImage,
+  ogType = 'website',
+} = Astro.props
+const canonicalUrl = Astro.url.toString()
+const socialImageUrl = socialImage
+  ? new URL(socialImage, Astro.site).toString()
+  : new URL('/favicon.ico', Astro.site).toString()
 ---
 <!doctype html>
 <html lang="en">
@@ -17,6 +28,17 @@ const { title = 'Now We Try It My Way', description = 'A personal cookbook.' } =
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#b85c38" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:site_name" content="Now We Try It My Way" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImageUrl} />
+    <meta name="twitter:card" content={socialImage ? 'summary_large_image' : 'summary'} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageUrl} />
     <title>{title}</title>
     <slot name="head" />
     <ClientRouter />

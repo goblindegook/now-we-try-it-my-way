@@ -9,12 +9,18 @@ interface Props {
   recipe?: ParsedRecipe
   categories: string[]
   recipeSchemaJson?: string
+  socialImage?: string
 }
-const { recipe, categories, recipeSchemaJson = '' } = Astro.props
+const { recipe, categories, recipeSchemaJson = '', socialImage } = Astro.props
 const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category)
 ---
 
-<Layout title={`${recipe?.title} — Now We Try It My Way`} description={recipe?.description}>
+<Layout
+  title={`${recipe?.title} — Now We Try It My Way`}
+  description={recipe?.description}
+  socialImage={socialImage}
+  ogType="article"
+>
   {recipeSchemaJson && (
     <script
       slot="head"

@@ -203,7 +203,9 @@ export class TimerDock extends LitElement {
       if (this.audioCtx.state !== 'running') return
       const ctx = this.audioCtx
       const now = ctx.currentTime
-      ;[0, 0.25, 0.5].forEach((offset) => {
+      const groupStart = [0, 2.0, 4.0]
+      const beepOffsets = groupStart.flatMap((g) => [g, g + 0.25, g + 0.5])
+      beepOffsets.forEach((offset) => {
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
         osc.connect(gain)
