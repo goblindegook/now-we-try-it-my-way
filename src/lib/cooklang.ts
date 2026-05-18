@@ -31,9 +31,31 @@ export type ParsedRecipe = RecipeMeta & {
   cookware: Cookware[]
 }
 
+function extractFrontmatter(content: string): Record<string, string> {
+  const match = content.match(/^---\n([\s\S]*?)\n---/)
+  if (!match) return {}
+
+  const result: Record<string, string> = {}
+  const lines = match[1].split('\n')
+  for (const line of lines) {
+    const parts = line.match(/^([^:#]+):\s*(.+)\s*$/)
+    if (!parts) continue
+    const key = parts[1].trim().toLowerCase()
+    const value = parts[2].trim().replace(/^['"]|['"]$/g, '')
+    result[key] = value
+  }
+  return result
+}
+
 function pickFirstString(...candidates: unknown[]): string {
   for (const candidate of candidates) {
     if (typeof candidate === 'string' && candidate.trim()) return candidate.trim()
+    if (candidate instanceof Date && !Number.isNaN(candidate.getTime())) {
+      return candidate.toISOString().slice(0, 10)
+    }
+    if (typeof candidate === 'number' || typeof candidate === 'boolean') {
+      return String(candidate)
+    }
   }
   return ''
 }
@@ -52,16 +74,42 @@ function toRecipeMeta(recipe: Recipe, slug: string): RecipeMeta {
     prepTime: pickFirstString(metadata['prep time'], metadata['time.prep']),
     cookTime: pickFirstString(metadata['cook time'], metadata['time.cook']),
     date: pickFirstString(
+      (metadata as Record<string, unknown>).created,
       (metadata as Record<string, unknown>).date,
       (metadata as Record<string, unknown>)['last modified'],
       (metadata as Record<string, unknown>).updated,
-      (metadata as Record<string, unknown>).created,
     ),
   }
 }
 
+function toSortableTimestamp(date: string): number {
+  const parsed = Date.parse(date)
+  return Number.isNaN(parsed) ? Number.NEGATIVE_INFINITY : parsed
+}
+
+export function sortRecipesByRecency(recipes: ParsedRecipe[]): ParsedRecipe[] {
+  return recipes.sort((a, b) => {
+    if (a.date && b.date) {
+      const delta = toSortableTimestamp(b.date) - toSortableTimestamp(a.date)
+      if (delta !== 0) return delta
+    } else if (a.date) {
+      return -1
+    } else if (b.date) {
+      return 1
+    }
+
+    return a.title.localeCompare(b.title)
+  })
+}
+
+export function sortRecipesAlphabetically(recipes: ParsedRecipe[]): ParsedRecipe[] {
+  return recipes.sort((a, b) => a.title.localeCompare(b.title))
+}
+
 export function parseRecipe(content: string, slug: string): ParsedRecipe {
+  const frontmatter = extractFrontmatter(content)
   const recipe = new Recipe(content)
+  const baseMeta = toRecipeMeta(recipe, slug)
   const sections: RecipeSection[] = []
   const steps: RecipeStep[] = []
 
@@ -88,7 +136,14 @@ export function parseRecipe(content: string, slug: string): ParsedRecipe {
   }
 
   return {
-    ...toRecipeMeta(recipe, slug),
+    ...baseMeta,
+    date: pickFirstString(
+      frontmatter.created,
+      frontmatter.date,
+      frontmatter['last modified'],
+      frontmatter.updated,
+      baseMeta.date,
+    ),
     ingredients: recipe.ingredients,
     timers: recipe.timers,
     sections,
@@ -111,10 +166,5 @@ export async function loadAllRecipes(): Promise<ParsedRecipe[]> {
     recipes.push(recipe)
   }
 
-  return recipes.sort((a, b) => {
-    if (a.date && b.date) return b.date.localeCompare(a.date)
-    if (a.date) return -1
-    if (b.date) return 1
-    return a.title.localeCompare(b.title)
-  })
+  return sortRecipesAlphabetically(recipes)
 }

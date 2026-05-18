@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { parseRecipe } from './cooklang'
+import {
+  parseRecipe,
+  sortRecipesAlphabetically,
+  sortRecipesByRecency,
+  type ParsedRecipe,
+} from './cooklang'
 
 function withFrontmatter(meta: string, body = 'Boil water.'): string {
   return `---\n${meta}\n---\n\n${body}`
@@ -50,6 +55,11 @@ describe('parseRecipe', () => {
     it('extracts slug as-is', () => {
       const r = parseRecipe('Boil water.', 'pasta-carbonara')
       expect(r.slug).toBe('pasta-carbonara')
+    })
+
+    it('prefers created metadata for recipe date when both created and updated exist', () => {
+      const r = parseRecipe(withFrontmatter('created: 2026-05-18\nupdated: 2026-05-17'), 'r')
+      expect(r.date).toBe('2026-05-18')
     })
   })
 
@@ -120,5 +130,43 @@ describe('parseRecipe', () => {
       const r = parseRecipe('Boil water.', 'r')
       expect(r.steps[0].items.some((i) => i.type === 'text')).toBe(true)
     })
+  })
+})
+
+describe('sorting helpers', () => {
+  function recipe(title: string, date: string): ParsedRecipe {
+    return {
+      slug: title.toLowerCase().replace(/\s+/g, '-'),
+      title,
+      description: '',
+      category: 'Mains',
+      tags: [],
+      servings: 4,
+      photo: '',
+      prepTime: '',
+      cookTime: '',
+      date,
+      ingredients: [],
+      timers: [],
+      sections: [],
+      steps: [],
+      cookware: [],
+    }
+  }
+
+  it('orders recipes alphabetically by title', () => {
+    const sorted = sortRecipesAlphabetically([
+      recipe('Zucchini', '2026-05-18'),
+      recipe('Apple Pie', '2026-05-17'),
+    ])
+    expect(sorted.map((r) => r.title)).toEqual(['Apple Pie', 'Zucchini'])
+  })
+
+  it('orders newer dated recipes before older ones for homepage recency', () => {
+    const sorted = sortRecipesByRecency([
+      recipe('Yesterday', '2026-05-17'),
+      recipe('Today', '2026-05-18'),
+    ])
+    expect(sorted.map((r) => r.title)).toEqual(['Today', 'Yesterday'])
   })
 })

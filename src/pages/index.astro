@@ -3,16 +3,17 @@ import CategoryNav from '../components/CategoryNav.astro'
 import RecipeCard from '../components/RecipeCard.astro'
 import Layout from '../layouts/Layout.astro'
 import { sortCategories } from '../lib/categories'
-import { loadAllRecipes } from '../lib/cooklang'
+import { loadAllRecipes, sortRecipesByRecency } from '../lib/cooklang'
 
 const recipes = await loadAllRecipes()
+const recentRecipes = sortRecipesByRecency([...recipes])
 const categories = sortCategories([...new Set(recipes.map((r) => r.category))])
 
-const latest = recipes.slice(0, 6)
+const latest = recentRecipes.slice(0, 6)
 
 const byCategory = categories.map((cat) => ({
   name: cat,
-  recent: recipes.find((r) => r.category === cat),
+  recent: recentRecipes.find((r) => r.category === cat),
   total: recipes.filter((r) => r.category === cat).length,
 }))
 ---
