@@ -2,13 +2,13 @@
 import Navigation from '../components/Navigation.astro'
 import RecipeCard from '../components/RecipeCard.astro'
 import Layout from '../layouts/Layout.astro'
-import { sortCategories } from '../lib/categories'
+import { type Category, sortCategories } from '../lib/categories'
 import { loadAllRecipes, sortRecipesByRecency } from '../lib/cooklang'
 import { pluralize } from '../lib/pluralize'
 
 const recipes = await loadAllRecipes()
 const recentRecipes = sortRecipesByRecency([...recipes])
-const categories = sortCategories([...new Set(recipes.map((r) => r.category))])
+const categories = sortCategories([...new Set(recipes.map((r) => r.category as Category))])
 
 const latest = recentRecipes.slice(0, 3)
 
@@ -62,7 +62,7 @@ const byCategory = categories.map((cat) => ({
 
 <style>
   .hero {
-    background: var(--color-standout);
+    background: var(--color-accent);
     padding: 5rem 1.5rem 4rem;
     text-align: center;
   }
@@ -74,13 +74,13 @@ const byCategory = categories.map((cat) => ({
     font-family: var(--font-serif);
     font-size: clamp(2.5rem, 6vw, 4.5rem);
     margin: 0 0 0.75rem;
-    color: var(--color-accent);
+    color: var(--color-interactive);
     line-height: 1.1;
     text-wrap: balance;
   }
   .hero__sub {
     font-size: 1.125rem;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--color-ink);
     margin: 0;
   }
   .content {
