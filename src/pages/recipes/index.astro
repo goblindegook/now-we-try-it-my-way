@@ -1,6 +1,5 @@
 ---
 import { getImage } from 'astro:assets'
-import { BloomSearch } from '@pacote/bloom-search'
 import Navigation from '../../components/Navigation.astro'
 import RecipeCard from '../../components/RecipeCard.astro'
 import RecipePagination from '../../components/RecipePagination.astro'
@@ -10,20 +9,18 @@ import { loadAllRecipes } from '../../lib/cooklang'
 import { pluralize } from '../../lib/pluralize'
 import { resolveRecipePhoto } from '../../lib/recipe-images'
 import { paginateRecipes } from '../../lib/recipes-pagination'
-import { buildConfig, toSearchDocument } from '../../lib/search'
+import { buildSearchIndex } from '../../lib/search'
 
 const recipes = await loadAllRecipes()
 const { pageItems: visibleRecipes, totalPages } = paginateRecipes(recipes, 1)
 const categories = sortCategories([...new Set(recipes.map((r) => r.category as Category))])
 
-const bs = new BloomSearch(buildConfig)
-for (const recipe of recipes) {
+const searchIndex = await buildSearchIndex(recipes, async (recipe) => {
   const photo = resolveRecipePhoto(recipe.photo, recipe.category)
   const processed = photo ? await getImage({ src: photo }) : null
-  const photoSrc = processed?.src ?? null
-  bs.add(recipe.slug, toSearchDocument(recipe, photoSrc))
-}
-const searchIndexJson = JSON.stringify(bs.index)
+  return processed?.src ?? null
+})
+const searchIndexJson = JSON.stringify(searchIndex.index)
 ---
 
 <Layout title="All Recipes — Now We Try It My Way">

@@ -17,6 +17,7 @@ export type RecipeMeta = {
   category: string
   cuisine: string
   tags: string[]
+  diet?: string[]
   servings: number
   photo: string
   prepTime: string

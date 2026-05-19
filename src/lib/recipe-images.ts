@@ -10,8 +10,8 @@ for (const [path, mod] of Object.entries(recipeImageModules)) {
   recipeImagesByPath.set(path, mod.default)
 }
 
-function normalizeRecipePhotoPath(photo: string): string | null {
-  const value = photo.trim()
+function normalizeRecipePhotoPath(photo?: string): string | null {
+  const value = photo?.trim()
   if (!value) return null
   if (value.startsWith('/src/assets/recipes/')) return value
   if (value.startsWith('/photos/')) return `/src/assets/recipes/${value.slice('/photos/'.length)}`
@@ -22,11 +22,11 @@ function categoryToFolder(category: string): string {
   return category.trim().toLowerCase().replace(/\s+/g, '-')
 }
 
-function normalizeRecipePhotoPathWithCategory(photo: string, category?: string): string | null {
+function normalizeRecipePhotoPathWithCategory(photo?: string, category?: string): string | null {
   const normalized = normalizeRecipePhotoPath(photo)
   if (normalized) return normalized
 
-  const value = photo.trim().replace(/^\.?\//, '')
+  const value = photo?.trim().replace(/^\.?\//, '')
   if (!value) return null
   if (!category) return null
 

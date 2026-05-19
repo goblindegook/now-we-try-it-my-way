@@ -1,6 +1,5 @@
 ---
 import { getImage } from 'astro:assets'
-import { BloomSearch } from '@pacote/bloom-search'
 import Navigation from '../../../components/Navigation.astro'
 import RecipeCard from '../../../components/RecipeCard.astro'
 import RecipePagination from '../../../components/RecipePagination.astro'
@@ -10,7 +9,7 @@ import { loadAllRecipes } from '../../../lib/cooklang'
 import { pluralize } from '../../../lib/pluralize'
 import { paginateRecipes } from '../../../lib/recipes-pagination'
 import { resolveRecipePhoto } from '../../../lib/recipe-images'
-import { buildConfig, toSearchDocument } from '../../../lib/search'
+import { buildSearchIndex } from '../../../lib/search'
 
 export async function getStaticPaths() {
   const recipes = await loadAllRecipes()
@@ -26,14 +25,12 @@ const currentPage = Number(Astro.params.page ?? '1')
 const { pageItems: visibleRecipes, totalPages } = paginateRecipes(recipes, currentPage)
 const categories = sortCategories([...new Set(recipes.map((r) => r.category as Category))])
 
-const bs = new BloomSearch(buildConfig)
-for (const recipe of recipes) {
+const searchIndex = await buildSearchIndex(recipes, async (recipe) => {
   const photo = resolveRecipePhoto(recipe.photo, recipe.category)
   const processed = photo ? await getImage({ src: photo }) : null
-  const photoSrc = processed?.src ?? null
-  bs.add(recipe.slug, toSearchDocument(recipe, photoSrc))
-}
-const searchIndexJson = JSON.stringify(bs.index)
+  return processed?.src ?? null
+})
+const searchIndexJson = JSON.stringify(searchIndex.index)
 ---
 
 <Layout title={`All Recipes — Page ${currentPage} — Now We Try It My Way`}>
