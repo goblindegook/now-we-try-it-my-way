@@ -34,7 +34,7 @@ const { categories, current } = Astro.props
   .site-navigation__inner {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 1rem;
     display: flex;
     align-items: center;
     gap: 2rem;
@@ -52,7 +52,10 @@ const { categories, current } = Astro.props
     align-items: center;
 
     @media (max-width: 700px) {
-      font-size: 1.0625rem;
+      font-size: clamp(1.5rem, 7vw, 3rem);
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
   .site-navigation__logo:hover {
@@ -71,6 +74,10 @@ const { categories, current } = Astro.props
     -ms-overflow-style: none;
     /* Fade-out shadow at right edge hints at hidden overflow */
     mask-image: linear-gradient(to right, black calc(100% - 2.5rem), transparent 100%);
+
+    @media (max-width: 700px) {
+      justify-content: space-around;
+    }
   }
   .site-navigation__list::-webkit-scrollbar { display: none; }
   /* Only apply fade when overflowing */
@@ -102,6 +109,27 @@ const { categories, current } = Astro.props
   .site-navigation__link.active {
     color: var(--color-accent);
     border-bottom-color: var(--color-accent);
+  }
+  @media (max-width: 700px) {
+    .site-navigation__inner {
+      flex-direction: column;
+      align-items: center;
+      height: auto;
+      padding-top: 1.25rem;
+      padding-bottom: 0;
+      gap: 0.25rem;
+    }
+    .site-navigation__logo {
+      align-self: center;
+      padding-bottom: 0.75rem;
+    }
+    .site-navigation__list {
+      align-self: stretch;
+      gap: 1.25rem;
+    }
+    .site-navigation__link {
+      padding: 0.625rem 0;
+    }
   }
 </style>
 

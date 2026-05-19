@@ -82,6 +82,10 @@ const byCategory = categories.map((cat) => ({
     font-size: 1.125rem;
     color: var(--color-ink);
     margin: 0;
+
+    @media (max-width: 700px) {
+      font-size: 0.875rem;
+    }
   }
   .content {
     max-width: var(--max-width);
