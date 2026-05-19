@@ -36,7 +36,7 @@ const { categories, current } = Astro.props
     margin: 0 auto;
     padding: 0 1rem;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 2rem;
     height: 56px;
   }
@@ -47,9 +47,7 @@ const { categories, current } = Astro.props
     font-style: italic;
     white-space: nowrap;
     color: var(--color-accent);
-    align-self: stretch;
-    display: flex;
-    align-items: center;
+    padding: 0.55rem 0;
 
     @media (max-width: 700px) {
       font-size: clamp(1.5rem, 7vw, 3rem);
@@ -66,8 +64,8 @@ const { categories, current } = Astro.props
     margin: 0;
     padding: 0;
     display: flex;
-    align-items: stretch;
-    align-self: stretch;
+    align-items: baseline;
+    align-self: auto;
     gap: 1.5rem;
     overflow-x: auto;
     scrollbar-width: none;
@@ -90,7 +88,7 @@ const { categories, current } = Astro.props
   }
   .site-navigation__list li {
     display: flex;
-    align-items: stretch;
+    align-items: baseline;
   }
   .site-navigation__link {
     font-size: 0.875rem;
@@ -98,12 +96,9 @@ const { categories, current } = Astro.props
     color: var(--color-chrome-fg);
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    padding: 0;
-    border-bottom: 2px solid transparent;
+    padding: 0 0 0.6rem 0;
+    border-bottom: 4px solid transparent;
     transition: color 0.15s, border-color 0.15s;
-    align-self: stretch;
-    display: flex;
-    align-items: center;
   }
   .site-navigation__link:hover,
   .site-navigation__link.active {
@@ -121,6 +116,7 @@ const { categories, current } = Astro.props
     }
     .site-navigation__logo {
       align-self: center;
+      padding-top: 0;
       padding-bottom: 0.75rem;
     }
     .site-navigation__list {
