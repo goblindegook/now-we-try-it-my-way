@@ -56,7 +56,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
   <div class="recipe-body">
     {recipe?.description && <p class="recipe-description">{recipe.description}</p>}
 
-    <aside class="recipe-sidebar no-print">
+    <aside class="recipe-sidebar">
       <h2 class="recipe-sidebar__title">Ingredients</h2>
       <slot name="sidebar" />
     </aside>
@@ -196,7 +196,37 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
     }
   }
   @media print {
-    .hero { height: 200px; }
+    .hero {
+      height: auto;
+      background: none;
+      overflow: visible;
+    }
+    .hero__img,
+    .hero__placeholder {
+      display: none;
+    }
+    .hero__overlay {
+      position: static;
+      background: none;
+      color: var(--color-ink);
+      display: block;
+    }
+    .hero__overlay-content {
+      max-width: none;
+      margin: 0;
+      padding: 0 0 1rem;
+    }
+    .hero__meta,
+    .hero__times {
+      display: none;
+    }
+    .hero__title {
+      margin: 0;
+      font-size: 1.8rem;
+      line-height: 1.2;
+      text-shadow: none;
+      color: var(--color-ink);
+    }
     .recipe-body { display: block; }
   }
 </style>

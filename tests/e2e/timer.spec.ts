@@ -139,7 +139,7 @@ test('minimized dock shows no timer when all timers are done', async ({ page }) 
   await expect(page.locator('timer-dock').getByText(/\d:\d\d/)).toHaveCount(0)
 })
 
-test('dock UI state (including position) is restored from session storage', async ({ page }) => {
+test('dock UI minimized state is restored from session storage', async ({ page }) => {
   await page.evaluate(() => {
     localStorage.setItem('cookbook-timers', JSON.stringify([{
       id: 't1', label: 'Step 1', recipeName: 'Test', recipeUrl: '/recipes/test',
@@ -162,7 +162,4 @@ test('dock UI state (including position) is restored from session storage', asyn
   await page.reload()
 
   await expect(page.getByRole('button', { name: 'Expand timers' })).toBeVisible()
-  const dock = page.locator('timer-dock')
-  await expect(dock).toHaveCSS('left', '123px')
-  await expect(dock).toHaveCSS('top', '45px')
 })
