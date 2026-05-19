@@ -30,11 +30,13 @@ const searchIndexJson = JSON.stringify(searchIndex.index)
       <h1>All Recipes</h1>
       <p>{pluralize(recipes.length, 'recipe')}</p>
     </div>
-    <recipe-search target="recipes-grid"></recipe-search>
-    <div class="grid" id="recipes-grid">
-      {visibleRecipes.map(recipe => <RecipeCard recipe={recipe} />)}
+    <recipe-search target="recipes-static-content"></recipe-search>
+    <div id="recipes-static-content">
+      <div class="grid">
+        {visibleRecipes.map(recipe => <RecipeCard recipe={recipe} />)}
+      </div>
+      <RecipePagination currentPage={1} totalPages={totalPages} />
     </div>
-    <RecipePagination currentPage={1} totalPages={totalPages} />
   </main>
 </Layout>
 

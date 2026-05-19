@@ -13,17 +13,30 @@ import { buildSearchIndex } from '../../../lib/search'
 
 export async function getStaticPaths() {
   const recipes = await loadAllRecipes()
-  const { totalPages } = paginateRecipes(recipes, 1)
+  const categories = [...new Set(recipes.map((r) => r.category))]
 
-  return Array.from({ length: Math.max(totalPages - 1, 0) }, (_, index) => ({
-    params: { page: String(index + 2) },
-  }))
+  return categories.flatMap((category) => {
+    const categoryRecipes = recipes.filter((r) => r.category === category)
+    const { totalPages } = paginateRecipes(categoryRecipes, 1)
+
+    return Array.from({ length: Math.max(totalPages - 1, 0) }, (_, index) => ({
+      params: {
+        category: category.toLowerCase(),
+        page: String(index + 2),
+      },
+      props: {
+        category,
+        recipes: categoryRecipes,
+      },
+    }))
+  })
 }
 
-const recipes = await loadAllRecipes()
+const { category, recipes } = Astro.props
 const currentPage = Number(Astro.params.page ?? '1')
+const allRecipes = await loadAllRecipes()
+const categories = sortCategories([...new Set(allRecipes.map((r) => r.category as Category))])
 const { pageItems: visibleRecipes, totalPages } = paginateRecipes(recipes, currentPage)
-const categories = sortCategories([...new Set(recipes.map((r) => r.category as Category))])
 
 const searchIndex = await buildSearchIndex(recipes, async (recipe) => {
   const photo = resolveRecipePhoto(recipe.photo, recipe.category)
@@ -33,11 +46,11 @@ const searchIndex = await buildSearchIndex(recipes, async (recipe) => {
 const searchIndexJson = JSON.stringify(searchIndex.index)
 ---
 
-<Layout title={`All Recipes — Page ${currentPage} — Now We Try It My Way`}>
-  <Navigation categories={categories} />
+<Layout title={`${category} — Page ${currentPage} — Now We Try It My Way`}>
+  <Navigation categories={categories} current={category} />
   <main class="listing">
     <div class="listing__header">
-      <h1>All Recipes</h1>
+      <h1>{category}</h1>
       <p>{pluralize(recipes.length, 'recipe')}</p>
     </div>
     <recipe-search target="recipes-static-content"></recipe-search>
@@ -45,7 +58,7 @@ const searchIndexJson = JSON.stringify(searchIndex.index)
       <div class="grid">
         {visibleRecipes.map(recipe => <RecipeCard recipe={recipe} />)}
       </div>
-      <RecipePagination currentPage={currentPage} totalPages={totalPages} />
+      <RecipePagination currentPage={currentPage} totalPages={totalPages} basePath={`/${String(category).toLowerCase()}`} />
     </div>
   </main>
 </Layout>

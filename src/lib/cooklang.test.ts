@@ -71,6 +71,26 @@ describe('parseRecipe', () => {
       const r = parseRecipe('Boil water.', 'r')
       expect(r.cuisine).toBe('')
     })
+
+    it('parses block-list diet into an array', () => {
+      const r = parseRecipe(withFrontmatter('diet:\n  - vegan\n  - vegetarian'), 'r')
+      expect(r.diet).toEqual(['vegan', 'vegetarian'])
+    })
+
+    it('returns empty diet array when diet metadata is absent', () => {
+      const r = parseRecipe('Boil water.', 'r')
+      expect(r.diet).toEqual([])
+    })
+
+    it('extracts difficulty normalized to lowercase', () => {
+      const r = parseRecipe(withFrontmatter('difficulty: Easy'), 'r')
+      expect(r.difficulty).toBe('easy')
+    })
+
+    it('returns empty string for difficulty when absent', () => {
+      const r = parseRecipe('Boil water.', 'r')
+      expect(r.difficulty).toBe('')
+    })
   })
 
   describe('ingredients', () => {
@@ -157,6 +177,8 @@ describe('sorting helpers', () => {
       prepTime: '',
       cookTime: '',
       date,
+      difficulty: '',
+      diet: [],
       ingredients: [],
       timers: [],
       sections: [],
@@ -190,6 +212,8 @@ describe('getAllTags', () => {
       prepTime: '',
       cookTime: '',
       date: '',
+      difficulty: '',
+      diet: [],
       ingredients: [],
       timers: [],
       sections: [],

@@ -17,7 +17,8 @@ export type RecipeMeta = {
   category: string
   cuisine: string
   tags: string[]
-  diet?: string[]
+  diet: string[]
+  difficulty: string
   servings: number
   photo: string
   prepTime: string
@@ -49,6 +50,17 @@ function extractFrontmatter(content: string): Record<string, string> {
   return result
 }
 
+function extractBlockList(content: string, key: string): string[] {
+  const match = content.match(/^---\n([\s\S]*?)\n---/)
+  if (!match) return []
+  const block = match[1].match(new RegExp(`^${key}:\\s*\\n((?:[ \\t]+-[^\\n]*\\n?)*)`, 'm'))
+  if (!block) return []
+  return block[1]
+    .split('\n')
+    .map((line) => line.replace(/^\s*-\s*/, '').trim())
+    .filter(Boolean)
+}
+
 function pickFirstString(...candidates: unknown[]): string {
   for (const candidate of candidates) {
     if (typeof candidate === 'string' && candidate.trim()) return candidate.trim()
@@ -72,6 +84,8 @@ function toRecipeMeta(recipe: Recipe, slug: string): RecipeMeta {
     category: pickFirstString(metadata.category, metadata.course) || 'Other',
     cuisine: pickFirstString(metadata.cuisine).toLowerCase(),
     tags: metadata.tags ?? [],
+    diet: (metadata.diet as string[] | undefined) ?? [],
+    difficulty: pickFirstString(metadata.difficulty).toLowerCase(),
     servings: recipe.servings ?? 4,
     photo: pickFirstString(metadata.image, metadata.picture, metadata.images?.[0], metadata.pictures?.[0]),
     prepTime: pickFirstString(metadata['prep time'], metadata['time.prep']),
@@ -155,6 +169,7 @@ export function parseRecipe(content: string, slug: string): ParsedRecipe {
 
   return {
     ...baseMeta,
+    diet: extractBlockList(content, 'diet'),
     date: pickFirstString(
       frontmatter.created,
       frontmatter.date,

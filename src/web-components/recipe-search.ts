@@ -1,7 +1,8 @@
 import { BloomSearch, type Index } from '@pacote/bloom-search'
+import { css, html, LitElement, type PropertyValues, unsafeCSS } from 'lit'
 import { pluralize } from '../lib/pluralize'
 import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
-import '../styles/recipe-card.css'
+import recipeCardStyles from '../styles/recipe-card.css?raw'
 import './recipe-card'
 
 declare global {
@@ -11,135 +12,129 @@ declare global {
 }
 
 type SearchResult = Pick<RecipeSearchDoc, SearchSummaryField>
+type SearchMode = 'static' | 'results' | 'empty'
 
-const STYLES = `
-  .recipe-search-wrap {
-    position: relative;
-    padding: 3.5rem 0;
-  }
-  .recipe-search-input {
-    display: block;
-    width: 100%;
-    padding: 0.75rem 3rem 0.75rem 1.25rem;
-    font-size: clamp(1.375rem, 3vw, 1.875rem);
-    font-family: var(--font-serif);
-    font-style: normal;
-    font-weight: 400;
-    border: 1px solid var(--color-edge);
-    border-radius: 22px;
-    background: var(--color-surface);
-    color: var(--color-ink);
-    box-sizing: border-box;
-    caret-color: var(--color-interactive);
-    transition: border-color 0.15s, background 0.15s;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  .recipe-search-input::-webkit-search-cancel-button,
-  .recipe-search-input::-webkit-search-decoration {
-    -webkit-appearance: none;
-  }
-  .recipe-search-input::placeholder {
-    color: var(--color-disabled);
-    font-style: normal;
-  }
-  .recipe-search-input:hover{
-    border-color: var(--color-interactive);
-  }
-  .recipe-search-input:focus {
-    outline: none;
-    border-color: var(--color-interactive);
-    background: var(--color-tint);
-  }
-  .recipe-search-icon {
-    position: absolute;
-    right: 0.875rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1.375rem;
-    height: 1.375rem;
-    color: var(--color-interactive);
-    pointer-events: none;
-    transition: color 0.15s;
-  }
-  .recipe-search-wrap:focus-within .recipe-search-icon {
-    color: var(--color-interactive);
-  }
-  .recipe-search-count {
-    font-size: 0.8125rem;
-    color: var(--color-subtle);
-    margin: 0 0 1.75rem;
-    font-weight: 400;
-  }
-  .recipe-search-results-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.75rem;
+class RecipeSearch extends LitElement {
+  static styles = css`
+    ${unsafeCSS(recipeCardStyles)}
+
+    .recipe-search-wrap {
+      position: relative;
+      padding: 1rem 0 4rem;
+    }
+    .recipe-search-input {
+      display: block;
+      width: 100%;
+      padding: 0.75rem 3rem 0.75rem 1.25rem;
+      font-size: clamp(1.375rem, 3vw, 1.875rem);
+      font-family: var(--font-serif);
+      font-style: normal;
+      font-weight: 400;
+      border: 1px solid var(--color-edge);
+      border-radius: 22px;
+      background: var(--color-surface);
+      color: var(--color-ink);
+      box-sizing: border-box;
+      caret-color: var(--color-interactive);
+      transition: border-color 0.15s, background 0.15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .recipe-search-input::-webkit-search-cancel-button,
+    .recipe-search-input::-webkit-search-decoration {
+      -webkit-appearance: none;
+    }
+    .recipe-search-input::placeholder {
+      color: var(--color-disabled);
+      font-style: normal;
+    }
+    .recipe-search-input:hover {
+      border-color: var(--color-interactive);
+    }
+    .recipe-search-input:focus {
+      outline: none;
+      border-color: var(--color-interactive);
+      background: var(--color-tint);
+    }
+    .recipe-search-icon {
+      position: absolute;
+      right: 1rem;
+      top: 33%;
+      transform: translateY(-33%);
+      width: 1.375rem;
+      height: 1.375rem;
+      color: var(--color-interactive);
+      pointer-events: none;
+      transition: color 0.15s;
+    }
+    .recipe-search-wrap:focus-within .recipe-search-icon {
+      color: var(--color-interactive);
+    }
+    .recipe-search-count {
+      font-size: 0.8125rem;
+      color: var(--color-subtle);
+      margin: 0 0 1.75rem;
+      font-weight: 400;
+    }
+    .recipe-search-results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.75rem;
+    }
+
+    .recipe-search-empty {
+      color: var(--color-subtle);
+      font-size: 0.8125rem;
+      font-weight: 400;
+      padding: 3rem 0;
+      text-align: center;
+    }
+    .recipe-search-empty__heading {
+      font-size: 0.8125rem;
+      color: var(--color-subtle);
+      margin: 0;
+    }
+  `
+
+  static properties = {
+    mode: { state: true },
+    results: { state: true },
   }
 
-  .recipe-search-empty {
-    color: var(--color-subtle);
-    font-size: 0.8125rem;
-    font-weight: 400;
-    padding: 3rem 0;
-    text-align: center;
-  }
-  .recipe-search-empty__heading {
-    font-size: 0.8125rem;
-    color: var(--color-subtle);
-    margin: 0;
-  }
-`
-
-const SEARCH_ICON = `<svg class="recipe-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`
-
-function escapeHtml(str: string): string {
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-}
-
-function renderCard(result: SearchResult): string {
-  const attrs = [
-    `slug="${escapeHtml(result.slug)}"`,
-    `title="${escapeHtml(result.title)}"`,
-    `category="${escapeHtml(result.category)}"`,
-    `cuisine="${escapeHtml(result.cuisine)}"`,
-    `prep-time="${escapeHtml(result.prepTime)}"`,
-    `cook-time="${escapeHtml(result.cookTime)}"`,
-    result.photoSrc ? `photo-src="${escapeHtml(result.photoSrc)}"` : '',
-  ]
-    .filter(Boolean)
-    .join(' ')
-  return `<recipe-card ${attrs}></recipe-card>`
-}
-
-class RecipeSearch extends HTMLElement {
   private bs: BloomSearch<RecipeSearchDoc, SearchSummaryField, SearchIndexField> | null = null
-  private staticGrid: HTMLElement | null = null
-  private staticPagination: HTMLElement | null = null
-  private resultsContainer: HTMLElement | null = null
+  private mode: SearchMode = 'static'
+  private results: SearchResult[] = []
+  private staticContent: HTMLElement | null = null
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null
 
   connectedCallback() {
-    this.injectStyles()
-    this.buildDOM()
-    // Defer index init until astro:page-load so the inline script that sets
-    // window.__SEARCH_INDEX__ has already run (View Transitions swaps DOM first,
-    // then runs page scripts, so connectedCallback fires too early).
-    document.addEventListener(
-      'astro:page-load',
-      () => {
-        this.initIndex()
-        this.attachListener()
-      },
-      { once: true },
-    )
+    super.connectedCallback()
+    this.resolveStaticTargets()
+    this.initIndex()
+    document.addEventListener('astro:page-load', this.onAstroPageLoad)
   }
 
-  private injectStyles() {
-    if (document.getElementById('recipe-search-styles')) return
-    const style = document.createElement('style')
-    style.id = 'recipe-search-styles'
-    style.textContent = STYLES
-    document.head.appendChild(style)
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    if (this.debounceTimer) {
+      clearTimeout(this.debounceTimer)
+      this.debounceTimer = null
+    }
+    document.removeEventListener('astro:page-load', this.onAstroPageLoad)
+  }
+
+  protected override updated(changed: PropertyValues<this>) {
+    if (changed.has('mode')) this.syncStaticVisibility()
+  }
+
+  private onAstroPageLoad = () => {
+    this.resolveStaticTargets()
+    this.initIndex()
+  }
+
+  private resolveStaticTargets() {
+    const targetId = this.getAttribute('target')
+    this.staticContent = targetId ? document.getElementById(targetId) : null
   }
 
   private initIndex() {
@@ -153,81 +148,85 @@ class RecipeSearch extends HTMLElement {
     }
   }
 
-  private buildDOM() {
-    const targetId = this.getAttribute('target')
-    this.staticGrid = targetId ? document.getElementById(targetId) : null
-    this.staticPagination =
-      this.staticGrid?.parentElement?.querySelector<HTMLElement>('[data-static-pagination]') ?? null
-
-    this.resultsContainer = document.createElement('div')
-    this.resultsContainer.hidden = true
-    this.staticGrid?.insertAdjacentElement('beforebegin', this.resultsContainer)
-
-    this.innerHTML = `<div class="recipe-search-wrap">
-      ${SEARCH_ICON}
-      <input
-        type="search"
-        class="recipe-search-input"
-        placeholder="Search by ingredient, dish, cuisine or diet…"
-        aria-label="Search recipes"
-      />
-    </div>`
-  }
-
-  private attachListener() {
+  private onInput = (event: Event) => {
     if (!this.bs) return
-    const input = this.querySelector<HTMLInputElement>('input')
-    if (!input) return
-    let timer: ReturnType<typeof setTimeout>
-    input.addEventListener('input', () => {
-      clearTimeout(timer)
-      timer = setTimeout(() => this.handleQuery(input.value.trim()), 200)
-    })
+    const input = event.currentTarget as HTMLInputElement
+    if (this.debounceTimer) clearTimeout(this.debounceTimer)
+    this.debounceTimer = setTimeout(() => this.handleQuery(input.value.trim()), 200)
   }
 
   private handleQuery(query: string) {
     if (!query) {
-      this.showStatic()
+      this.mode = 'static'
+      this.results = []
       return
     }
-    const results = this.bs?.search(query) ?? []
-    if (results.length === 0) {
-      this.showEmpty()
-    } else {
-      this.showResults(results)
+
+    const found = this.bs?.search(query) ?? []
+    if (found.length === 0) {
+      this.mode = 'empty'
+      this.results = []
+      return
     }
+
+    this.mode = 'results'
+    this.results = found
   }
 
-  private showStatic() {
-    if (this.staticGrid) this.staticGrid.style.display = ''
-    if (this.staticPagination) this.staticPagination.style.display = ''
-    if (this.resultsContainer) {
-      this.resultsContainer.hidden = true
-      this.resultsContainer.innerHTML = ''
-    }
+  private syncStaticVisibility() {
+    const staticDisplay = this.mode === 'static' ? '' : 'none'
+    if (this.staticContent) this.staticContent.style.display = staticDisplay
   }
 
-  private showEmpty() {
-    if (this.staticGrid) this.staticGrid.style.display = 'none'
-    if (this.staticPagination) this.staticPagination.style.display = 'none'
-    if (this.resultsContainer) {
-      this.resultsContainer.hidden = false
-      this.resultsContainer.innerHTML =
-        '<div class="recipe-search-empty"><p class="recipe-search-empty__heading">Nothing found.</p></div>'
-    }
+  private renderResultCard(result: SearchResult) {
+    return html`<recipe-card
+      slug=${result.slug}
+      title=${result.title}
+      category=${result.category}
+      cuisine=${result.cuisine}
+      prep-time=${result.prepTime}
+      cook-time=${result.cookTime}
+      photo-src=${result.photoSrc ?? ''}
+    ></recipe-card>`
   }
 
-  private showResults(results: SearchResult[]) {
-    if (this.staticGrid) this.staticGrid.style.display = 'none'
-    if (this.staticPagination) this.staticPagination.style.display = 'none'
-    if (this.resultsContainer) {
-      this.resultsContainer.hidden = false
-      const count = results.length
-      this.resultsContainer.innerHTML = `
-        <div class="recipe-search-count">${pluralize(count, 'recipe')}</div>
-        <div class="recipe-search-results-grid">${results.map((r) => renderCard(r)).join('')}</div>`
-    }
+  render() {
+    return html`
+      <div class="recipe-search-wrap">
+        <svg
+          class="recipe-search-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.75"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="search"
+          class="recipe-search-input"
+          placeholder="Search by ingredient, dish, cuisine or diet"
+          aria-label="Search recipes"
+          @input=${this.onInput}
+        />
+      </div>
+
+      ${
+        this.mode === 'results'
+          ? html`
+              <div class="recipe-search-count">${pluralize(this.results.length, 'recipe')}</div>
+              <div class="recipe-search-results-grid">${this.results.map((result) => this.renderResultCard(result))}</div>
+            `
+          : this.mode === 'empty'
+            ? html`<div class="recipe-search-empty"><p class="recipe-search-empty__heading">Nothing found.</p></div>`
+            : null
+      }
+    `
   }
 }
 
-customElements.define('recipe-search', RecipeSearch)
+if (!customElements.get('recipe-search')) customElements.define('recipe-search', RecipeSearch)

@@ -9,6 +9,7 @@ export type RecipeSearchDoc = {
   ingredients: string
   cuisine: string
   diet: string
+  difficulty: string
   slug: string
   category: string
   prepTime: string
@@ -16,12 +17,12 @@ export type RecipeSearchDoc = {
   photoSrc: string | null
 }
 
-export type SearchIndexField = 'title' | 'tags' | 'ingredients' | 'cuisine' | 'category' | 'diet'
+export type SearchIndexField = 'title' | 'tags' | 'ingredients' | 'cuisine' | 'category' | 'diet' | 'difficulty'
 export type SearchSummaryField = 'slug' | 'title' | 'category' | 'cuisine' | 'prepTime' | 'cookTime' | 'photoSrc'
 
 export const queryConfig: Options<RecipeSearchDoc, SearchSummaryField, SearchIndexField> = {
   errorRate: 0.000001,
-  fields: { title: 3, ingredients: 2, tags: 1, cuisine: 1, category: 1, diet: 1 },
+  fields: { title: 3, ingredients: 2, tags: 1, cuisine: 1, category: 1, diet: 1, difficulty: 1 },
   summary: ['slug', 'title', 'category', 'cuisine', 'prepTime', 'cookTime', 'photoSrc'],
   stemmer,
 }
@@ -41,7 +42,8 @@ export async function buildSearchIndex(recipes: ParsedRecipe[], resolvePhotoSrc:
       title: recipe.title,
       tags: recipe.tags.join(' '),
       ingredients: recipe.ingredients.map((i) => i.name).join(' '),
-      diet: recipe.diet?.join(' ') ?? '',
+      diet: recipe.diet.join(' '),
+      difficulty: recipe.difficulty,
       cuisine: recipe.cuisine,
       slug: recipe.slug,
       category: recipe.category,

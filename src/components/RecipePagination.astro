@@ -1,20 +1,21 @@
 ---
-import { recipePageHref } from '../lib/recipes-pagination'
+import { pageHref } from '../lib/recipes-pagination'
 
 interface Props {
   currentPage: number
   totalPages: number
+  basePath?: string
 }
 
-const { currentPage, totalPages } = Astro.props
+const { currentPage, totalPages, basePath = '/recipes' } = Astro.props
 const pages = Array.from({ length: totalPages }, (_, index) => index + 1)
 ---
 
 {
   totalPages > 1 && (
-    <nav class="pagination" aria-label="Recipe pages" data-static-pagination>
+    <nav class="pagination" aria-label="Recipe pages">
       {currentPage > 1 && (
-        <a href={recipePageHref(currentPage - 1)} aria-label="Previous page" class="pagination__edge">
+        <a href={pageHref(basePath, currentPage - 1)} aria-label="Previous page" class="pagination__edge">
           Previous page
         </a>
       )}
@@ -23,7 +24,7 @@ const pages = Array.from({ length: totalPages }, (_, index) => index + 1)
         {pages.map((page) => (
           <li>
             <a
-              href={recipePageHref(page)}
+              href={pageHref(basePath, page)}
               aria-label={`Page ${page}`}
               aria-current={page === currentPage ? 'page' : undefined}
               class={page === currentPage ? 'pagination__current' : 'pagination__link'}
@@ -35,7 +36,7 @@ const pages = Array.from({ length: totalPages }, (_, index) => index + 1)
       </ol>
 
       {currentPage < totalPages && (
-        <a href={recipePageHref(currentPage + 1)} aria-label="Next page" class="pagination__edge">
+        <a href={pageHref(basePath, currentPage + 1)} aria-label="Next page" class="pagination__edge">
           Next page
         </a>
       )}

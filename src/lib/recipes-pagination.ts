@@ -20,6 +20,10 @@ export function paginateRecipes<T>(
   }
 }
 
+export function pageHref(basePath: string, page: number): string {
+  return page <= 1 ? basePath : `${basePath}/page/${page}`
+}
+
 export function recipePageHref(page: number): string {
-  return page <= 1 ? '/recipes' : `/recipes/page/${page}`
+  return pageHref('/recipes', page)
 }

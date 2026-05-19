@@ -2,11 +2,13 @@
 import { getImage } from 'astro:assets'
 import Navigation from '../../components/Navigation.astro'
 import RecipeCard from '../../components/RecipeCard.astro'
+import RecipePagination from '../../components/RecipePagination.astro'
 import Layout from '../../layouts/Layout.astro'
 import { type Category, sortCategories } from '../../lib/categories'
 import { loadAllRecipes } from '../../lib/cooklang'
 import { pluralize } from '../../lib/pluralize'
 import { resolveRecipePhoto } from '../../lib/recipe-images'
+import { paginateRecipes } from '../../lib/recipes-pagination'
 import { buildSearchIndex } from '../../lib/search'
 
 export async function getStaticPaths() {
@@ -24,6 +26,7 @@ export async function getStaticPaths() {
 const { category, recipes } = Astro.props
 const allRecipes = await loadAllRecipes()
 const categories = sortCategories([...new Set(allRecipes.map((r) => r.category as Category))])
+const { pageItems: visibleRecipes, totalPages } = paginateRecipes(recipes, 1)
 
 const searchIndex = await buildSearchIndex(recipes, async (recipe) => {
   const photo = resolveRecipePhoto(recipe.photo, recipe.category)
@@ -40,9 +43,12 @@ const searchIndexJson = JSON.stringify(searchIndex.index)
       <h1>{category}</h1>
       <p>{pluralize(recipes.length, 'recipe')}</p>
     </div>
-    <recipe-search target="recipes-grid"></recipe-search>
-    <div class="grid" id="recipes-grid">
-      {recipes.map(recipe => <RecipeCard recipe={recipe} />)}
+    <recipe-search target="recipes-static-content"></recipe-search>
+    <div id="recipes-static-content">
+      <div class="grid">
+        {visibleRecipes.map(recipe => <RecipeCard recipe={recipe} />)}
+      </div>
+      <RecipePagination currentPage={1} totalPages={totalPages} basePath={`/${String(category).toLowerCase()}`} />
     </div>
   </main>
 </Layout>
