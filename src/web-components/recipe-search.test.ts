@@ -5,12 +5,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
 
 type SearchHost = HTMLElement & { updateComplete?: Promise<unknown> }
-const getShadowRoot = (host: SearchHost | null): ShadowRoot => {
-  expect(host).not.toBeNull()
-  const shadowRoot = host?.shadowRoot
-  expect(shadowRoot).not.toBeNull()
-  return shadowRoot as ShadowRoot
-}
 
 describe('recipe-search', () => {
   beforeEach(async () => {
@@ -75,9 +69,10 @@ describe('recipe-search', () => {
     const host = document.querySelector<SearchHost>('recipe-search')
     await host?.updateComplete
     document.dispatchEvent(new Event('astro:page-load'))
-    const shadowRoot = getShadowRoot(host)
 
-    const search = getByRole(shadowRoot as unknown as HTMLElement, 'searchbox', { name: /search recipes/i }) as HTMLInputElement
+    const search = getByRole(host?.shadowRoot as unknown as HTMLElement, 'searchbox', {
+      name: /search recipes/i,
+    }) as HTMLInputElement
     search.value = 'spaghetti'
     search.dispatchEvent(new Event('input', { bubbles: true }))
 
@@ -104,9 +99,10 @@ describe('recipe-search', () => {
     const host = document.querySelector<SearchHost>('recipe-search')
     await host?.updateComplete
     document.dispatchEvent(new Event('astro:page-load'))
-    const shadowRoot = getShadowRoot(host)
 
-    const search = getByRole(shadowRoot as unknown as HTMLElement, 'searchbox', { name: /search recipes/i }) as HTMLInputElement
+    const search = getByRole(host?.shadowRoot as unknown as HTMLElement, 'searchbox', {
+      name: /search recipes/i,
+    }) as HTMLInputElement
     search.value = 'zqxjvk'
     search.dispatchEvent(new Event('input', { bubbles: true }))
 

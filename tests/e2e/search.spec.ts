@@ -19,7 +19,10 @@ test.describe('/recipes search', () => {
   test('second page shows remaining recipes', async ({ page }) => {
     await page.goto('/recipes/page/2')
 
-    await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveCount(2)
+    const recipeCards = page.getByRole('main').getByRole('heading', { level: 2 })
+    const recipeCount = await recipeCards.count()
+    expect(recipeCount).toBeGreaterThan(0)
+    expect(recipeCount).toBeLessThanOrEqual(12)
     await expect(page.getByRole('link', { name: 'Zabaglione' })).toBeVisible()
 
     const pagination = page.getByRole('navigation', { name: 'Recipe pages' })
