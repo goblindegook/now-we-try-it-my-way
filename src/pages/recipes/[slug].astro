@@ -397,8 +397,8 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     line-height: 1.2;
   }
   .ingredient__amount {
-    color: var(--color-standout);
-    font-weight: 500;
+    color: var(--color-highlight);
+    font-weight: 600;
     white-space: nowrap;
   }
 
@@ -416,7 +416,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     transition: opacity 0.2s;
   }
   .step:last-child { border-bottom: none; }
-  .step[data-checked="true"] { opacity: 0.45; }
+  .step[data-checked="true"] { opacity: 0.55; }
 
   .step__checkbox {
     all: unset;
@@ -498,7 +498,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
   }
   .step__text :global(.step-timer-ref) {
     font-weight: 500;
-    color: var(--color-standout);
+    color: var(--color-interactive);
   }
 
   @keyframes step-check-pop {

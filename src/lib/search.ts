@@ -18,7 +18,7 @@ export type SearchIndexField = 'title' | 'tags' | 'ingredients' | 'cuisine' | 'c
 export type SearchSummaryField = 'slug' | 'title' | 'category' | 'cuisine' | 'prepTime' | 'cookTime' | 'photoSrc'
 
 export const queryConfig: Options<RecipeSearchDoc, SearchSummaryField, SearchIndexField> = {
-  errorRate: 0.00005,
+  errorRate: 0.000001,
   fields: { title: 3, tags: 2, ingredients: 2, cuisine: 1, category: 1 },
   summary: ['slug', 'title', 'category', 'cuisine', 'prepTime', 'cookTime', 'photoSrc'],
   stemmer,

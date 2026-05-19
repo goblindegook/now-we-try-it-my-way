@@ -1,0 +1,88 @@
+---
+import { recipePageHref } from '../lib/recipes-pagination'
+
+interface Props {
+  currentPage: number
+  totalPages: number
+}
+
+const { currentPage, totalPages } = Astro.props
+const pages = Array.from({ length: totalPages }, (_, index) => index + 1)
+---
+
+{
+  totalPages > 1 && (
+    <nav class="pagination" aria-label="Recipe pages" data-static-pagination>
+      {currentPage > 1 && (
+        <a href={recipePageHref(currentPage - 1)} aria-label="Previous page" class="pagination__edge">
+          Previous page
+        </a>
+      )}
+
+      <ol class="pagination__list">
+        {pages.map((page) => (
+          <li>
+            <a
+              href={recipePageHref(page)}
+              aria-label={`Page ${page}`}
+              aria-current={page === currentPage ? 'page' : undefined}
+              class={page === currentPage ? 'pagination__current' : 'pagination__link'}
+            >
+              {page}
+            </a>
+          </li>
+        ))}
+      </ol>
+
+      {currentPage < totalPages && (
+        <a href={recipePageHref(currentPage + 1)} aria-label="Next page" class="pagination__edge">
+          Next page
+        </a>
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .pagination {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .pagination__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .pagination__link,
+  .pagination__current,
+  .pagination__edge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    border: 1px solid var(--color-edge);
+    font-size: 0.875rem;
+    text-decoration: none;
+    color: inherit;
+    background: var(--color-surface);
+  }
+  .pagination__link:hover,
+  .pagination__edge:hover {
+    border-color: var(--color-interactive);
+  }
+  .pagination__current {
+    border-color: var(--color-interactive);
+    color: var(--color-interactive);
+    font-weight: 600;
+  }
+</style>

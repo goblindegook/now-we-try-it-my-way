@@ -163,6 +163,7 @@ function renderCard(result: SearchResult): string {
 class RecipeSearch extends HTMLElement {
   private bs: BloomSearch<RecipeSearchDoc, SearchSummaryField, SearchIndexField> | null = null
   private staticGrid: HTMLElement | null = null
+  private staticPagination: HTMLElement | null = null
   private resultsContainer: HTMLElement | null = null
 
   connectedCallback() {
@@ -203,6 +204,7 @@ class RecipeSearch extends HTMLElement {
   private buildDOM() {
     const targetId = this.getAttribute('target')
     this.staticGrid = targetId ? document.getElementById(targetId) : null
+    this.staticPagination = this.staticGrid?.parentElement?.querySelector<HTMLElement>('[data-static-pagination]') ?? null
 
     this.resultsContainer = document.createElement('div')
     this.resultsContainer.hidden = true
@@ -242,6 +244,7 @@ class RecipeSearch extends HTMLElement {
 
   private showStatic() {
     if (this.staticGrid) this.staticGrid.style.display = ''
+    if (this.staticPagination) this.staticPagination.style.display = ''
     if (this.resultsContainer) {
       this.resultsContainer.hidden = true
       this.resultsContainer.innerHTML = ''
@@ -250,6 +253,7 @@ class RecipeSearch extends HTMLElement {
 
   private showEmpty() {
     if (this.staticGrid) this.staticGrid.style.display = 'none'
+    if (this.staticPagination) this.staticPagination.style.display = 'none'
     if (this.resultsContainer) {
       this.resultsContainer.hidden = false
       this.resultsContainer.innerHTML =
@@ -259,6 +263,7 @@ class RecipeSearch extends HTMLElement {
 
   private showResults(results: SearchResult[]) {
     if (this.staticGrid) this.staticGrid.style.display = 'none'
+    if (this.staticPagination) this.staticPagination.style.display = 'none'
     if (this.resultsContainer) {
       this.resultsContainer.hidden = false
       this.resultsContainer.innerHTML = `<div class="recipe-search-results-grid">${results.map(renderCard).join('')}</div>`

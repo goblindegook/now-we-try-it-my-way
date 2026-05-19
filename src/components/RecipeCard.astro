@@ -39,12 +39,12 @@ const cuisineFlag = cuisineToFlag(recipe.cuisine)
     border-radius: 4px;
     overflow: hidden;
     border: 1px solid var(--color-edge);
-    transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease;
     background: var(--color-surface);
   }
   .card:hover {
     box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    transform: translateY(-3px);
+    border-left-color: var(--color-interactive);
   }
   @media (prefers-reduced-motion: reduce) {
     .card { transition: box-shadow 0.15s ease-out, transform 0.15s ease-out; }
@@ -52,8 +52,8 @@ const cuisineFlag = cuisineToFlag(recipe.cuisine)
   .card__image-wrap {
     aspect-ratio: 4/3;
     overflow: hidden;
-    background-color: var(--color-void);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 16L16 0M0 0L16 16' stroke='%232e2a26' stroke-width='0.75' fill='none'/%3E%3C/svg%3E");
+    background-color: var(--color-edge);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 16L16 0M0 0L16 16' stroke='%23cdbbb0' stroke-width='0.75' fill='none'/%3E%3C/svg%3E");
     background-size: 16px 16px;
   }
   .card__image {

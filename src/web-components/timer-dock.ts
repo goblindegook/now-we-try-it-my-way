@@ -71,6 +71,7 @@ export class TimerDock extends LitElement {
     this.pollInterval = setInterval(() => this.refresh(), 500)
     window.addEventListener('cookbook-timers-updated', this.onStoreUpdate)
     window.addEventListener('storage', this.onStoreUpdate)
+    window.addEventListener('resize', this.clampPosition, { passive: true })
     document.addEventListener('click', this.unlockAudio, { capture: true, once: true })
     document.addEventListener('touchend', this.unlockAudio, { capture: true, once: true })
     this.restoreUiState()
@@ -81,6 +82,7 @@ export class TimerDock extends LitElement {
     if (this.pollInterval) clearInterval(this.pollInterval)
     window.removeEventListener('cookbook-timers-updated', this.onStoreUpdate)
     window.removeEventListener('storage', this.onStoreUpdate)
+    window.removeEventListener('resize', this.clampPosition)
     document.removeEventListener('click', this.unlockAudio, true)
     document.removeEventListener('touchend', this.unlockAudio, true)
     document.removeEventListener('pointermove', this.onDragMove)
@@ -89,6 +91,20 @@ export class TimerDock extends LitElement {
       clearTimeout(this.pendingClearTimeout)
       this.pendingClearTimeout = null
     }
+  }
+
+  private clampPosition = () => {
+    const dock = this.shadowRoot?.querySelector('.dock') as HTMLElement | null
+    const w = dock?.offsetWidth ?? 280
+    const h = dock?.offsetHeight ?? 44
+    const rect = this.getBoundingClientRect()
+    if (!Number.isFinite(rect.left)) return
+    const x = Math.max(8, Math.min(window.innerWidth - w - 8, rect.left))
+    const y = Math.max(8, Math.min(window.innerHeight - h - 8, rect.top))
+    this.style.left = `${x}px`
+    this.style.top = `${y}px`
+    this.style.right = 'auto'
+    this.style.bottom = 'auto'
   }
 
   private restoreUiState() {

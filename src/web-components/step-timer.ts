@@ -189,8 +189,13 @@ export class StepTimer extends LitElement {
       cursor: pointer;
       transition: background 0.15s, border-color 0.15s, transform 0.08s ease;
       user-select: none;
+      color: var(--color-interactive);
     }
-    .timer:hover { border-color: var(--color-interactive); }
+    .timer:hover {
+      color: var(--color-interactive);
+      border-color: var(--color-interactive);
+      background: var(--color-tint);
+    }
     .timer:active { transform: scale(0.94); }
     .timer--running {
       background: var(--color-interactive);

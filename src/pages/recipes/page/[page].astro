@@ -1,19 +1,29 @@
 ---
 import { getImage } from 'astro:assets'
 import { BloomSearch } from '@pacote/bloom-search'
-import Navigation from '../../components/Navigation.astro'
-import RecipeCard from '../../components/RecipeCard.astro'
-import RecipePagination from '../../components/RecipePagination.astro'
-import Layout from '../../layouts/Layout.astro'
-import { type Category, sortCategories } from '../../lib/categories'
-import { loadAllRecipes } from '../../lib/cooklang'
-import { pluralize } from '../../lib/pluralize'
-import { resolveRecipePhoto } from '../../lib/recipe-images'
-import { paginateRecipes } from '../../lib/recipes-pagination'
-import { buildConfig, toSearchDocument } from '../../lib/search'
+import Navigation from '../../../components/Navigation.astro'
+import RecipeCard from '../../../components/RecipeCard.astro'
+import RecipePagination from '../../../components/RecipePagination.astro'
+import Layout from '../../../layouts/Layout.astro'
+import { type Category, sortCategories } from '../../../lib/categories'
+import { loadAllRecipes } from '../../../lib/cooklang'
+import { pluralize } from '../../../lib/pluralize'
+import { paginateRecipes } from '../../../lib/recipes-pagination'
+import { resolveRecipePhoto } from '../../../lib/recipe-images'
+import { buildConfig, toSearchDocument } from '../../../lib/search'
+
+export async function getStaticPaths() {
+  const recipes = await loadAllRecipes()
+  const { totalPages } = paginateRecipes(recipes, 1)
+
+  return Array.from({ length: Math.max(totalPages - 1, 0) }, (_, index) => ({
+    params: { page: String(index + 2) },
+  }))
+}
 
 const recipes = await loadAllRecipes()
-const { pageItems: visibleRecipes, totalPages } = paginateRecipes(recipes, 1)
+const currentPage = Number(Astro.params.page ?? '1')
+const { pageItems: visibleRecipes, totalPages } = paginateRecipes(recipes, currentPage)
 const categories = sortCategories([...new Set(recipes.map((r) => r.category as Category))])
 
 const bs = new BloomSearch(buildConfig)
@@ -26,7 +36,7 @@ for (const recipe of recipes) {
 const searchIndexJson = JSON.stringify(bs.index)
 ---
 
-<Layout title="All Recipes — Now We Try It My Way">
+<Layout title={`All Recipes — Page ${currentPage} — Now We Try It My Way`}>
   <Navigation categories={categories} />
   <main class="listing">
     <div class="listing__header">
@@ -37,7 +47,7 @@ const searchIndexJson = JSON.stringify(bs.index)
     <div class="grid" id="recipes-grid">
       {visibleRecipes.map(recipe => <RecipeCard recipe={recipe} />)}
     </div>
-    <RecipePagination currentPage={1} totalPages={totalPages} />
+    <RecipePagination currentPage={currentPage} totalPages={totalPages} />
   </main>
 </Layout>
 
@@ -46,7 +56,7 @@ const searchIndexJson = JSON.stringify(bs.index)
 </script>
 
 <script>
-  import '../../web-components/recipe-search'
+  import '../../../web-components/recipe-search'
 </script>
 
 <style>
