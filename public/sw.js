@@ -2,13 +2,24 @@ const CACHE_VERSION = 'v3'
 const PRECACHE_CACHE = `precache-${CACHE_VERSION}`
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`
 const OFFLINE_URL = '/offline/'
-const CORE_URLS = ['/', '/recipes/', OFFLINE_URL, '/favicon.ico', '/favicon.svg']
 const STATIC_ASSET_EXTENSIONS = /\.(?:css|js|mjs|woff2?|ttf|otf|png|jpe?g|webp|avif|gif|svg|ico)$/i
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(PRECACHE_CACHE)
-    await cache.addAll(CORE_URLS)
+    await cache.addAll([
+        '/',
+        '/recipes/',
+        OFFLINE_URL,
+        '/favicon.ico',
+        '/favicon.svg',
+        '/fonts/inter/inter-regular-400.ttf',
+        '/fonts/inter/inter-600.ttf',
+        '/fonts/inter/inter-italic-400.ttf',
+        '/fonts/playfair-display/playfair-regular-400.ttf',
+        '/fonts/playfair-display/playfair-600.ttf',
+        '/fonts/playfair-display/playfair-italic-400.ttf',
+      ])
 
     await self.skipWaiting()
   })())

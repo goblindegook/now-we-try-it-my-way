@@ -375,7 +375,7 @@ export class TimerDock extends LitElement {
     .dock__title {
       flex: 1;
       font-size: 0.6875rem;
-      font-weight: 500;
+      font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: rgba(255,255,255,0.5);
@@ -423,7 +423,7 @@ export class TimerDock extends LitElement {
     }
     .timer-item__recipe {
       font-size: 0.6875rem;
-      font-weight: 500;
+      font-weight: 600;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: rgba(255,255,255,0.45);

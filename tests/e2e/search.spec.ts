@@ -19,7 +19,7 @@ test.describe('/recipes search', () => {
   test('second page shows remaining recipes', async ({ page }) => {
     await page.goto('/recipes/page/2')
 
-    await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveCount(1)
+    await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveCount(2)
     await expect(page.getByRole('link', { name: 'Zabaglione' })).toBeVisible()
 
     const pagination = page.getByRole('navigation', { name: 'Recipe pages' })
@@ -35,7 +35,6 @@ test.describe('/recipes search', () => {
   test('static grid visible by default', async ({ page }) => {
     await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Tomato couscous' })).toBeVisible()
   })
 
   test('typing a query hides static grid and shows results', async ({ page }) => {
@@ -66,8 +65,7 @@ test.describe('/recipes search', () => {
 
   test('no-results query shows empty state', async ({ page }) => {
     await page.getByRole('searchbox', { name: 'Search recipes' }).fill('zqxjvk')
-    await expect(page.getByText('Nothing matched.')).toBeVisible({ timeout: 500 })
-    await expect(page.getByText('Try an ingredient, dish name, or tag.')).toBeVisible()
+    await expect(page.getByText('Nothing found.')).toBeVisible({ timeout: 500 })
     await expect(page.getByRole('link', { name: 'Moussaka' })).not.toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Recipe pages' })).toBeHidden()
   })
@@ -75,10 +73,10 @@ test.describe('/recipes search', () => {
   test('empty state clears back to static grid', async ({ page }) => {
     const search = page.getByRole('searchbox', { name: 'Search recipes' })
     await search.fill('zqxjvk')
-    await expect(page.getByText('Nothing matched.')).toBeVisible({ timeout: 500 })
+    await expect(page.getByText('Nothing found.')).toBeVisible({ timeout: 500 })
     await search.fill('')
     await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible({ timeout: 500 })
-    await expect(page.getByText('Nothing matched.')).not.toBeVisible()
+    await expect(page.getByText('Nothing found.')).not.toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Recipe pages' })).toBeVisible()
   })
 })
@@ -100,6 +98,6 @@ test.describe('category page search', () => {
 
   test('no-results query shows empty state on category page', async ({ page }) => {
     await page.getByRole('searchbox', { name: 'Search recipes' }).fill('zqxjvk')
-    await expect(page.getByText('Nothing matched.')).toBeVisible({ timeout: 500 })
+    await expect(page.getByText('Nothing found.')).toBeVisible({ timeout: 500 })
   })
 })

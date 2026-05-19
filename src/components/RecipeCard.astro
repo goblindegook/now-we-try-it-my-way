@@ -3,6 +3,7 @@ import { Image } from 'astro:assets'
 import type { RecipeMeta } from '../lib/cooklang'
 import { cuisineToFlag } from '../lib/cuisine'
 import { resolveRecipePhoto } from '../lib/recipe-images'
+import '../styles/recipe-card.css'
 
 interface Props {
   recipe: RecipeMeta
@@ -13,93 +14,22 @@ const recipePhoto = resolveRecipePhoto(recipe.photo, recipe.category)
 const cuisineFlag = cuisineToFlag(recipe.cuisine)
 ---
 
-<a href={href} class="card">
-  <div class="card__image-wrap">
+<a href={href} class="recipe-card">
+  <div class="recipe-card__image-wrap">
     {recipePhoto
-      ? <Image src={recipePhoto} alt={recipe.title} class="card__image" loading="lazy" />
-      : <div class="card__placeholder" aria-hidden="true" />
+      ? <Image src={recipePhoto} alt={recipe.title} class="recipe-card__image" loading="lazy" />
+      : <div class="recipe-card__placeholder" aria-hidden="true" />
     }
   </div>
-  <div class="card__body">
-    <div class="card__top">
-      <p class="card__category">{recipe.category}</p>
-      {cuisineFlag && <span class="card__flag">{cuisineFlag}</span>}
+  <div class="recipe-card__body">
+    <div class="recipe-card__top">
+      <p class="recipe-card__category">{recipe.category}</p>
+      {cuisineFlag && <span class="recipe-card__flag">{cuisineFlag}</span>}
     </div>
-    <h2 class="card__title">{recipe.title}</h2>
-    <div class="card__meta">
+    <h2 class="recipe-card__title">{recipe.title}</h2>
+    <div class="recipe-card__meta">
       {recipe.prepTime && <span>Prep: {recipe.prepTime}</span>}
       {recipe.cookTime && <span>Cook: {recipe.cookTime}</span>}
     </div>
   </div>
 </a>
-
-<style>
-  .card {
-    display: block;
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid var(--color-edge);
-    transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease;
-    background: var(--color-surface);
-  }
-  .card:hover {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    border-color: var(--color-interactive);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .card { transition: box-shadow 0.15s ease-out, transform 0.15s ease-out; }
-  }
-  .card__image-wrap {
-    aspect-ratio: 4/3;
-    overflow: hidden;
-    background-color: var(--color-edge);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 16L16 0M0 0L16 16' stroke='%23cdbbb0' stroke-width='0.75' fill='none'/%3E%3C/svg%3E");
-    background-size: 16px 16px;
-  }
-  .card__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s;
-  }
-  .card:hover .card__image { transform: scale(1.03); }
-  .card__placeholder {
-    width: 100%;
-    height: 100%;
-  }
-  .card__body { padding: 1rem 1.25rem 1.25rem; }
-  .card__top {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin: 0 0 0.4rem;
-  }
-  .card__category {
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-interactive);
-    margin: 0;
-  }
-  .card__flag {
-    font-size: 1.1rem;
-    line-height: 1;
-  }
-  .card__title {
-    font-family: var(--font-serif);
-    font-size: 1.5rem;
-    margin: 0 0 0.5rem;
-    line-height: 1.25;
-  }
-.card__meta {
-    display: flex;
-    gap: 0;
-    font-size: 0.75rem;
-    color: var(--color-subtle);
-  }
-  .card__meta span + span::before {
-    content: '·';
-    margin: 0 0.5rem;
-  }
-</style>

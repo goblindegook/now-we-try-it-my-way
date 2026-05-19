@@ -7,8 +7,8 @@ import Layout from '../../../layouts/Layout.astro'
 import { type Category, sortCategories } from '../../../lib/categories'
 import { loadAllRecipes } from '../../../lib/cooklang'
 import { pluralize } from '../../../lib/pluralize'
-import { paginateRecipes } from '../../../lib/recipes-pagination'
 import { resolveRecipePhoto } from '../../../lib/recipe-images'
+import { paginateRecipes } from '../../../lib/recipes-pagination'
 import { buildSearchIndex } from '../../../lib/search'
 
 export async function getStaticPaths() {

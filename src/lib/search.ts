@@ -1,5 +1,5 @@
-import { BloomSearch } from '@pacote/bloom-search'
 import type { Options } from '@pacote/bloom-search'
+import { BloomSearch } from '@pacote/bloom-search'
 import { stemmer } from 'stemmer'
 import type { ParsedRecipe } from './cooklang'
 

@@ -1,7 +1,8 @@
 import { BloomSearch, type Index } from '@pacote/bloom-search'
-import { cuisineToFlag } from '../lib/cuisine'
 import { pluralize } from '../lib/pluralize'
 import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
+import '../styles/recipe-card.css'
+import './recipe-card'
 
 declare global {
   interface Window {
@@ -76,81 +77,6 @@ const STYLES = `
     gap: 1.75rem;
   }
 
-  .recipe-search-card {
-    display: block;
-    border-radius: 4px;
-    overflow: hidden;
-    border: 1px solid var(--color-edge);
-    transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease;
-    background: var(--color-surface);
-  }
-  .recipe-search-card:hover {
-    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-    border-color: var(--color-interactive);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .recipe-search-card { transition: box-shadow 0.15s ease-out, transform 0.15s ease-out; }
-  }
-
-  .recipe-search-card__image-wrap {
-    aspect-ratio: 4/3;
-    overflow: hidden;
-    background-color: var(--color-void);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 16L16 0M0 0L16 16' stroke='%232e2a26' stroke-width='0.75' fill='none'/%3E%3C/svg%3E");
-    background-size: 16px 16px;
-  }
-  .recipe-search-card__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.3s;
-  }
-  .recipe-search-card:hover .recipe-search-card__image {
-    transform: scale(1.03);
-  }
-  .recipe-search-card__placeholder {
-    width: 100%;
-    height: 100%;
-  }
-  .recipe-search-card__body {
-    padding: 1rem 1.25rem 1.25rem;
-  }
-  .recipe-search-card__top {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin: 0 0 0.4rem;
-  }
-  .recipe-search-card__category {
-    font-size: 0.75rem;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-interactive);
-    margin: 0;
-  }
-  .recipe-search-card__flag {
-    font-size: 1.1rem;
-    line-height: 1;
-  }
-  .recipe-search-card__title {
-    font-family: var(--font-serif);
-    font-size: 1.5rem;
-    margin: 0 0 0.5rem;
-    line-height: 1.25;
-    color: var(--color-ink);
-  }
-  .recipe-search-card__meta {
-    display: flex;
-    gap: 0;
-    font-size: 0.75rem;
-    color: var(--color-subtle);
-  }
-  .recipe-search-card__meta span + span::before {
-    content: '·';
-    margin: 0 0.5rem;
-  }
   .recipe-search-empty {
     color: var(--color-subtle);
     font-size: 0.8125rem;
@@ -171,29 +97,19 @@ function escapeHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
-function renderCard(result: SearchResult, index: number): string {
-  const href = `/recipes/${result.slug}`
-  const img = result.photoSrc
-    ? `<img src="${escapeHtml(result.photoSrc)}" alt="${escapeHtml(result.title)}" class="recipe-search-card__image" loading="lazy" />`
-    : `<div class="recipe-search-card__placeholder" aria-hidden="true"></div>`
-  const flag = cuisineToFlag(result.cuisine ?? '')
-  const meta = [
-    result.prepTime ? `<span>Prep: ${escapeHtml(result.prepTime)}</span>` : '',
-    result.cookTime ? `<span>Cook: ${escapeHtml(result.cookTime)}</span>` : '',
+function renderCard(result: SearchResult): string {
+  const attrs = [
+    `slug="${escapeHtml(result.slug)}"`,
+    `title="${escapeHtml(result.title)}"`,
+    `category="${escapeHtml(result.category)}"`,
+    `cuisine="${escapeHtml(result.cuisine)}"`,
+    `prep-time="${escapeHtml(result.prepTime)}"`,
+    `cook-time="${escapeHtml(result.cookTime)}"`,
+    result.photoSrc ? `photo-src="${escapeHtml(result.photoSrc)}"` : '',
   ]
     .filter(Boolean)
-    .join('')
-  return `<a href="${escapeHtml(href)}" class="recipe-search-card" style="animation-delay:${index * 50}ms">
-    <div class="recipe-search-card__image-wrap">${img}</div>
-    <div class="recipe-search-card__body">
-      <div class="recipe-search-card__top">
-        <p class="recipe-search-card__category">${escapeHtml(result.category)}</p>
-        ${flag ? `<span class="recipe-search-card__flag">${flag}</span>` : ''}
-      </div>
-      <h2 class="recipe-search-card__title">${escapeHtml(result.title)}</h2>
-      ${meta ? `<div class="recipe-search-card__meta">${meta}</div>` : ''}
-    </div>
-  </a>`
+    .join(' ')
+  return `<recipe-card ${attrs}></recipe-card>`
 }
 
 class RecipeSearch extends HTMLElement {
@@ -309,7 +225,7 @@ class RecipeSearch extends HTMLElement {
       const count = results.length
       this.resultsContainer.innerHTML = `
         <div class="recipe-search-count">${pluralize(count, 'recipe')}</div>
-        <div class="recipe-search-results-grid">${results.map((r, i) => renderCard(r, i)).join('')}</div>`
+        <div class="recipe-search-results-grid">${results.map((r) => renderCard(r)).join('')}</div>`
     }
   }
 }

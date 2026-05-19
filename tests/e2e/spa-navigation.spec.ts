@@ -9,6 +9,9 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('scaler works on second recipe page after SPA navigation', async ({ page }) => {
+  await page.getByRole('link', { name: 'All recipes' }).click()
+  await page.waitForURL('/recipes')
+
   await page.getByRole('link', { name: /Moussaka/ }).first().click()
   await page.waitForURL(RECIPE_A)
 
@@ -23,6 +26,9 @@ test('scaler works on second recipe page after SPA navigation', async ({ page })
 })
 
 test('checklist works on second recipe page after SPA navigation', async ({ page }) => {
+  await page.getByRole('link', { name: 'All recipes' }).click()
+  await page.waitForURL('/recipes')
+
   await page.getByRole('link', { name: /Moussaka/ }).first().click()
   await page.waitForURL(RECIPE_A)
 

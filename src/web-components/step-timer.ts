@@ -210,7 +210,7 @@ export class StepTimer extends LitElement {
       animation: timer-done-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }
     .timer__icon { display: inline-flex; align-items: center; }
-    .timer__time { font-weight: 500; font-variant-numeric: tabular-nums; min-width: 4.5ch; text-align: right; }
+    .timer__time { font-weight: 600; font-variant-numeric: tabular-nums; min-width: 4.5ch; text-align: right; }
     @media (prefers-reduced-motion: reduce) {
       .timer--running { animation: none; }
       .timer--done { animation: none; }

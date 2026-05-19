@@ -121,10 +121,8 @@ test('timer dock fits within viewport on small screen (375px wide)', async ({ pa
   await expect(page.getByText('Timers')).toBeVisible({ timeout: 2000 })
 
   const overflows = await page.evaluate(() => {
-    const el = document.querySelector('timer-dock')
-    if (!el) return true
-    const rect = el.getBoundingClientRect()
-    return rect.left < 0 || rect.right > window.innerWidth
+    const rect = document.querySelector('timer-dock')?.getBoundingClientRect()
+    return !rect || rect.left < 0 || rect.right > window.innerWidth
   })
   expect(overflows).toBe(false)
 })
