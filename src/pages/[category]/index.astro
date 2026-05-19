@@ -1,7 +1,7 @@
 ---
 import { getImage } from 'astro:assets'
 import { BloomSearch } from '@pacote/bloom-search'
-import CategoryNav from '../../components/CategoryNav.astro'
+import Navigation from '../../components/Navigation.astro'
 import RecipeCard from '../../components/RecipeCard.astro'
 import Layout from '../../layouts/Layout.astro'
 import { type Category, sortCategories } from '../../lib/categories'
@@ -37,7 +37,7 @@ const searchIndexJson = JSON.stringify(bs.index)
 ---
 
 <Layout title={`${category} — Now We Try It My Way`}>
-  <CategoryNav categories={categories} current={category} />
+  <Navigation categories={categories} current={category} />
   <main class="listing">
     <div class="listing__header">
       <h1>{category}</h1>
@@ -66,7 +66,7 @@ const searchIndexJson = JSON.stringify(bs.index)
   }
   .listing__header {
     margin-bottom: 3rem;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-edge);
     padding-bottom: 1.5rem;
   }
   .listing__header h1 {
@@ -75,7 +75,7 @@ const searchIndexJson = JSON.stringify(bs.index)
     line-height: 1.1;
   }
   .listing__header p {
-    color: var(--color-muted);
+    color: var(--color-subtle);
     font-size: 0.8125rem;
     margin: 0;
   }

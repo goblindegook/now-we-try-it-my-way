@@ -6,7 +6,7 @@ test('latest recipes section has a link to all recipes', async ({ page }) => {
   const latestSection = page.locator('section').filter({
     has: page.getByRole('heading', { level: 2, name: 'Latest recipes' }),
   })
-  await expect(latestSection.getByRole('link', { name: /View all/ })).toBeVisible()
+  await expect(latestSection.getByRole('link', { name: /Browse all/ })).toBeVisible()
 })
 
 test('latest recipes section shows exactly 3 cards', async ({ page }) => {

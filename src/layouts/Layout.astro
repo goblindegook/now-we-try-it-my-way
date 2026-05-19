@@ -124,15 +124,20 @@ const socialImageUrl = socialImage
   }
 
   :root {
-    --color-bg: #faf9f7;
+    --color-canvas: #faf9f7;
     --color-surface: #fffefb;
-    --color-text: #1c1c1c;
-    --color-muted: #6b6460;
-    --color-border: #e5dfd6;
-    --color-accent: #b85c38;
-    --color-accent-hover: #9a4a2c;
-    --color-success: #4a7c59;
-    --color-ingredient: rgba(184, 92, 56, 0.07);
+    --color-ink: #1c1c1c;
+    --color-subtle: #6b6460;
+    --color-disabled: #cdbbb0;
+    --color-edge: #e5dfd6;
+    --color-standout: #2D6887;
+    --color-interactive: #BB330C;
+    --color-accent: #FFAC3F;
+    --color-chrome-bg: #0D5277;
+    --color-chrome-fg: rgba(255, 255, 255, 0.7);
+    --color-void: #1e1a17;
+    --color-positive: oklch(47% 0.1 152);
+    --color-tint: rgba(249, 221, 148, 0.3);
     --font-serif: 'Playfair Display', Georgia, serif;
     --font-sans: 'Inter', system-ui, sans-serif;
     --max-width: 1200px;
@@ -148,8 +153,8 @@ const socialImageUrl = socialImage
 
   body {
     margin: 0;
-    background: var(--color-bg);
-    color: var(--color-text);
+    background: var(--color-canvas);
+    color: var(--color-ink);
     font-family: var(--font-sans);
     line-height: 1.6;
   }
@@ -162,7 +167,7 @@ const socialImageUrl = socialImage
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-interactive);
     outline-offset: 3px;
     border-radius: 2px;
   }
@@ -174,19 +179,19 @@ const socialImageUrl = socialImage
   }
 
   .site-footer {
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-edge);
     text-align: center;
     padding: 1.5rem 1.5rem;
     font-size: 0.8125rem;
-    color: var(--color-muted);
+    color: var(--color-subtle);
   }
   .site-footer p { margin: 0; }
   .site-footer a {
-    color: var(--color-muted);
+    color: var(--color-subtle);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
-  .site-footer a:hover { color: var(--color-accent); }
+  .site-footer a:hover { color: var(--color-interactive); }
 
   @media print {
     .no-print { display: none !important; }

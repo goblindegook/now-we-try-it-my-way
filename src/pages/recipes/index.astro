@@ -1,17 +1,17 @@
 ---
 import { getImage } from 'astro:assets'
 import { BloomSearch } from '@pacote/bloom-search'
-import CategoryNav from '../../components/CategoryNav.astro'
+import Navigation from '../../components/Navigation.astro'
 import RecipeCard from '../../components/RecipeCard.astro'
 import Layout from '../../layouts/Layout.astro'
-import { sortCategories } from '../../lib/categories'
+import { sortCategories, type Category } from '../../lib/categories'
 import { loadAllRecipes } from '../../lib/cooklang'
 import { pluralize } from '../../lib/pluralize'
 import { resolveRecipePhoto } from '../../lib/recipe-images'
 import { buildConfig, toSearchDocument } from '../../lib/search'
 
 const recipes = await loadAllRecipes()
-const categories = sortCategories([...new Set(recipes.map((r) => r.category))])
+const categories = sortCategories([...new Set(recipes.map((r) => r.category as Category))])
 
 const bs = new BloomSearch(buildConfig)
 for (const recipe of recipes) {
@@ -24,7 +24,7 @@ const searchIndexJson = JSON.stringify(bs.index)
 ---
 
 <Layout title="All Recipes — Now We Try It My Way">
-  <CategoryNav categories={categories} />
+  <Navigation categories={categories} />
   <main class="listing">
     <div class="listing__header">
       <h1>All Recipes</h1>
@@ -53,7 +53,7 @@ const searchIndexJson = JSON.stringify(bs.index)
   }
   .listing__header {
     margin-bottom: 3rem;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-edge);
     padding-bottom: 1.5rem;
   }
   .listing__header h1 {
@@ -62,7 +62,7 @@ const searchIndexJson = JSON.stringify(bs.index)
     line-height: 1.1;
   }
   .listing__header p {
-    color: var(--color-muted);
+    color: var(--color-subtle);
     font-size: 0.8125rem;
     margin: 0;
   }

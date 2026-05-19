@@ -17,17 +17,17 @@ const STYLES = `
     padding: 0.625rem 0.875rem;
     font-size: 1rem;
     font-family: inherit;
-    border: 1px solid var(--color-border, #d4ccc4);
+    border: 1px solid var(--color-edge, #d4ccc4);
     border-radius: 4px;
     background: var(--color-surface, #fff);
-    color: var(--color-text, #1a1714);
+    color: var(--color-ink, #1a1714);
     margin-bottom: 1.75rem;
     box-sizing: border-box;
   }
   .recipe-search-input:focus {
-    outline: 2px solid var(--color-accent, #8b5e3c);
+    outline: 2px solid var(--color-interactive);
     outline-offset: 2px;
-    border-color: var(--color-accent, #8b5e3c);
+    border-color: var(--color-interactive);
   }
   .recipe-search-results-grid {
     display: grid;
@@ -42,20 +42,20 @@ const STYLES = `
     font-size: 1.75rem;
     font-weight: 400;
     font-style: italic;
-    color: var(--color-text, #1a1714);
+    color: var(--color-ink, #1a1714);
     margin: 0 0 0.625rem;
     line-height: 1.2;
   }
   .recipe-search-empty__sub {
     font-size: 0.875rem;
-    color: var(--color-muted, #8a7f78);
+    color: var(--color-subtle, #8a7f78);
     margin: 0;
   }
   .recipe-search-card {
     display: block;
     border-radius: 4px;
     overflow: hidden;
-    border: 1px solid var(--color-border, #d4ccc4);
+    border: 1px solid var(--color-edge, #d4ccc4);
     transition: box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     background: var(--color-surface, #fff);
     text-decoration: none;
@@ -73,7 +73,7 @@ const STYLES = `
   .recipe-search-card__image-wrap {
     aspect-ratio: 4/3;
     overflow: hidden;
-    background-color: #1e1a17;
+    background-color: var(--color-void);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 16L16 0M0 0L16 16' stroke='%232e2a26' stroke-width='0.75' fill='none'/%3E%3C/svg%3E");
     background-size: 16px 16px;
   }
@@ -105,7 +105,7 @@ const STYLES = `
     font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--color-accent, #8b5e3c);
+    color: var(--color-interactive);
     margin: 0;
   }
   .recipe-search-card__flag {
@@ -117,13 +117,13 @@ const STYLES = `
     font-size: 1.5rem;
     margin: 0 0 0.5rem;
     line-height: 1.25;
-    color: var(--color-text, #1a1714);
+    color: var(--color-ink, #1a1714);
   }
   .recipe-search-card__meta {
     display: flex;
     gap: 0;
     font-size: 0.75rem;
-    color: var(--color-muted, #8a7f78);
+    color: var(--color-subtle, #8a7f78);
   }
   .recipe-search-card__meta span + span::before {
     content: '·';

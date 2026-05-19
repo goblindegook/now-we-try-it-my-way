@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets'
-import CategoryNav from '../components/CategoryNav.astro'
+import Navigation from '../components/Navigation.astro'
 import type { ParsedRecipe } from '../lib/cooklang'
 import { cuisineToFlag } from '../lib/cuisine'
 import { resolveRecipePhoto } from '../lib/recipe-images'
@@ -31,7 +31,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
       set:html={recipeSchemaJson}
     />
   )}
-  <CategoryNav categories={categories} current={recipe?.category} />
+  <Navigation categories={categories} current={recipe?.category} />
 
   <article class="h-recipe">
   <div class:list={['hero', { 'hero--no-photo': !recipe?.photo }]}>
@@ -57,7 +57,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
     {recipe?.description && <p class="recipe-description">{recipe.description}</p>}
 
     <aside class="recipe-sidebar no-print">
-      <h2>Ingredients</h2>
+      <h2 class="recipe-sidebar__title">Ingredients</h2>
       <slot name="sidebar" />
     </aside>
 
@@ -77,7 +77,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
     position: relative;
     height: clamp(300px, 40vw, 520px);
     overflow: hidden;
-    background: var(--color-border);
+    background: var(--color-edge);
   }
   .hero--no-photo {
     height: clamp(220px, 30vw, 340px);
@@ -90,7 +90,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
   .hero__placeholder {
     width: 100%;
     height: 100%;
-    background-color: #1e1a17;
+    background-color: var(--color-void);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 16L16 0M0 0L16 16' stroke='%232e2a26' stroke-width='0.75' fill='none'/%3E%3C/svg%3E");
     background-size: 16px 16px;
   }
@@ -114,7 +114,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgba(255, 185, 130, 0.95);
+    color: var(--color-accent);
     margin-bottom: 0.625rem;
   }
   .hero__title {
@@ -156,29 +156,30 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
     padding: 2.5rem 1.5rem 4rem;
     display: grid;
     grid-template-columns: 280px 1fr;
+    grid-template-rows: auto 1fr;
     grid-template-areas:
       "ingredients description"
       "ingredients steps";
-    column-gap: 3rem;
+    column-gap: 5rem;
     align-items: start;
   }
 
   .recipe-description {
     grid-area: description;
     font-size: 1.0625rem;
-    color: var(--color-muted);
-    margin: 0 0 2rem;
+    color: var(--color-subtle);
+    padding: 0 0 2rem;
     font-style: italic;
   }
   .recipe-sidebar {
     grid-area: ingredients;
   }
-  .recipe-sidebar h2 {
+  .recipe-sidebar__title {
     font-family: var(--font-serif);
-    font-size: 1.0625rem;
+    font-size: 1.5rem;
     font-weight: 400;
-    color: var(--color-text);
-    margin: 0 0 1rem;
+    color: var(--color-ink);
+    padding: 0 0 1rem;
   }
   .recipe-steps {
     grid-area: steps;

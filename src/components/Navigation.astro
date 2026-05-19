@@ -6,17 +6,17 @@ interface Props {
 const { categories, current } = Astro.props
 ---
 
-<nav class="cat-nav">
-  <div class="cat-nav__inner">
-    <a href="/" class:list={['cat-nav__logo', { active: !current }]}>
+<nav class="site-navigation">
+  <div class="site-navigation__inner">
+    <a href="/" class:list={['site-navigation__logo', { active: !current }]}>
       Now We Try It My Way
     </a>
-    <ul class="cat-nav__list">
+    <ul class="site-navigation__list">
       {categories.map(cat => (
         <li>
           <a
             href={`/${cat.toLowerCase()}`}
-            class:list={['cat-nav__link', { active: current === cat }]}
+            class:list={['site-navigation__link', { active: current === cat }]}
           >
             {cat}
           </a>
@@ -27,11 +27,11 @@ const { categories, current } = Astro.props
 </nav>
 
 <style>
-  .cat-nav {
-    border-bottom: 1px solid var(--color-border);
+  .site-navigation {
+    background: var(--color-chrome-bg);
     position: relative;
   }
-  .cat-nav__inner {
+  .site-navigation__inner {
     max-width: var(--max-width);
     margin: 0 auto;
     padding: 0 1.5rem;
@@ -40,12 +40,13 @@ const { categories, current } = Astro.props
     gap: 2rem;
     height: 56px;
   }
-  .cat-nav__logo {
+  .site-navigation__logo {
     font-family: var(--font-serif);
     font-size: 1.5rem;
+    font-weight: 500;
     font-style: italic;
     white-space: nowrap;
-    color: var(--color-text);
+    color: var(--color-accent);
     align-self: stretch;
     display: flex;
     align-items: center;
@@ -54,7 +55,10 @@ const { categories, current } = Astro.props
       font-size: 1.0625rem;
     }
   }
-  .cat-nav__list {
+  .site-navigation__logo:hover {
+    color: var(--color-chrome-fg);
+  }
+  .site-navigation__list {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -68,23 +72,23 @@ const { categories, current } = Astro.props
     /* Fade-out shadow at right edge hints at hidden overflow */
     mask-image: linear-gradient(to right, black calc(100% - 2.5rem), transparent 100%);
   }
-  .cat-nav__list::-webkit-scrollbar { display: none; }
+  .site-navigation__list::-webkit-scrollbar { display: none; }
   /* Only apply fade when overflowing */
-  .cat-nav__list:not(.overflows) {
+  .site-navigation__list:not(.overflows) {
     mask-image: none;
   }
   /* Remove fade when fully scrolled to the end */
-  .cat-nav__list.scrolled-end {
+  .site-navigation__list.scrolled-end {
     mask-image: none;
   }
-  .cat-nav__list li {
+  .site-navigation__list li {
     display: flex;
     align-items: stretch;
   }
-  .cat-nav__link {
+  .site-navigation__link {
     font-size: 0.875rem;
     font-weight: 500;
-    color: var(--color-muted);
+    color: var(--color-chrome-fg);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     padding: 0;
@@ -94,15 +98,15 @@ const { categories, current } = Astro.props
     display: flex;
     align-items: center;
   }
-  .cat-nav__link:hover,
-  .cat-nav__link.active {
-    color: var(--color-text);
+  .site-navigation__link:hover,
+  .site-navigation__link.active {
+    color: var(--color-accent);
     border-bottom-color: var(--color-accent);
   }
 </style>
 
 <script>
-  const list = document.querySelector<HTMLElement>('.cat-nav__list')
+  const list = document.querySelector<HTMLElement>('.site-navigation__list')
   if (list) {
     const update = () => {
       const overflows = list.scrollWidth > list.clientWidth

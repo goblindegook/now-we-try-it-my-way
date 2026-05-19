@@ -300,16 +300,17 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     margin-top: 2rem;
   }
   .cooklang-section__title {
-    margin: 0 0 0.75rem;
     font-family: var(--font-serif);
-    font-size: 1.125rem;
-    font-style: italic;
-    color: var(--color-text);
+    font-size: 1.5rem;
+    margin: 0 0 0.5rem;
+    line-height: 1.25;
+    font-family: var(--font-serif);
+    color: var(--color-ink);
   }
 
   .section-ingredients {
     display: grid;
-    gap: 1.25rem;
+    gap: 2rem;
   }
   .servings-control {
     display: flex;
@@ -325,14 +326,15 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     font-weight: 500;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--color-muted, #7a746e);
+    color: var(--color-subtle);
   }
   .servings-control__btn {
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 1px solid var(--color-border, #e5dfd6);
+    border: 1px solid var(--color-edge);
     background: #fff;
+    color: var(--color-interactive);
     cursor: pointer;
     font-size: 1.1rem;
     display: inline-flex;
@@ -340,9 +342,14 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     justify-content: center;
     transition: border-color 0.15s, background 0.15s;
   }
+  .servings-control__btn:disabled {
+    border: 1px solid var(--color-edge);
+    color: var(--color-edge);
+    cursor: auto;
+  }
   .servings-control__btn:hover:not(:disabled) {
-    border-color: var(--color-accent);
-    background: var(--color-ingredient);
+    border-color: var(--color-interactive);
+    background: var(--color-tint);
   }
   .servings-control__count {
     font-family: var(--font-serif);
@@ -353,11 +360,11 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
 
   .ingredients-section__title {
     margin: 0 0 0.5rem;
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--color-muted);
+    color: var(--color-subtle);
   }
   .ingredients-list {
     list-style: none;
@@ -370,7 +377,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     align-items: baseline;
     gap: 0.75rem;
     padding: 0.35rem 0;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-edge);
     font-size: 0.9rem;
   }
   .ingredients-list li:last-child {
@@ -384,13 +391,13 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     gap: 0.15rem;
   }
   .ingredient__prep {
-    color: var(--color-muted);
+    color: var(--color-subtle);
     font-style: italic;
     font-size: 0.82em;
     line-height: 1.2;
   }
   .ingredient__amount {
-    color: var(--color-accent);
+    color: var(--color-standout);
     font-weight: 500;
     white-space: nowrap;
   }
@@ -405,7 +412,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     grid-template-columns: 2.75rem 1fr;
     gap: 1rem;
     padding: 1.25rem 0;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-edge);
     transition: opacity 0.2s;
   }
   .step:last-child { border-bottom: none; }
@@ -416,7 +423,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     width: 2.75rem;
     height: 2.75rem;
     border-radius: 50%;
-    border: 1.5px solid var(--color-border);
+    border: 1.5px solid var(--color-edge);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -426,22 +433,22 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     margin-top: 0.15rem;
   }
   .step__checkbox:hover {
-    border-color: var(--color-accent);
-    background: var(--color-ingredient);
+    border-color: var(--color-interactive);
+    background: var(--color-tint);
   }
   .step__checkbox:active {
-    background: var(--color-ingredient);
-    border-color: var(--color-accent);
+    background: var(--color-tint);
+    border-color: var(--color-interactive);
   }
   .step[data-checked="true"] .step__checkbox {
-    background: var(--color-accent);
-    border-color: var(--color-accent);
+    background: var(--color-interactive);
+    border-color: var(--color-interactive);
   }
 
   .step__num {
     font-family: var(--font-serif);
     font-size: 1.25rem;
-    color: var(--color-accent);
+    color: var(--color-interactive);
     font-style: italic;
     line-height: 1;
   }
@@ -462,19 +469,19 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
   .step__text :global(.step-ingredient) {
     font-style: normal;
     font-weight: 600;
-    color: var(--color-text);
-    background: var(--color-ingredient, rgba(184, 92, 56, 0.07));
+    color: var(--color-ink);
+    background: var(--color-tint);
     padding: 0.1em 0.25em;
     border-radius: 2px;
   }
   .step__text :global(.step-preparation) {
-    color: var(--color-muted);
+    color: var(--color-subtle);
     font-style: italic;
     font-weight: 400;
   }
   .step__text :global(.step-cookware) {
     font-style: italic;
-    color: var(--color-muted);
+    color: var(--color-subtle);
   }
   .step__timers {
     display: flex;
@@ -486,12 +493,12 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     font-family: var(--font-serif);
     font-size: 0.9375rem;
     font-style: italic;
-    color: var(--color-muted);
+    color: var(--color-subtle);
     line-height: 1.55;
   }
   .step__text :global(.step-timer-ref) {
     font-weight: 500;
-    color: var(--color-accent);
+    color: var(--color-standout);
   }
 
   @keyframes step-check-pop {
@@ -517,26 +524,26 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
     margin: -0.25rem 0 1rem 3.75rem;
     font-size: 0.8125rem;
     font-style: italic;
-    color: var(--color-muted);
+    color: var(--color-subtle);
     transition: opacity 0.3s;
   }
   .step-hint.dismissed { opacity: 0; pointer-events: none; }
 
   .checklist-reset {
     padding: 1.5rem 0 0;
-    border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-edge);
     margin-top: 0.5rem;
   }
   .checklist-reset__btn {
     all: unset;
     cursor: pointer;
     font-size: 0.8125rem;
-    color: var(--color-muted);
+    color: var(--color-subtle);
     text-decoration: underline;
     text-underline-offset: 2px;
     transition: color 0.15s;
   }
-  .checklist-reset__btn:hover { color: var(--color-accent); }
+  .checklist-reset__btn:hover { color: var(--color-interactive); }
 </style>
 
 <script>

@@ -166,8 +166,8 @@ export class StepTimer extends LitElement {
   static styles = css`
     :host { display: inline-flex; align-items: center; gap: 0.5rem; vertical-align: middle; }
     @keyframes timer-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(184, 92, 56, 0.35); }
-      50%       { box-shadow: 0 0 0 5px rgba(184, 92, 56, 0); }
+      0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-interactive) 35%, transparent); }
+      50%       { box-shadow: 0 0 0 5px color-mix(in oklch, var(--color-interactive) 0%, transparent); }
     }
     @keyframes timer-done-pop {
       0%   { transform: scale(1); }
@@ -180,8 +180,8 @@ export class StepTimer extends LitElement {
       align-items: center;
       gap: 0.5rem;
       min-height: 2.75rem;
-      background: var(--color-bg, #faf9f7);
-      border: 1px solid var(--color-border, #e5dfd6);
+      background: var(--color-canvas, #faf9f7);
+      border: 1px solid var(--color-edge, #e5dfd6);
       border-radius: 2rem;
       padding: 0.25rem 0.875rem 0.25rem 0.625rem;
       font-size: 0.8125rem;
@@ -190,17 +190,17 @@ export class StepTimer extends LitElement {
       transition: background 0.15s, border-color 0.15s, transform 0.08s ease;
       user-select: none;
     }
-    .timer:hover { border-color: var(--color-accent, #b85c38); }
+    .timer:hover { border-color: var(--color-interactive); }
     .timer:active { transform: scale(0.94); }
     .timer--running {
-      background: var(--color-accent, #b85c38);
-      border-color: var(--color-accent, #b85c38);
+      background: var(--color-interactive);
+      border-color: var(--color-interactive);
       color: #fff;
       animation: timer-pulse 2s ease-in-out infinite;
     }
     .timer--done {
-      background: var(--color-success, #4a7c59);
-      border-color: var(--color-success, #4a7c59);
+      background: var(--color-positive, #4a7c59);
+      border-color: var(--color-positive, #4a7c59);
       color: #fff;
       animation: timer-done-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }

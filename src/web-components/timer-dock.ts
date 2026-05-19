@@ -393,7 +393,7 @@ export class TimerDock extends LitElement {
       border-bottom: 1px solid rgba(255,255,255,0.07);
     }
     .timer-item:last-child { border-bottom: none; }
-    .timer-item--running { background: rgba(184,92,56,0.15); }
+    .timer-item--running { background: color-mix(in oklch, var(--color-interactive) 15%, transparent); }
     .timer-item--done { opacity: 0.65; }
     .timer-item__info {
       flex: 1;
