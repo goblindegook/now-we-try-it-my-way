@@ -1,0 +1,26 @@
+.recipe-search-count {
+  font-size: 0.8125rem;
+  color: var(--color-subtle);
+  margin: 0 0 1.75rem;
+  font-weight: 400;
+}
+
+.recipe-search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.75rem;
+}
+
+.recipe-search-empty {
+  color: var(--color-subtle);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  padding: 3rem 0;
+  text-align: center;
+}
+
+.recipe-search-empty__heading {
+  font-size: 0.8125rem;
+  color: var(--color-subtle);
+  margin: 0;
+}

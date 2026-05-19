@@ -1,8 +1,8 @@
 import { BloomSearch, type Index } from '@pacote/bloom-search'
-import { css, html, LitElement, type PropertyValues, unsafeCSS } from 'lit'
+import { css, html, LitElement, type PropertyValues } from 'lit'
 import { pluralize } from '../lib/pluralize'
 import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
-import recipeCardStyles from '../styles/recipe-card.css?raw'
+import '../styles/recipe-search-results.css'
 import './recipe-card'
 
 declare global {
@@ -16,8 +16,6 @@ type SearchMode = 'static' | 'results' | 'empty'
 
 class RecipeSearch extends LitElement {
   static styles = css`
-    ${unsafeCSS(recipeCardStyles)}
-
     .recipe-search-wrap {
       position: relative;
       padding: 1rem 0 4rem;
@@ -70,30 +68,6 @@ class RecipeSearch extends LitElement {
     .recipe-search-wrap:focus-within .recipe-search-icon {
       color: var(--color-interactive);
     }
-    .recipe-search-count {
-      font-size: 0.8125rem;
-      color: var(--color-subtle);
-      margin: 0 0 1.75rem;
-      font-weight: 400;
-    }
-    .recipe-search-results-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.75rem;
-    }
-
-    .recipe-search-empty {
-      color: var(--color-subtle);
-      font-size: 0.8125rem;
-      font-weight: 400;
-      padding: 3rem 0;
-      text-align: center;
-    }
-    .recipe-search-empty__heading {
-      font-size: 0.8125rem;
-      color: var(--color-subtle);
-      margin: 0;
-    }
   `
 
   static properties = {
@@ -105,6 +79,7 @@ class RecipeSearch extends LitElement {
   private mode: SearchMode = 'static'
   private results: SearchResult[] = []
   private staticContent: HTMLElement | null = null
+  private resultsContent: HTMLElement | null = null
   private debounceTimer: ReturnType<typeof setTimeout> | null = null
 
   connectedCallback() {
@@ -124,7 +99,10 @@ class RecipeSearch extends LitElement {
   }
 
   protected override updated(changed: PropertyValues<this>) {
-    if (changed.has('mode')) this.syncStaticVisibility()
+    if (changed.has('mode') || changed.has('results')) {
+      this.syncStaticVisibility()
+      this.syncResultsContent()
+    }
   }
 
   private onAstroPageLoad = () => {
@@ -135,6 +113,22 @@ class RecipeSearch extends LitElement {
   private resolveStaticTargets() {
     const targetId = this.getAttribute('target')
     this.staticContent = targetId ? document.getElementById(targetId) : null
+    this.resultsContent = this.resolveResultsTarget(targetId)
+  }
+
+  private resolveResultsTarget(targetId: string | null) {
+    if (!targetId) return null
+    const resultsId = `${targetId}-search-results`
+    const existing = document.getElementById(resultsId)
+    if (existing) return existing
+    if (!this.staticContent?.parentElement) return null
+
+    const section = document.createElement('section')
+    section.id = resultsId
+    section.setAttribute('aria-live', 'polite')
+    section.style.display = 'none'
+    this.staticContent.insertAdjacentElement('afterend', section)
+    return section
   }
 
   private initIndex() {
@@ -178,16 +172,48 @@ class RecipeSearch extends LitElement {
     if (this.staticContent) this.staticContent.style.display = staticDisplay
   }
 
-  private renderResultCard(result: SearchResult) {
-    return html`<recipe-card
-      slug=${result.slug}
-      title=${result.title}
-      category=${result.category}
-      cuisine=${result.cuisine}
-      prep-time=${result.prepTime}
-      cook-time=${result.cookTime}
-      photo-src=${result.photoSrc ?? ''}
-    ></recipe-card>`
+  private syncResultsContent() {
+    if (!this.resultsContent) return
+
+    if (this.mode === 'static') {
+      this.resultsContent.style.display = 'none'
+      this.resultsContent.replaceChildren()
+      return
+    }
+
+    this.resultsContent.style.display = ''
+    this.resultsContent.replaceChildren()
+
+    if (this.mode === 'results') {
+      const count = document.createElement('div')
+      count.className = 'recipe-search-count'
+      count.textContent = pluralize(this.results.length, 'recipe')
+      this.resultsContent.append(count)
+
+      const grid = document.createElement('div')
+      grid.className = 'recipe-search-results-grid'
+      for (const result of this.results) {
+        const card = document.createElement('recipe-card')
+        card.setAttribute('slug', result.slug)
+        card.setAttribute('title', result.title)
+        card.setAttribute('category', result.category)
+        card.setAttribute('cuisine', result.cuisine)
+        card.setAttribute('prep-time', result.prepTime ?? '')
+        card.setAttribute('cook-time', result.cookTime ?? '')
+        card.setAttribute('photo-src', result.photoSrc ?? '')
+        grid.append(card)
+      }
+      this.resultsContent.append(grid)
+      return
+    }
+
+    const empty = document.createElement('div')
+    empty.className = 'recipe-search-empty'
+    const heading = document.createElement('p')
+    heading.className = 'recipe-search-empty__heading'
+    heading.textContent = 'Nothing found.'
+    empty.append(heading)
+    this.resultsContent.append(empty)
   }
 
   render() {
@@ -214,17 +240,6 @@ class RecipeSearch extends LitElement {
           @input=${this.onInput}
         />
       </div>
-
-      ${
-        this.mode === 'results'
-          ? html`
-              <div class="recipe-search-count">${pluralize(this.results.length, 'recipe')}</div>
-              <div class="recipe-search-results-grid">${this.results.map((result) => this.renderResultCard(result))}</div>
-            `
-          : this.mode === 'empty'
-            ? html`<div class="recipe-search-empty"><p class="recipe-search-empty__heading">Nothing found.</p></div>`
-            : null
-      }
     `
   }
 }

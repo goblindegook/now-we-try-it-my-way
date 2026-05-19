@@ -1,5 +1,5 @@
 import { BloomSearch } from '@pacote/bloom-search'
-import { getByRole } from '@testing-library/dom'
+import { getByRole, getByText, queryByText } from '@testing-library/dom'
 import { LitElement } from 'lit'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
@@ -86,8 +86,8 @@ describe('recipe-search', () => {
 
     const staticContent = document.getElementById('recipes-static-content')
     expect(staticContent?.style.display).toBe('none')
-    expect(shadowRoot.textContent).toContain('1 recipe')
-    expect(shadowRoot.querySelector('recipe-card[slug="spaghetti-carbonara"]')).not.toBeNull()
+    expect(getByText(document.body, '1 recipe')).not.toBeNull()
+    expect(document.querySelector('recipe-card[slug="spaghetti-carbonara"]')).not.toBeNull()
   })
 
   it('shows empty state when query has no matches and resets on clear', async () => {
@@ -113,7 +113,7 @@ describe('recipe-search', () => {
     vi.advanceTimersByTime(200)
     await Promise.resolve()
 
-    expect(shadowRoot.textContent).toContain('Nothing found.')
+    expect(getByText(document.body, 'Nothing found.')).not.toBeNull()
 
     search.value = ''
     search.dispatchEvent(new Event('input', { bubbles: true }))
@@ -123,6 +123,6 @@ describe('recipe-search', () => {
 
     const staticContent = document.getElementById('recipes-static-content')
     expect(staticContent?.style.display).toBe('')
-    expect(shadowRoot.textContent).not.toContain('Nothing found.')
+    expect(queryByText(document.body, 'Nothing found.')).toBeNull()
   })
 })
