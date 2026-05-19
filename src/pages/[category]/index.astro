@@ -4,7 +4,7 @@ import { BloomSearch } from '@pacote/bloom-search'
 import CategoryNav from '../../components/CategoryNav.astro'
 import RecipeCard from '../../components/RecipeCard.astro'
 import Layout from '../../layouts/Layout.astro'
-import { sortCategories } from '../../lib/categories'
+import { type Category, sortCategories } from '../../lib/categories'
 import { loadAllRecipes } from '../../lib/cooklang'
 import { pluralize } from '../../lib/pluralize'
 import { resolveRecipePhoto } from '../../lib/recipe-images'
@@ -12,7 +12,7 @@ import { buildConfig, toSearchDocument } from '../../lib/search'
 
 export async function getStaticPaths() {
   const recipes = await loadAllRecipes()
-  const categories = sortCategories([...new Set(recipes.map((r) => r.category))])
+  const categories = [...new Set(recipes.map((r) => r.category))]
   return categories.map((category) => ({
     params: { category: category.toLowerCase() },
     props: {
@@ -24,7 +24,7 @@ export async function getStaticPaths() {
 
 const { category, recipes } = Astro.props
 const allRecipes = await loadAllRecipes()
-const categories = sortCategories([...new Set(allRecipes.map((r) => r.category))])
+const categories = sortCategories([...new Set(allRecipes.map((r) => r.category as Category))])
 
 const bs = new BloomSearch(buildConfig)
 for (const recipe of recipes) {

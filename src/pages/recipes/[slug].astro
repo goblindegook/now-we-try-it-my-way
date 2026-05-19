@@ -2,7 +2,7 @@
 import { getImage } from 'astro:assets'
 import type { FixedValue, Ingredient, Item, QuantityPart, Range, TimerItem } from '@tmlmt/cooklang-parser'
 import RecipeLayout from '../../layouts/RecipeLayout.astro'
-import { sortCategories } from '../../lib/categories'
+import { type Category, sortCategories } from '../../lib/categories'
 import { loadAllRecipes } from '../../lib/cooklang'
 import { resolveRecipePhoto } from '../../lib/recipe-images'
 
@@ -16,7 +16,7 @@ export async function getStaticPaths() {
 
 const { slug } = Astro.props
 const allRecipes = await loadAllRecipes()
-const categories = sortCategories([...new Set(allRecipes.map((r) => r.category))])
+const categories = sortCategories([...new Set(allRecipes.map((r) => r.category as Category))])
 const recipe = allRecipes.find((r) => r.slug === slug)
 const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category)
 const recipeImage = recipePhoto ? await getImage({ src: recipePhoto }) : null

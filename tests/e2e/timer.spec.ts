@@ -138,7 +138,7 @@ test('minimized dock shows no timer when all timers are done', async ({ page }) 
     window.dispatchEvent(new CustomEvent('cookbook-timers-updated'))
   })
   await page.getByRole('button', { name: 'Minimise timers' }).click()
-  await expect(page.getByText(/\d:\d\d/)).toHaveCount(0)
+  await expect(page.locator('timer-dock').getByText(/\d:\d\d/)).toHaveCount(0)
 })
 
 test('dock UI state (including position) is restored from session storage', async ({ page }) => {

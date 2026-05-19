@@ -15,7 +15,7 @@ test('scaler works on second recipe page after SPA navigation', async ({ page })
   await page.getByRole('link', { name: 'Now We Try It My Way' }).click()
   await page.waitForURL('/')
 
-  await page.getByRole('link', { name: /Aubergine, pepper & smoked yogurt/ }).first().click()
+  await page.getByRole('link', { name: /Aubergine, roasted pepper and smoked yogurt/ }).first().click()
   await page.waitForURL(RECIPE_B)
 
   await page.getByRole('button', { name: 'Increase servings' }).click()
@@ -29,7 +29,7 @@ test('checklist works on second recipe page after SPA navigation', async ({ page
   await page.getByRole('link', { name: 'Now We Try It My Way' }).click()
   await page.waitForURL('/')
 
-  await page.getByRole('link', { name: /Aubergine, pepper & smoked yogurt/ }).first().click()
+  await page.getByRole('link', { name: /Aubergine, roasted pepper and smoked yogurt/ }).first().click()
   await page.waitForURL(RECIPE_B)
 
   const firstStep = page.getByRole('button', { name: /Mark step 1 complete/ })
