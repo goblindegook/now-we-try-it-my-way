@@ -23,9 +23,9 @@ class RecipeSearch extends LitElement {
     .recipe-search-input {
       display: block;
       width: 100%;
-      padding: 0.75rem 3rem 0.75rem 1.25rem;
-      font-size: clamp(1.375rem, 3vw, 1.875rem);
-      font-family: var(--font-serif);
+      padding: 1rem;
+      font-size: 1rem;
+      font-family: var(--font-sans-serif);
       font-style: normal;
       font-weight: 400;
       border: 1px solid var(--color-edge);
@@ -57,8 +57,7 @@ class RecipeSearch extends LitElement {
     .recipe-search-icon {
       position: absolute;
       right: 1rem;
-      top: 33%;
-      transform: translateY(-33%);
+      top: 2rem;
       width: 1.375rem;
       height: 1.375rem;
       color: var(--color-interactive);
