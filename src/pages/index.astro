@@ -26,8 +26,24 @@ const byCategory = categories.map((cat) => ({
 
   <main>
     <section class="hero">
+      <div class="hero__bg" aria-hidden="true">
+        <!-- Whisk: CC0 via svgrepo.com/svg/163540/whisk -->
+        <svg class="hero__bg-icon hero__bg-icon--whisk" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+          <g><g><path d="M301.283,205.972c-4.5-2.115-8.983-4.213-13.44-6.289c-5.105-2.377-11.174-0.165-13.552,4.94c-2.377,5.107-0.166,11.173,4.94,13.552c4.433,2.063,8.894,4.151,13.37,6.257c1.402,0.659,2.879,0.971,4.334,0.971c3.829,0,7.5-2.166,9.236-5.86C308.57,214.445,306.381,208.37,301.283,205.972z"/></g></g>
+          <g><g><path d="M476.165,303.14c-16.708-16.709-63.253-43.412-142.294-81.636c-5.07-2.449-11.169-0.33-13.622,4.742c-2.452,5.071-0.329,11.169,4.742,13.622c94.518,45.708,126.534,67.48,136.751,77.696c19.255,19.255,29.86,44.856,29.86,72.088c0,11.983-2.055,23.649-5.995,34.598c-0.754-3.032-1.669-6.134-2.754-9.304c-8.133-23.76-24.871-49.104-47.131-71.364c-33.38-33.38-174.505-130.807-243.769-177.961l8.642-8.643c3.983-3.983,3.983-10.441,0-14.425L61.027,2.986c-3.983-3.982-10.441-3.982-14.425,0L2.987,46.602C1.075,48.516,0,51.109,0,53.814c0,2.705,1.075,5.298,2.987,7.212l139.57,139.569c1.912,1.912,4.506,2.987,7.212,2.987c2.706,0,5.299-1.075,7.212-2.987l2.185-2.185c42.13,95.439,111.166,244.945,143.975,277.754C326.248,499.273,356.972,512,389.652,512s63.404-12.727,86.513-35.835S512,422.333,512,389.652S499.273,326.249,476.165,303.14z M149.768,178.959L24.623,53.814l29.192-29.191L178.96,149.767L149.768,178.959z M389.652,491.602c-27.231,0-52.833-10.605-72.088-29.861c-19.421-19.42-61.084-98.012-114.436-215.116c49.654,71.804,114.471,163.113,140.455,189.097c22.26,22.26,47.604,38.998,71.364,47.13c3.18,1.088,6.286,1.989,9.328,2.744C413.319,489.542,401.645,491.602,389.652,491.602z M466.785,452.36L280.551,266.126c-3.983-3.982-10.441-3.982-14.425,0c-3.983,3.983-3.983,10.441,0,14.425l186.233,186.233c-7.9,2.017-18.546,0.966-30.807-3.23c-20.875-7.146-43.442-22.152-63.546-42.256c-31.246-31.246-123.119-163.97-171.225-234.516c70.659,48.182,203.275,139.985,234.517,171.227c20.104,20.103,35.11,42.669,42.255,63.544C467.751,433.814,468.802,444.46,466.785,452.36z"/></g></g>
+        </svg>
+        <!-- Knife: CC0 via svgrepo.com/svg/218508/knife -->
+        <svg class="hero__bg-icon hero__bg-icon--knife" viewBox="0 0 513.515 513.515" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(1 1)"><g><g>
+            <path d="M334.696,185.54c-3.413,2.56-3.413,8.533,0,11.947c3.413,3.413,8.533,3.413,11.947,0s3.413-8.533,0-11.947S338.109,182.127,334.696,185.54z"/>
+            <path d="M383.336,136.9c-3.413,3.413-3.413,8.533,0,11.947c3.413,3.413,8.533,3.413,11.947,0c3.413-3.413,3.413-8.533,0-11.947C391.869,133.487,386.75,133.487,383.336,136.9z"/>
+            <path d="M512.189,81.433c-1.707-14.507-8.533-29.013-19.627-40.107c-11.093-11.093-25.6-17.92-40.107-19.627c-14.507-1.707-28.16,2.56-38.4,12.8c-10.24,9.387-14.507,23.04-13.653,37.547L274.109,196.633c-0.844,0.844-1.477,1.792-1.904,2.793L1.043,475.674c-2.56,2.56-2.56,6.827-0.853,10.24c1.707,2.56,5.12,4.267,7.68,4.267c0.853,0,1.707,0,2.56,0c119.467-33.28,252.587-112.64,348.16-208.213c3.413-3.413,3.413-8.533,0-11.947l-18.271-18.271l121.525-118.262c14.507,0.853,28.16-4.267,37.547-13.653S513.896,96.793,512.189,81.433z M37.736,463.727l243.2-248.32l30.293,30.293l30.293,30.293C256.189,358.767,143.549,427.887,37.736,463.727z M486.589,107.034c-6.827,6.827-16.213,9.387-27.307,7.68c-3.413,0-5.973,0.853-7.68,2.56L328.723,239.3l-35.84-35.84L416.616,82.287c1.707-2.56,2.56-5.12,2.56-7.68c-1.707-11.093,0.853-20.48,7.68-27.307c5.973-6.827,14.507-9.387,24.747-8.533c10.24,0.853,20.48,5.973,29.013,14.507c8.533,7.68,13.653,18.773,14.507,29.013C495.976,91.673,492.563,101.06,486.589,107.034z"/>
+            <path d="M286.056,245.274c-3.413-3.413-8.533-3.413-11.947,0l-54.613,54.613c-3.413,3.413-3.413,8.533,0,11.947c1.707,1.707,3.413,2.56,5.973,2.56c1.707,0,4.267-0.853,5.973-2.56l54.613-54.613C289.469,253.807,289.469,248.687,286.056,245.274z"/>
+          </g></g></g>
+        </svg>
+      </div>
       <div class="hero__inner">
-        <h1 class="hero__title">Let’s skip the life story.</h1>
+        <h1 class="hero__title">Let’s skip <span class="hero__title-crossed">the life story.</span></h1>
         <p class="hero__sub">Made for myself, not search engines.</p>
       </div>
     </section>
@@ -71,29 +87,113 @@ const byCategory = categories.map((cat) => ({
 
 <style>
   .hero {
+    position: relative;
+    overflow: hidden;
     background: var(--color-accent);
-    padding: 5rem 1.5rem 4rem;
-    text-align: center;
+    height: clamp(300px, 40vw, 520px);
+    display: flex;
+    align-items: center;
+  }
+  .hero__bg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    max-width: var(--max-width);
+    pointer-events: none;
+    opacity: 0.14;
+  }
+  .hero__bg-icon {
+    position: absolute;
+    width: clamp(220px, 42vw, 420px);
+    height: clamp(220px, 42vw, 420px);
+    right: -4%;
+    top: 50%;
+    fill: var(--color-interactive);
+    opacity: 0;
+  }
+  .hero__bg-icon--whisk {
+    transform: translate(0%, -25%) rotate(-90deg);
+    animation: hero-whisk-enter 0.7s 0.15s ease-out both;
+  }
+  .hero__bg-icon--knife {
+    transform: translate(15%, -25%) rotate(90deg);
+    animation: hero-knife-enter 0.7s 0.15s ease-out both;
   }
   .hero__inner {
-    max-width: var(--max-prose);
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: var(--max-width);
     margin: 0 auto;
+    padding: 0 1.5rem;
   }
   .hero__title {
     font-family: var(--font-serif);
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
-    margin: 0 0 0.75rem;
+    font-style: italic;
+    font-size: clamp(4rem, 11vw, 8rem);
+    font-weight: 400;
+    margin: 0 0 1.25rem;
     color: var(--color-interactive);
-    line-height: 1.1;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
     text-wrap: balance;
+    max-width: 12ch;
+    animation: hero-enter 0.5s ease-out both;
+  }
+  .hero__title-crossed {
+    position: relative;
+  }
+  .hero__title-crossed::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(0.8em - 6px);
+    height: 8px;
+    background: var(--color-highlight);
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: hero-cross 0.4s 0.55s ease-out forwards;
+    z-index: 1;
   }
   .hero__sub {
-    font-size: 1.125rem;
+    font-size: clamp(0.9375rem, 1.5vw, 1.125rem);
     color: var(--color-ink);
     margin: 0;
+    animation: hero-enter 0.5s 0.08s ease-out both;
 
     @media (max-width: 700px) {
       font-size: 0.875rem;
+    }
+  }
+  @keyframes hero-enter {
+    from { opacity: 0; translate: 0 6px; }
+    to { opacity: 1; translate: 0 0; }
+  }
+  @keyframes hero-cross {
+    to { transform: scaleX(1); }
+  }
+  @keyframes hero-whisk-enter {
+    from { opacity: 0; transform: translate(-30%, -25%) rotate(-135deg); }
+    to   { opacity: 1; transform: translate(0%, -25%) rotate(-90deg); }
+  }
+  @keyframes hero-knife-enter {
+    from { opacity: 0; transform: translate(45%, -25%) rotate(135deg); }
+    to   { opacity: 1; transform: translate(15%, -25%) rotate(90deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__title,
+    .hero__sub { animation: none; }
+    .hero__title-crossed::after {
+      transform: scaleX(1);
+      animation: none;
+    }
+    .hero__bg-icon {
+      opacity: 1;
+      animation: none;
     }
   }
   .content {
