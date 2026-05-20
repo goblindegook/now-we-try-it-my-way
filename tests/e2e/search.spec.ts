@@ -36,7 +36,7 @@ test.describe('/recipes search', () => {
   })
 
   test('static grid visible by default', async ({ page }) => {
-    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Caldo verde' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible()
   })
 

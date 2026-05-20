@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 const RECIPE_A = '/recipes/moussaka'
-const RECIPE_B = '/recipes/aubergine-pepper-smoked-yogurt'
+const RECIPE_B = '/recipes/caldo-verde'
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/')
@@ -18,7 +18,7 @@ test('scaler works on second recipe page after SPA navigation', async ({ page })
   await page.getByRole('link', { name: 'Now We Try It My Way' }).click()
   await page.waitForURL('/')
 
-  await page.getByRole('link', { name: /Aubergine, roasted pepper and smoked yogurt/ }).first().click()
+  await page.getByRole('link', { name: /Caldo verde/ }).first().click()
   await page.waitForURL(RECIPE_B)
 
   await page.getByRole('button', { name: 'Increase servings' }).click()
@@ -35,7 +35,7 @@ test('checklist works on second recipe page after SPA navigation', async ({ page
   await page.getByRole('link', { name: 'Now We Try It My Way' }).click()
   await page.waitForURL('/')
 
-  await page.getByRole('link', { name: /Aubergine, roasted pepper and smoked yogurt/ }).first().click()
+  await page.getByRole('link', { name: /Caldo verde/ }).first().click()
   await page.waitForURL(RECIPE_B)
 
   const firstStep = page.getByRole('button', { name: /Mark step 1 complete/ })
