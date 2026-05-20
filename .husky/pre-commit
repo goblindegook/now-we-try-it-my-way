@@ -1,3 +1,5 @@
-npm run format
-npm run lint:fix
+STAGED=$(git diff --cached --name-only)
+npx biome format --write --staged --no-errors-on-unmatched
+npx biome check --write --staged --no-errors-on-unmatched
+[ -n "$STAGED" ] && echo "$STAGED" | xargs git add --
 npm test
