@@ -80,6 +80,11 @@ recipe-card {
   font-size: 1.5rem;
   margin: 0 0 0.5rem;
   line-height: 1.25;
+  transition: color 0.15s ease;
+}
+
+.recipe-card:hover .recipe-card__title {
+  color: var(--color-interactive);
 }
 
 .recipe-card__meta {
