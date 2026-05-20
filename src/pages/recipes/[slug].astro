@@ -18,7 +18,7 @@ const { slug } = Astro.props
 const allRecipes = await loadAllRecipes()
 const categories = sortCategories([...new Set(allRecipes.map((r) => r.category as Category))])
 const recipe = allRecipes.find((r) => r.slug === slug)
-const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category)
+const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category, recipe?.slug)
 const recipeImage = recipePhoto ? await getImage({ src: recipePhoto }) : null
 const recipeImageUrl = recipeImage ? new URL(recipeImage.src, Astro.site).toString() : undefined
 

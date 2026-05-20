@@ -1,9 +1,10 @@
 const FLAGS: Record<string, string> = {
-  italian: '🇮🇹',
+  american: '🇺🇸',
+  french: '🇫🇷',
   greek: '🇬🇷',
   indian: '🇮🇳',
+  italian: '🇮🇹',
   portuguese: '🇵🇹',
-  french: '🇫🇷',
 }
 
 export function cuisineToFlag(cuisine: string): string {

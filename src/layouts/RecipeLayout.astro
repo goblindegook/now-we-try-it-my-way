@@ -13,7 +13,7 @@ interface Props {
   socialImage?: string
 }
 const { recipe, categories, recipeSchemaJson = '', socialImage } = Astro.props
-const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category)
+const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category, recipe?.slug)
 const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
 ---
 
@@ -34,7 +34,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
   <Navigation categories={categories} current={recipe?.category} />
 
   <article class="h-recipe">
-  <div class:list={['hero', { 'hero--no-photo': !recipe?.photo }]}>
+  <div class:list={['hero', { 'hero--no-photo': !recipePhoto }]}>
     {recipePhoto
       ? <Image src={recipePhoto} alt={recipe?.title ?? ''} class="hero__img u-photo" />
       : <div class="hero__placeholder" />

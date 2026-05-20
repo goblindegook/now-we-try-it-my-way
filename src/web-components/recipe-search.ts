@@ -1,6 +1,6 @@
 import { BloomSearch, type Index } from '@pacote/bloom-search'
 import { css, html, LitElement, type PropertyValues } from 'lit'
-import { pluralize } from '../lib/pluralize'
+
 import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
 import '../styles/recipe-search-results.css'
 import './recipe-card'
@@ -185,11 +185,6 @@ class RecipeSearch extends LitElement {
     this.resultsContent.replaceChildren()
 
     if (this.mode === 'results') {
-      const count = document.createElement('div')
-      count.className = 'recipe-search-count'
-      count.textContent = pluralize(this.results.length, 'recipe')
-      this.resultsContent.append(count)
-
       const grid = document.createElement('div')
       grid.className = 'recipe-search-results-grid'
       for (const result of this.results) {

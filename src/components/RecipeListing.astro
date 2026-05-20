@@ -1,12 +1,10 @@
 ---
 import type { ParsedRecipe } from '../lib/cooklang'
-import { pluralize } from '../lib/pluralize'
 import RecipeCard from './RecipeCard.astro'
 import RecipePagination from './RecipePagination.astro'
 
 interface Props {
   heading: string
-  totalRecipes: number
   visibleRecipes: ParsedRecipe[]
   currentPage: number
   totalPages: number
@@ -14,13 +12,12 @@ interface Props {
   searchIndex: string
 }
 
-const { heading, totalRecipes, visibleRecipes, currentPage, totalPages, basePath, searchIndex } = Astro.props
+const { heading, visibleRecipes, currentPage, totalPages, basePath, searchIndex } = Astro.props
 ---
 
 <main class="listing">
   <div class="listing__header">
     <h1>{heading}</h1>
-    <p>{pluralize(totalRecipes, 'recipe')}</p>
   </div>
   <recipe-search target="recipes-static-content"></recipe-search>
   <div class="listing__items" id="recipes-static-content">
@@ -55,11 +52,7 @@ const { heading, totalRecipes, visibleRecipes, currentPage, totalPages, basePath
     margin: 0 0 0.375rem;
     line-height: 1.1;
   }
-  .listing__header p {
-    color: var(--color-subtle);
-    font-size: 0.8125rem;
-    margin: 0;
-  }
+
   .listing__items {
     display: flex;
     flex-direction: column;

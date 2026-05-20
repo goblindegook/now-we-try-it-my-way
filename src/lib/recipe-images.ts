@@ -10,6 +10,8 @@ for (const [path, mod] of Object.entries(recipeImageModules)) {
   recipeImagesByPath.set(path, mod.default)
 }
 
+const SUPPORTED_EXTENSIONS = ['avif', 'gif', 'jpeg', 'jpg', 'png', 'webp']
+
 function normalizeRecipePhotoPath(photo?: string): string | null {
   const value = photo?.trim()
   if (!value) return null
@@ -22,20 +24,29 @@ function categoryToFolder(category: string): string {
   return category.trim().toLowerCase().replace(/\s+/g, '-')
 }
 
-function normalizeRecipePhotoPathWithCategory(photo?: string, category?: string): string | null {
+export function candidatePhotoPaths(
+  photo: string | undefined,
+  category: string | undefined,
+  slug: string | undefined,
+): string[] {
   const normalized = normalizeRecipePhotoPath(photo)
-  if (normalized) return normalized
+  if (normalized) return [normalized]
 
   const value = photo?.trim().replace(/^\.?\//, '')
-  if (!value) return null
-  if (!category) return null
+  if (value && category) {
+    return [`/src/assets/recipes/${categoryToFolder(category)}/${value}`]
+  }
+
+  if (!category || !slug) return []
 
   const folder = categoryToFolder(category)
-  return `/src/assets/recipes/${folder}/${value}`
+  return SUPPORTED_EXTENSIONS.map((ext) => `/src/assets/recipes/${folder}/${slug}.${ext}`)
 }
 
-export function resolveRecipePhoto(photo?: string, category?: string): ImageMetadata | null {
-  const normalized = normalizeRecipePhotoPathWithCategory(photo, category)
-  if (!normalized) return null
-  return recipeImagesByPath.get(normalized) ?? null
+export function resolveRecipePhoto(photo?: string, category?: string, slug?: string): ImageMetadata | null {
+  for (const path of candidatePhotoPaths(photo, category, slug)) {
+    const image = recipeImagesByPath.get(path)
+    if (image) return image
+  }
+  return null
 }

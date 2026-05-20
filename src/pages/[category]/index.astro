@@ -27,7 +27,7 @@ const categories = sortCategories([...new Set(allRecipes.map((r) => r.category a
 const { pageItems: visibleRecipes, totalPages } = paginateRecipes(recipes, 1)
 
 const searchIndex = await buildSearchIndex(recipes, async (recipe) => {
-  const photo = resolveRecipePhoto(recipe.photo, recipe.category)
+  const photo = resolveRecipePhoto(recipe.photo, recipe.category, recipe.slug)
   const processed = photo ? await getImage({ src: photo }) : null
   return processed?.src ?? null
 })
@@ -38,7 +38,6 @@ const searchIndexJson = JSON.stringify(searchIndex.index)
   <Navigation categories={categories} current={category} />
   <RecipeListing
     heading={category}
-    totalRecipes={recipes.length}
     visibleRecipes={visibleRecipes}
     currentPage={1}
     totalPages={totalPages}

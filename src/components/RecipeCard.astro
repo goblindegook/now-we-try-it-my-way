@@ -10,7 +10,7 @@ interface Props {
 }
 const { recipe } = Astro.props
 const href = `/recipes/${recipe.slug}`
-const recipePhoto = resolveRecipePhoto(recipe.photo, recipe.category)
+const recipePhoto = resolveRecipePhoto(recipe.photo, recipe.category, recipe.slug)
 const cuisineFlag = cuisineToFlag(recipe.cuisine)
 ---
 

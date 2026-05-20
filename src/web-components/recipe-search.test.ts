@@ -81,7 +81,6 @@ describe('recipe-search', () => {
 
     const staticContent = document.getElementById('recipes-static-content')
     expect(staticContent?.style.display).toBe('none')
-    expect(getByText(document.body, '1 recipe')).not.toBeNull()
     expect(document.querySelector('recipe-card[slug="spaghetti-carbonara"]')).not.toBeNull()
   })
 

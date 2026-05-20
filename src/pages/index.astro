@@ -4,7 +4,6 @@ import RecipeCard from '../components/RecipeCard.astro'
 import Layout from '../layouts/Layout.astro'
 import { type Category, sortCategories } from '../lib/categories'
 import { loadAllRecipes, sortRecipesByRecency } from '../lib/cooklang'
-import { pluralize } from '../lib/pluralize'
 
 const recipes = await loadAllRecipes()
 const recentRecipes = sortRecipesByRecency([...recipes])
@@ -15,7 +14,6 @@ const latest = recentRecipes.slice(0, 3)
 const byCategory = categories.map((cat) => ({
   name: cat,
   recent: recentRecipes.find((r) => r.category === cat),
-  total: recipes.filter((r) => r.category === cat).length,
 }))
 ---
 
@@ -44,11 +42,10 @@ const byCategory = categories.map((cat) => ({
       <section class="section">
         <h2 class="section__heading">By category</h2>
         <div class="categories">
-          {byCategory.map(({ name, recent, total }) => (
+          {byCategory.map(({ name, recent }) => (
             <div class="cat">
               <div class="cat__header">
                 <a href={`/${name.toLowerCase()}`} class="cat__name">{name}</a>
-                <span class="cat__count">{pluralize(total, 'recipe')}</span>
               </div>
               {recent && <RecipeCard recipe={recent} />}
               <a href={`/${name.toLowerCase()}`} class="cat__browse">Browse all {name.toLowerCase()} →</a>
@@ -150,11 +147,7 @@ const byCategory = categories.map((cat) => ({
     color: var(--color-ink);
   }
   .cat__name:hover { color: var(--color-interactive); }
-  .cat__count {
-    font-size: 0.75rem;
-    color: var(--color-subtle);
-    font-weight: 400;
-  }
+
   .cat__browse {
     display: inline-block;
     margin-top: 0.875rem;
