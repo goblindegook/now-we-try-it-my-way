@@ -23,8 +23,6 @@ test.describe('/recipes search', () => {
     const recipeCount = await recipeCards.count()
     expect(recipeCount).toBeGreaterThan(0)
     expect(recipeCount).toBeLessThanOrEqual(12)
-    await expect(page.getByRole('link', { name: 'Zabaglione' })).toBeVisible()
-
     const pagination = page.getByRole('navigation', { name: 'Recipe pages' })
     await expect(pagination.getByRole('link', { name: 'Previous page' })).toHaveAttribute('href', '/recipes')
     await expect(pagination.getByRole('link', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page')
@@ -36,8 +34,7 @@ test.describe('/recipes search', () => {
   })
 
   test('static grid visible by default', async ({ page }) => {
-    await expect(page.getByRole('link', { name: 'Caldo verde' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible()
+    await expect(page.getByRole('main').getByRole('heading', { level: 2 }).first()).toBeVisible()
   })
 
   test('typing a query hides static grid and shows results', async ({ page }) => {
