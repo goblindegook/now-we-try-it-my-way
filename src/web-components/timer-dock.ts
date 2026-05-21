@@ -15,14 +15,27 @@ export class TimerDock extends LitElement {
   pendingClearId: string | null = null
   private pendingClearTimeout: ReturnType<typeof setTimeout> | null = null
   private audioCtx: AudioContext | null = null
+  private wakeLock: WakeLockSentinel | null = null
+  private wakeLockRequest: Promise<void> | null = null
+  private hasUserInteraction = false
 
-  private unlockAudio = () => {
+  private onFirstUserGesture = () => {
+    this.hasUserInteraction = true
+    void this.syncWakeLock()
+    if (typeof AudioContext === 'undefined') return
     if (!this.audioCtx) this.audioCtx = new AudioContext()
     if (this.audioCtx.state !== 'running') void this.audioCtx.resume()
   }
 
   private pollInterval: ReturnType<typeof setInterval> | null = null
   private onStoreUpdate = () => this.refresh()
+  private onVisibilityChange = () => {
+    void this.syncWakeLock()
+  }
+  private onWakeLockRelease = () => {
+    this.wakeLock = null
+    void this.syncWakeLock()
+  }
 
   // Drag state (not reactive — we write directly to this.style)
   private dragStartX = 0
@@ -72,9 +85,11 @@ export class TimerDock extends LitElement {
     window.addEventListener('cookbook-timers-updated', this.onStoreUpdate)
     window.addEventListener('storage', this.onStoreUpdate)
     window.addEventListener('resize', this.clampPosition, { passive: true })
-    document.addEventListener('click', this.unlockAudio, { capture: true, once: true })
-    document.addEventListener('touchend', this.unlockAudio, { capture: true, once: true })
+    document.addEventListener('visibilitychange', this.onVisibilityChange)
+    document.addEventListener('click', this.onFirstUserGesture, { capture: true, once: true })
+    document.addEventListener('touchend', this.onFirstUserGesture, { capture: true, once: true })
     this.restoreUiState()
+    void this.syncWakeLock()
   }
 
   disconnectedCallback() {
@@ -83,14 +98,16 @@ export class TimerDock extends LitElement {
     window.removeEventListener('cookbook-timers-updated', this.onStoreUpdate)
     window.removeEventListener('storage', this.onStoreUpdate)
     window.removeEventListener('resize', this.clampPosition)
-    document.removeEventListener('click', this.unlockAudio, true)
-    document.removeEventListener('touchend', this.unlockAudio, true)
+    document.removeEventListener('visibilitychange', this.onVisibilityChange)
+    document.removeEventListener('click', this.onFirstUserGesture, true)
+    document.removeEventListener('touchend', this.onFirstUserGesture, true)
     document.removeEventListener('pointermove', this.onDragMove)
     document.removeEventListener('pointerup', this.onDragEnd)
     if (this.pendingClearTimeout) {
       clearTimeout(this.pendingClearTimeout)
       this.pendingClearTimeout = null
     }
+    void this.releaseWakeLock()
   }
 
   private clampPosition = () => {
@@ -206,11 +223,44 @@ export class TimerDock extends LitElement {
       })
     }
     this.timers = getTimers()
+    void this.syncWakeLock()
     if (this.pendingClearId && !this.timers.find((t) => t.id === this.pendingClearId)) {
       if (this.pendingClearTimeout) clearTimeout(this.pendingClearTimeout)
       this.pendingClearTimeout = null
       this.pendingClearId = null
     }
+  }
+
+  private async syncWakeLock() {
+    const hasRunningTimers = this.timers.some((timer) => isRunning(timer))
+    const shouldHold = hasRunningTimers && !document.hidden && this.hasUserInteraction
+    if (!shouldHold) {
+      await this.releaseWakeLock()
+      return
+    }
+    if (!('wakeLock' in navigator) || this.wakeLock || this.wakeLockRequest) return
+    this.wakeLockRequest = (async () => {
+      try {
+        const sentinel = await navigator.wakeLock.request('screen')
+        this.wakeLock = sentinel
+        this.wakeLock.addEventListener('release', this.onWakeLockRelease)
+      } catch {
+      } finally {
+        this.wakeLockRequest = null
+      }
+    })()
+    await this.wakeLockRequest
+  }
+
+  private async releaseWakeLock() {
+    if (this.wakeLockRequest) await this.wakeLockRequest
+    if (!this.wakeLock) return
+    const sentinel = this.wakeLock
+    this.wakeLock = null
+    sentinel.removeEventListener?.('release', this.onWakeLockRelease)
+    try {
+      if (!sentinel.released) await sentinel.release()
+    } catch {}
   }
 
   private async playDone() {
