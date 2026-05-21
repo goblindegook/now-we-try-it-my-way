@@ -2,11 +2,13 @@
   "id": "/",
   "name": "Now We Try It My Way",
   "short_name": "My Way",
-  "description": "A personal cookbook.",
+  "description": "A personal cookbook",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#faf9f7",
+  "background_color": "#0D5277",
   "theme_color": "#0D5277",
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/favicon.svg",
