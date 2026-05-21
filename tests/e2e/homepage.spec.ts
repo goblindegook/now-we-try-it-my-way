@@ -20,7 +20,7 @@ test('latest recipes section shows exactly 3 cards', async ({ page }) => {
 test('category section cards link to category page', async ({ page }) => {
   await page.goto('/')
   const catSection = page.locator('section').filter({
-    has: page.getByRole('heading', { level: 2, name: 'By category' }),
+    has: page.getByRole('heading', { level: 2, name: 'Categories' }),
   })
   const cards = catSection.locator('a.cat-card')
   await expect(cards.first()).toBeVisible()
@@ -31,7 +31,7 @@ test('category section cards link to category page', async ({ page }) => {
 test('category cards show category name', async ({ page }) => {
   await page.goto('/')
   const catSection = page.locator('section').filter({
-    has: page.getByRole('heading', { level: 2, name: 'By category' }),
+    has: page.getByRole('heading', { level: 2, name: 'Categories' }),
   })
   const firstCard = catSection.locator('a.cat-card').first()
   await expect(firstCard.locator('.cat-card__name')).toBeVisible()
