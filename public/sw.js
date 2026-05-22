@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v3'
+const CACHE_VERSION = 'v4'
 const PRECACHE_CACHE = `precache-${CACHE_VERSION}`
 const RUNTIME_CACHE = `runtime-${CACHE_VERSION}`
 const OFFLINE_URL = '/offline/'
@@ -13,12 +13,12 @@ self.addEventListener('install', (event) => {
         OFFLINE_URL,
         '/favicon.ico',
         '/favicon.svg',
-        '/fonts/inter/inter-regular-400.ttf',
-        '/fonts/inter/inter-600.ttf',
-        '/fonts/inter/inter-italic-400.ttf',
-        '/fonts/playfair-display/playfair-regular-400.ttf',
-        '/fonts/playfair-display/playfair-600.ttf',
-        '/fonts/playfair-display/playfair-italic-400.ttf',
+        '/fonts/inter/inter-regular-400.woff2',
+        '/fonts/inter/inter-600.woff2',
+        '/fonts/inter/inter-italic-400.woff2',
+        '/fonts/playfair-display/playfair-regular-400.woff2',
+        '/fonts/playfair-display/playfair-600.woff2',
+        '/fonts/playfair-display/playfair-italic-400.woff2',
       ])
 
     await self.skipWaiting()
