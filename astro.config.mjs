@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://now-we-try-it-my-way.netlify.app',
+  site: 'https://nowwetry.it',
   integrations: [sitemap()],
   vite: {
     plugins: [{

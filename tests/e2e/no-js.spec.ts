@@ -23,7 +23,7 @@ test('recipe page renders key content with JavaScript disabled', async ({ page }
   expect(schema['@context']).toBe('https://schema.org')
   expect(schema['@type']).toBe('Recipe')
   expect(schema.name).toBe('Spaghetti carbonara')
-  expect(schema.image).toContain('now-we-try-it-my-way.netlify.app')
+  expect(schema.image).toContain('nowwetry.it')
   expect(schema.image).not.toContain('/src/assets/')
   expect(schema.prepTime).toBe('PT10M')
   expect(schema.cookTime).toBe('PT20M')

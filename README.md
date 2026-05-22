@@ -1,4 +1,4 @@
-# [Now We Try It My Way](https://now-we-try-it-my-way.netlify.app)
+# [Now We Try It My Way](https://nowwetry.it)
 
 A personal recipe collection built with [Astro](https://astro.build) and [CookLang](https://cooklang.org). Recipes are plain `.cook` text files; the site renders them with interactive ingredient scaling, per-step timers, and a step checklist.
 
