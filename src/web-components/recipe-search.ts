@@ -17,13 +17,15 @@ type SearchMode = 'static' | 'results' | 'empty'
 class RecipeSearch extends LitElement {
   static styles = css`
     .recipe-search-wrap {
-      position: relative;
       padding: 1rem 0 4rem;
+    }
+    .recipe-search-field {
+      position: relative;
     }
     .recipe-search-input {
       display: block;
       width: 100%;
-      padding: 1rem;
+      padding: 1rem 3.5rem 1rem 1rem;
       font-size: 1rem;
       font-family: var(--font-sans-serif);
       font-style: normal;
@@ -57,15 +59,33 @@ class RecipeSearch extends LitElement {
     .recipe-search-icon {
       position: absolute;
       right: 1rem;
-      top: 2rem;
+      top: 50%;
+      transform: translateY(-50%);
       width: 1.375rem;
       height: 1.375rem;
       color: var(--color-interactive);
       pointer-events: none;
       transition: color 0.15s;
     }
-    .recipe-search-wrap:focus-within .recipe-search-icon {
+    .recipe-search-field:focus-within .recipe-search-icon {
       color: var(--color-interactive);
+    }
+    .recipe-search-count {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      padding: 0.1875rem 0.625rem;
+      border-radius: 999px;
+      background: transparent;
+      border: 1px solid var(--color-edge);
+      color: var(--color-subtle);
+      font-size: 0.75rem;
+      font-weight: 500;
+      pointer-events: none;
+      line-height: 1;
     }
   `
 
@@ -213,26 +233,32 @@ class RecipeSearch extends LitElement {
   render() {
     return html`
       <div class="recipe-search-wrap">
-        <svg
-          class="recipe-search-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.75"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <circle cx="11" cy="11" r="7"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
-        <input
-          type="search"
-          class="recipe-search-input"
-          placeholder="Search by ingredient, dish, cuisine or diet"
-          aria-label="Search recipes"
-          @input=${this.onInput}
-        />
+        <div class="recipe-search-field">
+          <input
+            type="search"
+            class="recipe-search-input"
+            placeholder="Search by ingredient, dish, cuisine or diet"
+            aria-label="Search recipes"
+            @input=${this.onInput}
+          />
+          ${
+            this.mode === 'results'
+              ? html`<span class="recipe-search-count" data-testid="result-count">${this.results.length} ${this.results.length === 1 ? 'result' : 'results'}</span>`
+              : html`<svg
+                class="recipe-search-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.75"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="11" cy="11" r="7"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>`
+          }
+        </div>
       </div>
     `
   }

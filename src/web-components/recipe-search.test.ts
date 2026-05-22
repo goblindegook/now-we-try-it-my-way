@@ -4,6 +4,27 @@ import { LitElement } from 'lit'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
 
+function setupDOM() {
+  document.body.innerHTML = `
+    <div>
+      <recipe-search target="recipes-static-content"></recipe-search>
+      <div id="recipes-static-content">
+        <div class="grid">static grid</div>
+      </div>
+    </div>
+  `
+}
+
+async function search(host: SearchHost | null, query: string) {
+  const input = getByRole(host?.shadowRoot as unknown as HTMLElement, 'searchbox', {
+    name: /search recipes/i,
+  }) as HTMLInputElement
+  input.value = query
+  input.dispatchEvent(new Event('input', { bubbles: true }))
+  vi.advanceTimersByTime(200)
+  await Promise.resolve()
+}
+
 type SearchHost = HTMLElement & { updateComplete?: Promise<unknown> }
 
 describe('recipe-search', () => {
@@ -82,6 +103,51 @@ describe('recipe-search', () => {
     const staticContent = document.getElementById('recipes-static-content')
     expect(staticContent?.style.display).toBe('none')
     expect(document.querySelector('recipe-card[slug="spaghetti-carbonara"]')).not.toBeNull()
+  })
+
+  it('shows result count badge with singular text when one result found', async () => {
+    setupDOM()
+    const host = document.querySelector<SearchHost>('recipe-search')
+    await host?.updateComplete
+    document.dispatchEvent(new Event('astro:page-load'))
+
+    await search(host, 'spaghetti')
+
+    expect(queryByText(host?.shadowRoot as unknown as HTMLElement, '1 result')).not.toBeNull()
+  })
+
+  it('shows result count badge with plural text when multiple results found', async () => {
+    setupDOM()
+    const host = document.querySelector<SearchHost>('recipe-search')
+    await host?.updateComplete
+    document.dispatchEvent(new Event('astro:page-load'))
+
+    await search(host, 'mains')
+
+    const badge = host?.shadowRoot?.querySelector('[data-testid="result-count"]')
+    const count = Number(badge?.textContent?.match(/\d+/)?.[0] ?? 0)
+    expect(count).toBeGreaterThan(1)
+    expect(badge?.textContent).toMatch(/results/)
+  })
+
+  it('hides result count badge when no search term', async () => {
+    setupDOM()
+    const host = document.querySelector<SearchHost>('recipe-search')
+    await host?.updateComplete
+    document.dispatchEvent(new Event('astro:page-load'))
+
+    expect(queryByText(host?.shadowRoot as unknown as HTMLElement, /result/)).toBeNull()
+  })
+
+  it('hides result count badge when search has no matches', async () => {
+    setupDOM()
+    const host = document.querySelector<SearchHost>('recipe-search')
+    await host?.updateComplete
+    document.dispatchEvent(new Event('astro:page-load'))
+
+    await search(host, 'zqxjvk')
+
+    expect(queryByText(host?.shadowRoot as unknown as HTMLElement, /result/)).toBeNull()
   })
 
   it('shows empty state when query has no matches and resets on clear', async () => {
