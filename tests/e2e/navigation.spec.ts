@@ -5,7 +5,7 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => localStorage.clear())
 })
 
-test('scaler works on second recipe page after SPA navigation', async ({ page }) => {
+test('scaler works on second recipe page after navigation', async ({ page }) => {
   await page.getByRole('link', { name: 'All recipes' }).click()
   await page.waitForURL('/recipes')
 
@@ -26,7 +26,7 @@ test('scaler works on second recipe page after SPA navigation', async ({ page })
   await expect(page.getByRole('button', { name: 'Decrease servings' })).toBeEnabled()
 })
 
-test('checklist works on second recipe page after SPA navigation', async ({ page }) => {
+test('checklist works on second recipe page after navigation', async ({ page }) => {
   await page.getByRole('link', { name: 'All recipes' }).click()
   await page.waitForURL('/recipes')
 

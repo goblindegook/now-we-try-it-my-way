@@ -120,11 +120,27 @@ test('timer dock fits within viewport on small screen (375px wide)', async ({ pa
   await page.getByRole('button', { name: /10:00|Done/ }).first().click()
   await expect(page.getByText('Timers')).toBeVisible({ timeout: 2000 })
 
-  const overflows = await page.evaluate(() => {
-    const rect = document.querySelector('timer-dock')?.getBoundingClientRect()
-    return !rect || rect.left < 0 || rect.right > window.innerWidth
-  })
-  expect(overflows).toBe(false)
+  const box = await page.locator('timer-dock').boundingBox()
+  const { width: viewportWidth } = page.viewportSize()!
+  expect(box!.x).toBeGreaterThanOrEqual(0)
+  expect(box!.x + box!.width).toBeLessThanOrEqual(viewportWidth)
+})
+
+test('timer dock stays within viewport when resize fires before first timer on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto(RECIPE_URL)
+  await page.evaluate(() => { localStorage.clear(); sessionStorage.clear() })
+  await page.reload()
+
+  await page.evaluate(() => window.dispatchEvent(new Event('resize')))
+
+  await page.getByRole('button', { name: /10:00|Done/ }).first().click()
+  await expect(page.getByText('Timers')).toBeVisible({ timeout: 2000 })
+
+  const box = await page.locator('timer-dock').boundingBox()
+  const { width: viewportWidth } = page.viewportSize()!
+  expect(box!.x).toBeGreaterThanOrEqual(0)
+  expect(box!.x + box!.width).toBeLessThanOrEqual(viewportWidth)
 })
 
 test('minimized dock shows no timer when all timers are done', async ({ page }) => {

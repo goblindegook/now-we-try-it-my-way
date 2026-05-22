@@ -112,8 +112,9 @@ export class TimerDock extends LitElement {
 
   private clampPosition = () => {
     const dock = this.shadowRoot?.querySelector('.dock') as HTMLElement | null
-    const w = dock?.offsetWidth ?? 280
-    const h = dock?.offsetHeight ?? 44
+    if (!dock || dock.offsetWidth === 0) return
+    const w = dock.offsetWidth
+    const h = dock.offsetHeight
     const rect = this.getBoundingClientRect()
     if (!Number.isFinite(rect.left)) return
     const x = Math.max(8, Math.min(window.innerWidth - w - 8, rect.left))
