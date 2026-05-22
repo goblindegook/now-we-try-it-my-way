@@ -71,8 +71,8 @@ const byCategory = categories.map((cat) => ({
         </div>
       </section>
 
-      <section class="section">
-        <h2 class="section__heading">Categories</h2>
+      <section class="section" aria-labelledby="categories-heading">
+        <h2 id="categories-heading" class="section__heading">Categories</h2>
         <div class="categories">
           {byCategory.map(({ name, recipes: catRecipes }) => {
             const slots = [...catRecipes, null, null, null, null].slice(0, 4)
@@ -255,11 +255,18 @@ const byCategory = categories.map((cat) => ({
 
   .categories {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.75rem;
   }
 
+  @media (min-width: 1024px) {
+    .categories {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
   .cat-card {
+    min-width: 0;
     display: block;
     text-decoration: none;
     border: 1px solid var(--color-edge);
