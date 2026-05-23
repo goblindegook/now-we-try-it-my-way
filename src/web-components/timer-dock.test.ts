@@ -1,41 +1,142 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import './timer-dock'
 
 type FakeWakeLockSentinel = {
   released: boolean
-  release: ReturnType<typeof vi.fn>
-  addEventListener: ReturnType<typeof vi.fn>
-  removeEventListener: ReturnType<typeof vi.fn>
+  release: Mock
+  addEventListener: Mock
+  removeEventListener: Mock
 }
 
-function makeRunningTimer() {
-  return {
-    id: 't1',
-    label: 'Step timer',
-    recipeName: 'Recipe',
-    recipeUrl: '/recipes/test',
-    duration: 600,
-    startedAt: Date.now(),
-    elapsed: 0,
-    done: false,
-    soundPlayed: false,
-  }
-}
+beforeEach(() => {
+  document.body.innerHTML = ''
+  localStorage.clear()
+  sessionStorage.clear()
+})
 
-function setTimers(timers: unknown[]) {
-  localStorage.setItem('cookbook-timers', JSON.stringify(timers))
-  window.dispatchEvent(new CustomEvent('cookbook-timers-updated'))
-}
+afterEach(() => {
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
+})
 
-async function flush() {
-  await Promise.resolve()
-  await Promise.resolve()
-}
+describe('timer-dock clear silences audio', () => {
+  let dock: HTMLElement
 
-async function interact() {
-  document.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-  await flush()
-}
+  afterEach(() => {
+    if (dock?.isConnected) dock.remove()
+  })
+
+  it('stops scheduled oscillators when a done timer is removed externally', async () => {
+    const fakeOsc = {
+      connect: vi.fn(),
+      type: '',
+      frequency: { value: 0 },
+      start: vi.fn(),
+      stop: vi.fn(),
+    }
+    vi.stubGlobal(
+      'AudioContext',
+      // biome-ignore lint/complexity/useArrowFunction: must be a constructor
+      vi.fn(function () {
+        return {
+          state: 'running',
+          resume: vi.fn(async () => {}),
+          currentTime: 0,
+          createOscillator: vi.fn(() => fakeOsc),
+          createGain: vi.fn(() => ({
+            connect: vi.fn(),
+            gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+          })),
+          destination: {},
+        }
+      }),
+    )
+
+    dock = document.createElement('timer-dock')
+    document.body.appendChild(dock)
+    await flush()
+
+    setTimers([
+      {
+        id: 't1',
+        label: 'Step timer',
+        recipeName: 'Recipe',
+        recipeUrl: '/recipes/test',
+        duration: 10,
+        startedAt: null,
+        elapsed: 10,
+        done: true,
+        soundPlayed: false,
+      },
+    ])
+    await flush()
+    await flush()
+
+    const stopsBeforeClear = fakeOsc.stop.mock.calls.length
+
+    // Simulate step-timer reset() removing the timer from outside the dock
+    setTimers([])
+    await flush()
+
+    expect(fakeOsc.stop.mock.calls.length).toBeGreaterThan(stopsBeforeClear)
+  })
+
+  it('stops scheduled oscillators when clearing a done timer', async () => {
+    const fakeOsc = {
+      connect: vi.fn(),
+      type: '',
+      frequency: { value: 0 },
+      start: vi.fn(),
+      stop: vi.fn(),
+    }
+    vi.stubGlobal(
+      'AudioContext',
+      // biome-ignore lint/complexity/useArrowFunction: must be a constructor
+      vi.fn(function () {
+        return {
+          state: 'running',
+          resume: vi.fn(async () => {}),
+          currentTime: 0,
+          createOscillator: vi.fn(() => fakeOsc),
+          createGain: vi.fn(() => ({
+            connect: vi.fn(),
+            gain: { setValueAtTime: vi.fn(), exponentialRampToValueAtTime: vi.fn() },
+          })),
+          destination: {},
+        }
+      }),
+    )
+
+    dock = document.createElement('timer-dock')
+    document.body.appendChild(dock)
+    await flush()
+
+    // soundPlayed: false so refresh() triggers playDone() and oscillators are tracked
+    setTimers([
+      {
+        id: 't1',
+        label: 'Step timer',
+        recipeName: 'Recipe',
+        recipeUrl: '/recipes/test',
+        duration: 10,
+        startedAt: null,
+        elapsed: 10,
+        done: true,
+        soundPlayed: false,
+      },
+    ])
+    await flush()
+    await flush() // let playDone() async chain complete
+
+    const stopsBeforeClear = fakeOsc.stop.mock.calls.length
+
+    const clearBtn = dock.shadowRoot?.querySelector('.dock-btn--dismiss') as HTMLButtonElement
+    clearBtn.click()
+    await flush()
+
+    expect(fakeOsc.stop.mock.calls.length).toBeGreaterThan(stopsBeforeClear)
+  })
+})
 
 describe('timer-dock wake lock', () => {
   let requestWakeLock: ReturnType<typeof vi.fn>
@@ -43,10 +144,6 @@ describe('timer-dock wake lock', () => {
   let dock: HTMLElement
 
   beforeEach(() => {
-    document.body.innerHTML = ''
-    localStorage.clear()
-    sessionStorage.clear()
-
     sentinel = {
       released: false,
       release: vi.fn(async () => {
@@ -65,7 +162,6 @@ describe('timer-dock wake lock', () => {
 
   afterEach(() => {
     if (dock?.isConnected) dock.remove()
-    vi.restoreAllMocks()
   })
 
   it('requests screen wake lock after user interaction while timer is running', async () => {
@@ -142,3 +238,31 @@ describe('timer-dock wake lock', () => {
     expect(requestWakeLock).toHaveBeenCalledWith('screen')
   })
 })
+
+function makeRunningTimer() {
+  return {
+    id: 't1',
+    label: 'Step timer',
+    recipeName: 'Recipe',
+    recipeUrl: '/recipes/test',
+    duration: 600,
+    startedAt: Date.now(),
+    elapsed: 0,
+    done: false,
+    soundPlayed: false,
+  }
+}
+
+function setTimers(timers: unknown[]) {
+  localStorage.setItem('cookbook-timers', JSON.stringify(timers))
+  window.dispatchEvent(new CustomEvent('cookbook-timers-updated'))
+}
+
+async function flush() {
+  await Promise.resolve()
+}
+
+async function interact() {
+  document.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+  await flush()
+}

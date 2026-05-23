@@ -15,6 +15,7 @@ export class TimerDock extends LitElement {
   pendingClearId: string | null = null
   private pendingClearTimeout: ReturnType<typeof setTimeout> | null = null
   private audioCtx: AudioContext | null = null
+  private activeOscillators: OscillatorNode[] = []
   private wakeLock: WakeLockSentinel | null = null
   private wakeLockRequest: Promise<void> | null = null
   private hasUserInteraction = false
@@ -223,7 +224,14 @@ export class TimerDock extends LitElement {
         upsertTimer({ ...t, soundPlayed: true })
       })
     }
-    this.timers = getTimers()
+    const newTimers = getTimers()
+    if (this.activeOscillators.length > 0) {
+      const newIds = new Set(newTimers.map((t) => t.id))
+      if (this.timers.some((t) => t.done && !newIds.has(t.id))) {
+        this.silenceActiveSound()
+      }
+    }
+    this.timers = newTimers
     void this.syncWakeLock()
     if (this.pendingClearId && !this.timers.find((t) => t.id === this.pendingClearId)) {
       if (this.pendingClearTimeout) clearTimeout(this.pendingClearTimeout)
@@ -273,6 +281,7 @@ export class TimerDock extends LitElement {
       const now = ctx.currentTime
       const groupStart = [0, 2.0, 4.0]
       const beepOffsets = groupStart.flatMap((g) => [g, g + 0.25, g + 0.5])
+      this.activeOscillators = []
       beepOffsets.forEach((offset) => {
         const osc = ctx.createOscillator()
         const gain = ctx.createGain()
@@ -284,8 +293,18 @@ export class TimerDock extends LitElement {
         gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.18)
         osc.start(now + offset)
         osc.stop(now + offset + 0.2)
+        this.activeOscillators.push(osc)
       })
     } catch (_) {}
+  }
+
+  private silenceActiveSound() {
+    for (const osc of this.activeOscillators) {
+      try {
+        osc.stop()
+      } catch {}
+    }
+    this.activeOscillators = []
   }
 
   private fmt(s: number): string {
@@ -314,6 +333,7 @@ export class TimerDock extends LitElement {
   private handleClear(id: string) {
     const timer = this.timers.find((t) => t.id === id)
     if (timer?.done) {
+      this.silenceActiveSound()
       this.dismissTimer(id)
       return
     }
