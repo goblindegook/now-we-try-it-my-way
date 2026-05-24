@@ -11,19 +11,35 @@ A personal recipe collection built with [Astro](https://astro.build) and [CookLa
 ## Adding a recipe
 
 1. Create a `.cook` file in `src/content/recipes/`.
-2. Add metadata comments at the top of the file:
+2. Add YAML frontmatter at the top of the file:
 
 ```cook
->> title: Pasta Carbonara
->> description: Classic Roman pasta with eggs, guanciale, and Pecorino.
->> category: Pasta
->> servings: 2
->> prepTime: 10 mins
->> cookTime: 20 mins
->> photo: /images/pasta-carbonara.jpg
+---
+title: Pasta Carbonara
+description: Classic Roman pasta with eggs, guanciale, and Pecorino.
+category: Mains
+cuisine: Italian
+tags:
+  - pasta
+  - quick
+servings: 2
+image: pasta-carbonara.jpeg
+prep time: 10 minutes
+cook time: 20 minutes
+created: 2026-05-24
+updated: 2026-05-24
+---
 ```
 
-3. Write the recipe body in CookLang syntax. The parser picks up `@ingredients{}`, `#cookware{}`, and `~timers{}` automatically.
+3. Write recipe body in Cooklang syntax:
+
+```cook
+Bring salted water to boil in #pot{}.
+Cook @spaghetti{200%g} for ~{10%minutes}.
+Toss with @pecorino romano{50%g} and @black pepper{}.
+```
+
+`@ingredient{quantity%unit}` defines ingredients, `#cookware{}` defines cookware, and `~{time%unit}` defines timers.
 
 ## Development
 
