@@ -1,5 +1,13 @@
 import { expect, test, type Page } from '@playwright/test'
 
+test('canonical URL always points to the production domain', async ({ page }) => {
+  await page.goto('/')
+  const canonical = await page.evaluate(
+    () => document.querySelector('link[rel="canonical"]')?.getAttribute('href')
+  )
+  expect(canonical).toBe('https://nowwetry.it/')
+})
+
 function categoryRegion(page: Page) {
   return page.getByRole('region', { name: 'Categories' })
 }

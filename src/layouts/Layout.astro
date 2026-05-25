@@ -13,7 +13,7 @@ const {
   socialImage,
   ogType = 'website',
 } = Astro.props
-const canonicalUrl = Astro.url.toString()
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString()
 const socialImageUrl = socialImage
   ? new URL(socialImage, Astro.site).toString()
   : new URL('/favicon.ico', Astro.site).toString()
