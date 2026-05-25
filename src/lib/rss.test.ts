@@ -136,4 +136,22 @@ describe('buildRecipeRssItems', () => {
 
     expect(items[0].content).toContain('1 onion (peeled and finely chopped)')
   })
+
+  it('renders step sections in rss content', () => {
+    const parsed = parseRecipe(
+      withFrontmatter(
+        'title: Layered Dish\ndescription: Two parts\ncreated: 2026-05-21',
+        '= Sauce\nSimmer @tomato{200%g}.\n\n= Pasta\nBoil @spaghetti{100%g}.',
+      ),
+      'layered-dish',
+    )
+    const items = buildRecipeRssItems([parsed], new URL('https://nowwetry.it'))
+
+    expect(items[0].content).toContain('<h2>Ingredients</h2><h3>Sauce</h3><ul><li>200 g tomato</li></ul>')
+    expect(items[0].content).toContain('<h3>Pasta</h3><ul><li>100 g spaghetti</li></ul>')
+    expect(items[0].content).toContain('<h3>Sauce</h3>')
+    expect(items[0].content).toContain('<h3>Pasta</h3>')
+    expect(items[0].content).toContain('Simmer 200 g tomato.')
+    expect(items[0].content).toContain('Boil 100 g spaghetti.')
+  })
 })

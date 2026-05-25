@@ -79,18 +79,25 @@ function recipeCategories(recipe: ParsedRecipe): string[] | undefined {
   return values.size > 0 ? [...values].sort() : undefined
 }
 
-function renderRecipeContent(recipe: ParsedRecipe): string {
-  const ingredients = recipe.ingredients
-    .map((ingredient) => {
-      const amount = formatQuantity(ingredient.quantity)
-      const units = ingredient.unit ?? ''
-      const prefix = amount ? `${amount}${units ? ` ${units}` : ''} ` : ''
-      const preparation = ingredient.preparation ? ` (${ingredient.preparation})` : ''
-      return `<li>${escapeEntities(`${prefix}${ingredient.name}${preparation}`.trim())}</li>`
-    })
-    .join('')
+function renderSectionIngredients(recipe: ParsedRecipe, section: ParsedRecipe['sections'][number]): string[] {
+  const seen = new Set<string>()
+  const items: string[] = []
 
-  const steps = recipe.steps
+  for (const step of section.steps) {
+    for (const item of step.items) {
+      if (item.type !== 'ingredient') continue
+      const key = `${item.index}:${item.quantityPartIndex ?? -1}`
+      if (seen.has(key)) continue
+      seen.add(key)
+      items.push(ingredientText(recipe, item.index, item.quantityPartIndex))
+    }
+  }
+
+  return items
+}
+
+function renderStepList(recipe: ParsedRecipe, steps: ParsedRecipe['steps']): string {
+  return steps
     .map((step) =>
       step.items
         .map((item) => itemText(recipe, item))
@@ -100,8 +107,41 @@ function renderRecipeContent(recipe: ParsedRecipe): string {
     )
     .map((text) => `<li>${escapeEntities(text)}</li>`)
     .join('')
+}
 
-  return `<h2>Ingredients</h2><ul>${ingredients}</ul><h2>Instructions</h2><ol>${steps}</ol>`
+function renderRecipeContent(recipe: ParsedRecipe): string {
+  const hasNamedSections = recipe.sections.some((section) => section.name.trim())
+  const ingredients = hasNamedSections
+    ? recipe.sections
+        .map((section) => {
+          const sectionIngredients = renderSectionIngredients(recipe, section)
+          if (sectionIngredients.length === 0) return ''
+          const heading = section.name ? `<h3>${escapeEntities(section.name)}</h3>` : ''
+          const list = sectionIngredients.map((entry) => `<li>${escapeEntities(entry)}</li>`).join('')
+          return `${heading}<ul>${list}</ul>`
+        })
+        .join('')
+    : `<ul>${recipe.ingredients
+        .map((ingredient) => {
+          const amount = formatQuantity(ingredient.quantity)
+          const units = ingredient.unit ?? ''
+          const prefix = amount ? `${amount}${units ? ` ${units}` : ''} ` : ''
+          const preparation = ingredient.preparation ? ` (${ingredient.preparation})` : ''
+          return `<li>${escapeEntities(`${prefix}${ingredient.name}${preparation}`.trim())}</li>`
+        })
+        .join('')}</ul>`
+
+  const instructions = hasNamedSections
+    ? recipe.sections
+        .filter((section) => section.steps.length > 0)
+        .map((section) => {
+          const heading = section.name ? `<h3>${escapeEntities(section.name)}</h3>` : ''
+          return `${heading}<ol>${renderStepList(recipe, section.steps)}</ol>`
+        })
+        .join('')
+    : `<ol>${renderStepList(recipe, recipe.steps)}</ol>`
+
+  return `<h2>Ingredients</h2>${ingredients}<h2>Instructions</h2>${instructions}`
 }
 
 export function buildRecipeRssItems(recipes: ParsedRecipe[], site: URL): RSSFeedItem[] {
