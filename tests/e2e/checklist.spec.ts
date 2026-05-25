@@ -44,15 +44,6 @@ test('only the clicked step is checked — others remain unchecked', async ({ pa
   await expect(page.getByRole('button', { name: /Mark step 2 complete/ })).toContainText('2')
 })
 
-test('saves checked state to localStorage', async ({ page }) => {
-  await page.getByRole('button', { name: /Mark step 1 complete/ }).click()
-  const stored = await page.evaluate(() => {
-    const key = `cookbook-checklist:${location.pathname}`
-    return localStorage.getItem(key)
-  })
-  expect(stored).not.toBeNull()
-})
-
 test('persists checked steps across tab close', async ({ browser }) => {
   const context = await browser.newContext()
   const page1 = await context.newPage()

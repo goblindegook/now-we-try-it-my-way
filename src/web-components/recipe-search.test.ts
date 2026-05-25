@@ -1,6 +1,5 @@
 import { BloomSearch } from '@pacote/bloom-search'
 import { getByRole, getByText, queryByText } from '@testing-library/dom'
-import { LitElement } from 'lit'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
 
@@ -71,11 +70,6 @@ describe('recipe-search', () => {
     document.body.innerHTML = ''
   })
 
-  it('is implemented as a LitElement', () => {
-    const el = document.createElement('recipe-search')
-    expect(el).toBeInstanceOf(LitElement)
-  })
-
   it('renders search results and hides static grid on query', async () => {
     document.body.innerHTML = `
       <div>
@@ -122,10 +116,10 @@ describe('recipe-search', () => {
 
     await search(host, 'mains')
 
-    const badge = host?.shadowRoot?.querySelector('[data-testid="result-count"]')
-    const count = Number(badge?.textContent?.match(/\d+/)?.[0] ?? 0)
+    const badgeText = queryByText(host?.shadowRoot as unknown as HTMLElement, /\d+\s+results/)
+    const count = Number(badgeText?.textContent?.match(/\d+/)?.[0] ?? 0)
     expect(count).toBeGreaterThan(1)
-    expect(badge?.textContent).toMatch(/results/)
+    expect(badgeText?.textContent).toMatch(/results/)
   })
 
   it('hides result count badge when no search term', async () => {

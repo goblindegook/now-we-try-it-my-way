@@ -19,19 +19,24 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.18",
     "@astrojs/sitemap": "^3.7.2",
     "@pacote/bloom-search": "^0.18.2",
     "@tmlmt/cooklang-parser": "^2.1.8",
     "astro": "^6.3.3",
+    "html-escaper": "^3.0.3",
     "lit": "^3.3.3",
     "stemmer": "^2.0.1"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
     "@biomejs/biome": "2.4.15",
     "@playwright/test": "^1.60.0",
     "@testing-library/dom": "^10.4.1",
+    "@types/html-escaper": "^3.0.4",
     "happy-dom": "^20.9.0",
     "husky": "^9.1.7",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.6"
   }
 }

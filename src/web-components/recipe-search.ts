@@ -117,7 +117,7 @@ class RecipeSearch extends LitElement {
     document.removeEventListener('astro:page-load', this.onAstroPageLoad)
   }
 
-  protected override updated(changed: PropertyValues<this>) {
+  protected override updated(changed: PropertyValues) {
     if (changed.has('mode') || changed.has('results')) {
       this.syncStaticVisibility()
       this.syncResultsContent()
