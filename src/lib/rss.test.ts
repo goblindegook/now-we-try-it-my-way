@@ -91,6 +91,7 @@ describe('buildRecipeRssItems', () => {
 
     expect(items[0].customData).toContain('<media:content')
     expect(items[0].customData).toContain('url="https://nowwetry.it/')
+    expect(items[0].content).not.toContain('<img')
   })
 
   it('uses display names from instruction items when available', () => {
@@ -121,5 +122,18 @@ describe('buildRecipeRssItems', () => {
     )
 
     expect(items[0].categories).toEqual(['mains', 'pasta', 'weeknight'])
+  })
+
+  it('renders shorthand ingredient preparation in rss content', () => {
+    const parsed = parseRecipe(
+      withFrontmatter(
+        'title: Onion Paste\ndescription: Aromatic base\ncreated: 2026-05-21',
+        'Mix @onion{1}(peeled and finely chopped) into paste.',
+      ),
+      'onion-paste',
+    )
+    const items = buildRecipeRssItems([parsed], new URL('https://nowwetry.it'))
+
+    expect(items[0].content).toContain('1 onion (peeled and finely chopped)')
   })
 })

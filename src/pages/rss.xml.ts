@@ -10,7 +10,7 @@ export const GET: APIRoute = async ({ site }) => {
 
   const recipes = await loadAllRecipes()
   return rss({
-    title: 'Now We Try It My Way Recipes',
+    title: 'Now We Try It My Way',
     description: 'Latest recipes from Now We Try It My Way.',
     site,
     xmlns: {

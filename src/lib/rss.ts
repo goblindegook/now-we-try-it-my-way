@@ -36,7 +36,8 @@ function ingredientText(recipe: ParsedRecipe, index: number, quantityPartIndex?:
   const units = part?.unit ?? ingredient.unit ?? ''
   const prefix = amount ? `${amount}${units ? ` ${units}` : ''} ` : ''
   const name = displayName?.trim() || ingredient.name
-  return `${prefix}${name}`
+  const preparation = ingredient.preparation ? ` (${ingredient.preparation})` : ''
+  return `${prefix}${name}${preparation}`
 }
 
 function itemText(recipe: ParsedRecipe, item: ParsedRecipe['steps'][number]['items'][number]): string {
@@ -78,16 +79,14 @@ function recipeCategories(recipe: ParsedRecipe): string[] | undefined {
   return values.size > 0 ? [...values].sort() : undefined
 }
 
-function renderRecipeContent(recipe: ParsedRecipe, imageUrl?: string): string {
-  const leadImage = imageUrl
-    ? `<p><img src="${escapeEntities(imageUrl)}" alt="${escapeEntities(recipe.title)}" /></p>`
-    : ''
+function renderRecipeContent(recipe: ParsedRecipe): string {
   const ingredients = recipe.ingredients
     .map((ingredient) => {
       const amount = formatQuantity(ingredient.quantity)
       const units = ingredient.unit ?? ''
       const prefix = amount ? `${amount}${units ? ` ${units}` : ''} ` : ''
-      return `<li>${escapeEntities(`${prefix}${ingredient.name}`.trim())}</li>`
+      const preparation = ingredient.preparation ? ` (${ingredient.preparation})` : ''
+      return `<li>${escapeEntities(`${prefix}${ingredient.name}${preparation}`.trim())}</li>`
     })
     .join('')
 
@@ -102,7 +101,7 @@ function renderRecipeContent(recipe: ParsedRecipe, imageUrl?: string): string {
     .map((text) => `<li>${escapeEntities(text)}</li>`)
     .join('')
 
-  return `${leadImage}<h2>Ingredients</h2><ul>${ingredients}</ul><h2>Instructions</h2><ol>${steps}</ol>`
+  return `<h2>Ingredients</h2><ul>${ingredients}</ul><h2>Instructions</h2><ol>${steps}</ol>`
 }
 
 export function buildRecipeRssItems(recipes: ParsedRecipe[], site: URL): RSSFeedItem[] {
@@ -110,7 +109,6 @@ export function buildRecipeRssItems(recipes: ParsedRecipe[], site: URL): RSSFeed
 
   return sorted.map((recipe) => {
     const image = resolveRecipePhoto(recipe.photo, recipe.category, recipe.slug)
-    const imageUrl = image ? new URL(image.src, site).toString() : undefined
 
     return {
       title: recipe.title,
@@ -118,7 +116,7 @@ export function buildRecipeRssItems(recipes: ParsedRecipe[], site: URL): RSSFeed
       link: new URL(`/recipes/${recipe.slug}`, site).toString(),
       pubDate: toFeedDate(recipe.date),
       categories: recipeCategories(recipe),
-      content: renderRecipeContent(recipe, imageUrl),
+      content: renderRecipeContent(recipe),
       customData: image ? imageMetaCustomData(new URL(image.src, site), image?.format ?? 'jpg') : undefined,
     }
   })
