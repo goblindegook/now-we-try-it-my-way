@@ -30,6 +30,7 @@ const { categories, current } = Astro.props
   .site-navigation {
     background: var(--color-chrome-bg);
     position: relative;
+    padding-top: env(safe-area-inset-top);
   }
   .site-navigation__inner {
     max-width: var(--max-width);
