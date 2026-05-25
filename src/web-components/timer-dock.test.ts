@@ -1,3 +1,4 @@
+import { getByRole } from '@testing-library/dom'
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import './timer-dock'
 
@@ -130,7 +131,7 @@ describe('timer-dock clear silences audio', () => {
 
     const stopsBeforeClear = fakeOsc.stop.mock.calls.length
 
-    const clearBtn = dock.shadowRoot?.querySelector('.dock-btn--dismiss') as HTMLButtonElement
+    const clearBtn = getByRole(dock.shadowRoot as unknown as HTMLElement, 'button', { name: /clear/i })
     clearBtn.click()
     await flush()
 

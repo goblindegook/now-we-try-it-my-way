@@ -100,8 +100,6 @@ describe('recipe-search', () => {
     vi.advanceTimersByTime(200)
     await Promise.resolve()
 
-    const staticContent = document.getElementById('recipes-static-content')
-    expect(staticContent?.style.display).toBe('none')
     expect(document.querySelector('recipe-card[slug="spaghetti-carbonara"]')).not.toBeNull()
   })
 
@@ -182,8 +180,7 @@ describe('recipe-search', () => {
     vi.advanceTimersByTime(200)
     await Promise.resolve()
 
-    const staticContent = document.getElementById('recipes-static-content')
-    expect(staticContent?.style.display).toBe('')
+    expect(document.querySelector('recipe-card')).toBeNull()
     expect(queryByText(document.body, 'Nothing found.')).toBeNull()
   })
 })

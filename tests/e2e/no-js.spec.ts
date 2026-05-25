@@ -14,7 +14,7 @@ test('home page exposes default OG and Twitter metadata', async ({ page }) => {
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /favicon\.ico$/)
 })
 
-test('recipe page renders key content with JavaScript disabled', async ({ page }) => {
+test('recipe page has valid Recipe schema.org JSON-LD', async ({ page }) => {
   await page.goto(RECIPE_URL)
 
   const schemaJson = await page.locator('script[type="application/ld+json"][data-schema="recipe"]').textContent()
@@ -27,17 +27,37 @@ test('recipe page renders key content with JavaScript disabled', async ({ page }
   expect(schema.image).not.toContain('/src/assets/')
   expect(schema.prepTime).toBe('PT10M')
   expect(schema.cookTime).toBe('PT20M')
+})
+
+test('recipe page sets article OG and Twitter card metadata', async ({ page }) => {
+  await page.goto(RECIPE_URL)
+
+  const schemaJson = await page.locator('script[type="application/ld+json"][data-schema="recipe"]').textContent()
+  const schema = JSON.parse(schemaJson ?? '{}')
+
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article')
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', schema.image)
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', schema.image)
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image')
+})
+
+test('recipe page renders title and ingredients heading', async ({ page }) => {
+  await page.goto(RECIPE_URL)
 
   await expect(page.getByRole('heading', { level: 1, name: 'Spaghetti carbonara' })).toBeVisible()
   await expect(page.getByRole('heading', { level: 2, name: 'Ingredients' })).toBeVisible()
+})
+
+test('recipe page renders ingredient list', async ({ page }) => {
+  await page.goto(RECIPE_URL)
 
   const ingredients = page.getByRole('list').first().getByRole('listitem')
   expect(await ingredients.count()).toBeGreaterThan(0)
   await expect(page.getByText(/spaghetti/i).first()).toBeVisible()
+})
+
+test('recipe page renders step instructions', async ({ page }) => {
+  await page.goto(RECIPE_URL)
 
   const steps = page.getByRole('list').nth(1).getByRole('listitem')
   expect(await steps.count()).toBeGreaterThan(0)
