@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 test.describe('/recipes search', () => {
   test.beforeEach(async ({ page }) => {
@@ -55,11 +55,12 @@ test.describe('/recipes search', () => {
   })
 
   test('clearing input restores static grid', async ({ page }) => {
+    const name = await getFirstRecipeName(page)
     const search = page.getByRole('searchbox', { name: 'Search recipes' })
     await search.fill('spaghetti')
     await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
     await search.fill('')
-    await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible({ timeout: 500 })
+    await expect(page.getByRole('heading', { level: 2, name })).toBeVisible({ timeout: 500 })
     await expect(page.getByRole('navigation', { name: 'Recipe pages' })).toBeVisible()
   })
 
@@ -71,11 +72,12 @@ test.describe('/recipes search', () => {
   })
 
   test('empty state clears back to static grid', async ({ page }) => {
+    const name = await getFirstRecipeName(page)
     const search = page.getByRole('searchbox', { name: 'Search recipes' })
     await search.fill('zqxjvk')
     await expect(page.getByText('Nothing found.')).toBeVisible({ timeout: 500 })
     await search.fill('')
-    await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible({ timeout: 500 })
+    await expect(page.getByRole('heading', { level: 2, name })).toBeVisible({ timeout: 500 })
     await expect(page.getByText('Nothing found.')).not.toBeVisible()
     await expect(page.getByRole('navigation', { name: 'Recipe pages' })).toBeVisible()
   })
@@ -101,3 +103,10 @@ test.describe('category page search', () => {
     await expect(page.getByText('Nothing found.')).toBeVisible({ timeout: 500 })
   })
 })
+
+async function getFirstRecipeName(page: Page) {
+  const firstRecipeHeading = page.getByRole('main').getByRole('heading', { level: 2 }).first()
+  await expect(firstRecipeHeading).toBeVisible()
+  const firstRecipeName = await firstRecipeHeading.innerText()
+  return firstRecipeName.trim()
+}
