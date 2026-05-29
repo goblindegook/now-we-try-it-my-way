@@ -8,12 +8,15 @@ export class TimerDock extends LitElement {
     timers: { state: true },
     minimized: { state: true },
     pendingClearId: { state: true },
+    announcement: { state: true },
   }
 
   timers: TimerRecord[] = []
   minimized = false
   pendingClearId: string | null = null
+  announcement = ''
   private pendingClearTimeout: ReturnType<typeof setTimeout> | null = null
+  private announcementTimeout: ReturnType<typeof setTimeout> | null = null
   private audioCtx: AudioContext | null = null
   private activeOscillators: OscillatorNode[] = []
   private wakeLock: WakeLockSentinel | null = null
@@ -107,6 +110,10 @@ export class TimerDock extends LitElement {
     if (this.pendingClearTimeout) {
       clearTimeout(this.pendingClearTimeout)
       this.pendingClearTimeout = null
+    }
+    if (this.announcementTimeout) {
+      clearTimeout(this.announcementTimeout)
+      this.announcementTimeout = null
     }
     void this.releaseWakeLock()
   }
@@ -223,6 +230,12 @@ export class TimerDock extends LitElement {
       toPlay.forEach((t) => {
         upsertTimer({ ...t, soundPlayed: true })
       })
+      this.announcement = `${toPlay.map((t) => t.label).join(', ')} complete`
+      if (this.announcementTimeout) clearTimeout(this.announcementTimeout)
+      this.announcementTimeout = setTimeout(() => {
+        this.announcement = ''
+        this.announcementTimeout = null
+      }, 5000)
     }
     const newTimers = getTimers()
     if (this.activeOscillators.length > 0) {
@@ -364,9 +377,11 @@ export class TimerDock extends LitElement {
   }
 
   render() {
-    if (this.timers.length === 0) return html``
     return html`
-      <div class="dock ${this.minimized ? 'dock--minimized' : ''}">
+      <div role="alert" aria-live="assertive" aria-atomic="true" class="sr-only">${this.announcement}</div>
+      ${
+        this.timers.length > 0
+          ? html`<div class="dock ${this.minimized ? 'dock--minimized' : ''}">
         <div class="dock__header" @pointerdown=${this.handleDragStart}>
           <span class="dock__title">Timers</span>
           ${this.minimized ? this.renderMinimizedSummary() : html``}
@@ -411,11 +426,24 @@ export class TimerDock extends LitElement {
               })
             : html``
         }
-      </div>
+      </div>`
+          : html``
+      }
     `
   }
 
   static styles = css`
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
     :host {
       position: fixed;
       bottom: 1.5rem;

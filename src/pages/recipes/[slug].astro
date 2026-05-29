@@ -1,6 +1,7 @@
 ---
 import { getImage } from 'astro:assets'
 import type { FixedValue, Ingredient, Item, QuantityPart, Range, TimerItem } from '@tmlmt/cooklang-parser'
+import { escape as escapeHtml } from 'html-escaper'
 import RecipeLayout from '../../layouts/RecipeLayout.astro'
 import { type Category, sortCategories } from '../../lib/categories'
 import { loadAllRecipes } from '../../lib/cooklang'
@@ -27,15 +28,6 @@ type QuantityValue =
   | { type: 'decimal'; value: number }
   | { type: 'fraction'; num: number; den: number }
 
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
-}
-
 function formatQuantityValue(value: QuantityValue): { amount: string; numeric: number } {
   if (value.type === 'decimal') return { amount: String(value.value), numeric: value.value }
   if (value.type === 'fraction') {
@@ -51,10 +43,38 @@ function formatQuantityValue(value: QuantityValue): { amount: string; numeric: n
 function formatQuantity(quantity?: FixedValue | Range): { amount: string; numeric: number } {
   if (!quantity) return { amount: '', numeric: 0 }
   if (quantity.type === 'fixed') return formatQuantityValue(quantity.value)
-
   const min = formatQuantityValue(quantity.min)
   const max = formatQuantityValue(quantity.max)
   return { amount: `${min.amount}-${max.amount}`, numeric: min.numeric }
+}
+
+function parseDurationMinutes(value: string): number | null {
+  const normalized = value.trim().toLowerCase()
+  if (!normalized) return null
+  const match = normalized.match(/^(\d+(?:\.\d+)?)\s*(minute|minutes|min|mins|hour|hours|hr|hrs)$/)
+  if (!match) return null
+  const amount = Number.parseFloat(match[1])
+  if (!Number.isFinite(amount) || amount <= 0) return null
+  return ['hour', 'hours', 'hr', 'hrs'].includes(match[2]) ? amount * 60 : amount
+}
+
+function minutesToIso(minutes: number): string {
+  const h = Math.floor(minutes / 60)
+  const m = Math.round(minutes % 60)
+  if (h > 0 && m > 0) return `PT${h}H${m}M`
+  if (h > 0) return `PT${h}H`
+  return `PT${m}M`
+}
+
+function toIsoDuration(value: string): string | undefined {
+  const minutes = parseDurationMinutes(value)
+  return minutes !== null ? minutesToIso(minutes) : undefined
+}
+
+function sumDurationsIso(a: string, b: string): string | undefined {
+  const ma = parseDurationMinutes(a)
+  const mb = parseDurationMinutes(b)
+  return ma !== null && mb !== null ? minutesToIso(ma + mb) : undefined
 }
 
 function timerSeconds(amount: number, unit: string): number {
@@ -82,7 +102,6 @@ function renderItem(item: Item): string {
   if (item.type === 'ingredient') {
     const ingredient = recipe?.ingredients[item.index]
     if (!ingredient) return ''
-
     const { amount, numeric, units } = quantityForIngredientItem(ingredient, item.quantityPartIndex)
     const hasQty = !!amount
     const qtyPrefix = hasQty ? `${escapeHtml(amount)}${units ? ` ${escapeHtml(units)}` : ''} ` : ''
@@ -92,7 +111,6 @@ function renderItem(item: Item): string {
       : ''
     const attrs =
       hasQty && numeric > 0 ? ` data-quantity="${numeric}" data-units="${escapeHtml(units)}" data-name="${name}"` : ''
-
     return `<strong class="step-ingredient"${attrs}>${qtyPrefix}${name}</strong>${prep}`
   }
 
@@ -130,19 +148,11 @@ function textForItem(item: Item): string {
   return `${amount} ${timer.unit}`
 }
 
-function toIsoDuration(value: string): string | undefined {
-  const normalized = value.trim().toLowerCase()
-  if (!normalized) return undefined
-
-  const match = normalized.match(/^(\d+(?:\.\d+)?)\s*(minute|minutes|min|mins|hour|hours|hr|hrs)$/)
-  if (!match) return undefined
-
-  const amount = Number.parseFloat(match[1])
-  if (!Number.isFinite(amount) || amount <= 0) return undefined
-
-  const unit = match[2]
-  if (['hour', 'hours', 'hr', 'hrs'].includes(unit)) return `PT${amount}H`
-  return `PT${amount}M`
+function formatIngredientText(ingredient: Ingredient): string {
+  const { amount, units } = quantityForIngredientItem(ingredient)
+  const prefix = amount ? `${amount}${units ? ` ${units}` : ''} ` : ''
+  const prep = ingredient.preparation ? ` (${ingredient.preparation})` : ''
+  return `${prefix}${ingredient.name}${prep}`.trim()
 }
 
 const recipeSchema = recipe
@@ -156,8 +166,9 @@ const recipeSchema = recipe
       url: new URL(`/recipes/${recipe.slug}`, Astro.site).toString(),
       prepTime: toIsoDuration(recipe.prepTime),
       cookTime: toIsoDuration(recipe.cookTime),
+      totalTime: sumDurationsIso(recipe.prepTime, recipe.cookTime),
       recipeYield: recipe.servings ? `${recipe.servings}` : undefined,
-      recipeIngredient: recipe.ingredients.map((ingredient) => ingredient.name),
+      recipeIngredient: recipe.ingredients.map(formatIngredientText),
       recipeInstructions: recipe.steps.map((step, index) => ({
         '@type': 'HowToStep',
         name: `Step ${index + 1}`,

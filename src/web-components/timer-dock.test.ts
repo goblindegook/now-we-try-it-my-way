@@ -20,6 +20,100 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
+describe('timer-dock screen reader announcement', () => {
+  let dock: HTMLElement
+
+  afterEach(() => {
+    if (dock?.isConnected) dock.remove()
+  })
+
+  it('announces timer label as complete when timer expires', async () => {
+    dock = document.createElement('timer-dock')
+    document.body.appendChild(dock)
+    await flush()
+
+    setTimers([
+      {
+        id: 't1',
+        label: 'Step 1',
+        recipeName: 'Recipe',
+        recipeUrl: '/recipes/test',
+        duration: 10,
+        startedAt: null,
+        elapsed: 10,
+        done: true,
+        soundPlayed: false,
+      },
+    ])
+    await flush()
+    await flush()
+
+    const alert = dock.shadowRoot?.querySelector('[role="alert"]')
+    expect(alert?.textContent?.trim()).toBe('Step 1 complete')
+  })
+
+  it('announces multiple completed timers together', async () => {
+    dock = document.createElement('timer-dock')
+    document.body.appendChild(dock)
+    await flush()
+
+    setTimers([
+      {
+        id: 't1',
+        label: 'Step 1',
+        recipeName: 'Recipe',
+        recipeUrl: '/recipes/test',
+        duration: 10,
+        startedAt: null,
+        elapsed: 10,
+        done: true,
+        soundPlayed: false,
+      },
+      {
+        id: 't2',
+        label: 'Step 3',
+        recipeName: 'Recipe',
+        recipeUrl: '/recipes/test',
+        duration: 20,
+        startedAt: null,
+        elapsed: 20,
+        done: true,
+        soundPlayed: false,
+      },
+    ])
+    await flush()
+    await flush()
+
+    const alert = dock.shadowRoot?.querySelector('[role="alert"]')
+    expect(alert?.textContent?.trim()).toBe('Step 1, Step 3 complete')
+  })
+
+  it('does not announce timers that already had soundPlayed', async () => {
+    dock = document.createElement('timer-dock')
+    document.body.appendChild(dock)
+    await flush()
+
+    setTimers([
+      {
+        id: 't1',
+        label: 'Step 1',
+        recipeName: 'Recipe',
+        recipeUrl: '/recipes/test',
+        duration: 10,
+        startedAt: null,
+        elapsed: 10,
+        done: true,
+        soundPlayed: true,
+      },
+    ])
+    await flush()
+    await flush()
+
+    const alert = dock.shadowRoot?.querySelector('[role="alert"]')
+    expect(alert?.textContent?.trim()).toBe('')
+  })
+})
+
 describe('timer-dock clear silences audio', () => {
   let dock: HTMLElement
 
