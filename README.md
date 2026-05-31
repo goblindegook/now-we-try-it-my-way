@@ -4,9 +4,10 @@ A personal recipe collection built with [Astro](https://astro.build) and [CookLa
 
 ## Features
 
-- Ingredient scaler — adjust servings and all quantities update live
-- Step timers — start a countdown directly from any timed step
-- Step checklist — check off steps as you cook
+- Ingredient scaler
+- Multiple step timers
+- Step checklist
+- Keep screen on while you cook
 
 ## Adding a recipe
 

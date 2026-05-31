@@ -52,7 +52,24 @@ const socialImageUrl = socialImage
   <body>
     <slot />
     <footer class="site-footer no-print">
-      <p>&copy; {new Date().getFullYear()} <a href="https://goblindegook.com">Luís Rodrigues</a></p>
+      <p>
+        <span>&copy; {new Date().getFullYear()} <a href="https://goblindegook.com">Luís Rodrigues</a></span>
+        <button
+          id="wake-lock-btn"
+          class="wake-lock-btn"
+          aria-label="Keep screen awake"
+          aria-pressed="false"
+          hidden
+        >
+          <span data-eye="open" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/></svg>
+          </span>
+          <span data-eye="slash" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.585 10.587a2 2 0 0 0 2.829 2.828"/><path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87"/><path d="M3 3l18 18"/></svg>
+          </span>
+          <span class="wake-lock-btn__label">Keep screen on</span>
+        </button>
+      </p>
     </footer>
     <timer-dock transition:persist></timer-dock>
     <script>
@@ -64,6 +81,102 @@ const socialImageUrl = socialImage
             console.error('Service worker registration failed', err)
           })
         })
+      }
+    </script>
+    <script>
+      const STORAGE_KEY = 'cookbook-wake-lock'
+      const TTL = 86_400_000
+
+      // biome-ignore lint/suspicious/noExplicitAny: Wake Lock API is optional and may be undefined
+      const wakeLockApi = (navigator as any).wakeLock as WakeLock | undefined
+
+      let sentinel: WakeLockSentinel | null = null
+      let acquiring = false
+      let enabled = false
+
+      document.addEventListener('astro:page-load', init)
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && enabled) void acquire()
+      })
+
+      function init() {
+        const btn = document.getElementById('wake-lock-btn') as HTMLButtonElement | null
+        if (!btn || !wakeLockApi) return
+        btn.hidden = false
+        enabled = readState()
+        setPressed(enabled)
+        if (enabled) void acquire()
+        btn.addEventListener('click', async () => {
+          enabled = !enabled
+          writeState(enabled)
+          setPressed(enabled)
+          if (enabled) void acquire()
+          else await release()
+        })
+      }
+
+      function setPressed(value: boolean) {
+        const btn = document.getElementById('wake-lock-btn')
+        if (!btn) return
+        btn.setAttribute('aria-pressed', String(value))
+        const label = btn.querySelector('.wake-lock-btn__label')
+        if (label) label.textContent = value ? 'Keeping screen on' : 'Keep screen on'
+      }
+
+      function readState(): boolean {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY)
+          if (!raw) return false
+          const parsed = JSON.parse(raw) as { enabled: boolean; expiresAt: number }
+          if (!parsed.enabled || Date.now() > parsed.expiresAt) {
+            localStorage.removeItem(STORAGE_KEY)
+            return false
+          }
+          return true
+        } catch {
+          return false
+        }
+      }
+
+      function writeState(on: boolean) {
+        try {
+          if (on) {
+            localStorage.setItem(
+              STORAGE_KEY,
+              JSON.stringify({ enabled: true, expiresAt: Date.now() + TTL }),
+            )
+          } else {
+            localStorage.removeItem(STORAGE_KEY)
+          }
+        } catch {}
+      }
+
+      async function acquire() {
+        if (sentinel || acquiring || document.hidden) return
+        acquiring = true
+        try {
+          sentinel = await wakeLockApi!.request('screen')
+          sentinel.addEventListener('release', onRelease)
+        } catch {
+          // Acquisition can fail transiently on page load before the document is
+          // fully active. Keep enabled state intact — visibilitychange will retry.
+        }
+        acquiring = false
+      }
+
+      async function release() {
+        if (!sentinel) return
+        const s = sentinel
+        sentinel = null
+        s.removeEventListener('release', onRelease)
+        try {
+          if (!s.released) await s.release()
+        } catch {}
+      }
+
+      function onRelease() {
+        sentinel = null
+        if (enabled) void acquire()
       }
     </script>
   </body>
@@ -140,6 +253,7 @@ const socialImageUrl = socialImage
   }
 
   *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
 
   html {
     font-size: 16px;
@@ -175,18 +289,42 @@ const socialImageUrl = socialImage
 
   .site-footer {
     border-top: 1px solid var(--color-edge);
-    text-align: center;
-    padding: 1.5rem 1.5rem;
     font-size: 0.8125rem;
     color: var(--color-subtle);
   }
-  .site-footer p { margin: 0; }
+  .site-footer p {
+    margin: 0 auto;
+    max-width: var(--max-width);
+    padding: 1.5rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
   .site-footer a {
     color: var(--color-subtle);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
   .site-footer a:hover { color: var(--color-interactive); }
+
+  .wake-lock-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+    color: var(--color-subtle);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    transition: color 0.15s;
+  }
+  .wake-lock-btn:hover { color: var(--color-ink); }
+  .wake-lock-btn[aria-pressed="true"] { color: var(--color-accent); }
+  .wake-lock-btn [data-eye] { display: inline-flex; align-items: center; }
+  .wake-lock-btn [data-eye="open"] { display: none; }
+  .wake-lock-btn[aria-pressed="true"] [data-eye="open"] { display: inline-flex; align-items: center; }
+  .wake-lock-btn[aria-pressed="true"] [data-eye="slash"] { display: none; }
 
   @media print {
     .no-print { display: none !important; }
