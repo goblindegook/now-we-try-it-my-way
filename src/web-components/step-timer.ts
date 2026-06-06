@@ -196,7 +196,7 @@ export class StepTimer extends LitElement {
       border-color: var(--color-interactive);
       background: var(--color-tint);
     }
-    .timer:active { transform: scale(0.94); }
+    .timer:active { transform: scale(0.96); }
     .timer--running {
       background: var(--color-interactive);
       border-color: var(--color-interactive);

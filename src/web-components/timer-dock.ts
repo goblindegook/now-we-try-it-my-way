@@ -495,11 +495,14 @@ export class TimerDock extends LitElement {
       cursor: pointer;
       color: rgba(255,255,255,0.35);
       padding: 0.375rem;
+      min-width: 2rem;
       display: flex;
       align-items: center;
-      transition: color 0.15s;
+      justify-content: end;
+      transition: color 0.15s, transform 0.08s ease;
     }
     .dock__toggle:hover { color: rgba(255,255,255,0.8); }
+    .dock__toggle:active { transform: scale(0.96); }
     .timer-item {
       display: flex;
       align-items: center;
@@ -565,9 +568,10 @@ export class TimerDock extends LitElement {
       justify-content: center;
       cursor: pointer;
       font-size: 1.125rem;
-      transition: background 0.15s;
+      transition: background 0.15s, transform 0.08s ease;
     }
     .dock-btn:hover { background: rgba(255,255,255,0.2); }
+    .dock-btn:active { transform: scale(0.96); }
     .dock-btn--dismiss { color: rgba(255,255,255,0.5); }
     .dock-btn--dismiss:hover { color: #fff; background: rgba(255,80,80,0.25); }
     .dock-btn--spacer { visibility: hidden; pointer-events: none; }
