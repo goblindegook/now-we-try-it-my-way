@@ -7,14 +7,14 @@ export default defineConfig({
         test: {
           name: 'node',
           include: ['src/**/*.test.ts'],
-          exclude: ['src/web-components/**/*.test.ts', 'src/lib/timer-store.test.ts'],
+          exclude: ['src/web-components/**/*.test.ts', 'src/lib/timer-store.test.ts', 'src/lib/wake-lock.test.ts'],
           environment: 'node',
         },
       },
       {
         test: {
           name: 'happy-dom',
-          include: ['src/web-components/**/*.test.ts', 'src/lib/timer-store.test.ts'],
+          include: ['src/web-components/**/*.test.ts', 'src/lib/timer-store.test.ts', 'src/lib/wake-lock.test.ts'],
           environment: 'happy-dom',
           pool: 'vmForks',
         },

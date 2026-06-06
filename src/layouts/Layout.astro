@@ -56,6 +56,7 @@ const socialImageUrl = socialImage
         <span>&copy; {new Date().getFullYear()} <a href="https://goblindegook.com">Luís Rodrigues</a></span>
         <button
           id="wake-lock-btn"
+          data-wake-lock-btn
           class="wake-lock-btn"
           aria-label="Keep screen awake"
           aria-pressed="false"
@@ -84,8 +85,7 @@ const socialImageUrl = socialImage
       }
     </script>
     <script>
-      const STORAGE_KEY = 'cookbook-wake-lock'
-      const TTL = 86_400_000
+      import { readState, writeState } from '../lib/wake-lock'
 
       // biome-ignore lint/suspicious/noExplicitAny: Wake Lock API is optional and may be undefined
       const wakeLockApi = (navigator as any).wakeLock as WakeLock | undefined
@@ -100,55 +100,30 @@ const socialImageUrl = socialImage
       })
 
       function init() {
-        const btn = document.getElementById('wake-lock-btn') as HTMLButtonElement | null
-        if (!btn || !wakeLockApi) return
-        btn.hidden = false
+        if (!wakeLockApi) return
+        const btns = document.querySelectorAll<HTMLButtonElement>('[data-wake-lock-btn]')
+        if (!btns.length) return
         enabled = readState()
+        btns.forEach(btn => {
+          btn.hidden = false
+          btn.addEventListener('click', async () => {
+            enabled = !enabled
+            writeState(enabled)
+            setPressed(enabled)
+            if (enabled) void acquire()
+            else await release()
+          })
+        })
         setPressed(enabled)
         if (enabled) void acquire()
-        btn.addEventListener('click', async () => {
-          enabled = !enabled
-          writeState(enabled)
-          setPressed(enabled)
-          if (enabled) void acquire()
-          else await release()
-        })
       }
 
       function setPressed(value: boolean) {
-        const btn = document.getElementById('wake-lock-btn')
-        if (!btn) return
-        btn.setAttribute('aria-pressed', String(value))
-        const label = btn.querySelector('.wake-lock-btn__label')
-        if (label) label.textContent = value ? 'Keeping screen on' : 'Keep screen on'
-      }
-
-      function readState(): boolean {
-        try {
-          const raw = localStorage.getItem(STORAGE_KEY)
-          if (!raw) return false
-          const parsed = JSON.parse(raw) as { enabled: boolean; expiresAt: number }
-          if (!parsed.enabled || Date.now() > parsed.expiresAt) {
-            localStorage.removeItem(STORAGE_KEY)
-            return false
-          }
-          return true
-        } catch {
-          return false
-        }
-      }
-
-      function writeState(on: boolean) {
-        try {
-          if (on) {
-            localStorage.setItem(
-              STORAGE_KEY,
-              JSON.stringify({ enabled: true, expiresAt: Date.now() + TTL }),
-            )
-          } else {
-            localStorage.removeItem(STORAGE_KEY)
-          }
-        } catch {}
+        document.querySelectorAll<HTMLButtonElement>('[data-wake-lock-btn]').forEach(btn => {
+          btn.setAttribute('aria-pressed', String(value))
+          const label = btn.querySelector('.wake-lock-btn__label')
+          if (label) label.textContent = value ? 'Keeping screen on' : 'Keep screen on'
+        })
       }
 
       async function acquire() {
