@@ -1,4 +1,4 @@
-export const CATEGORIES = ['Starters', 'Mains', 'Desserts', 'Other'] as const
+export const CATEGORIES = ['Starters', 'Mains', 'Desserts', 'More'] as const
 export type Category = (typeof CATEGORIES)[number]
 
 export function sortCategories(categories: Category[]): Category[] {

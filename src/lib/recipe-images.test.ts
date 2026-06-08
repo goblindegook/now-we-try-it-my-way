@@ -35,14 +35,14 @@ describe('candidatePhotoPaths', () => {
   })
 
   it('falls back to slug-based paths when photo is empty string', () => {
-    const paths = candidatePhotoPaths('', 'Other', 'sourdough-bread')
+    const paths = candidatePhotoPaths('', 'More', 'sourdough-bread')
     expect(paths).toEqual([
-      '/src/assets/recipes/other/sourdough-bread.avif',
-      '/src/assets/recipes/other/sourdough-bread.gif',
-      '/src/assets/recipes/other/sourdough-bread.jpeg',
-      '/src/assets/recipes/other/sourdough-bread.jpg',
-      '/src/assets/recipes/other/sourdough-bread.png',
-      '/src/assets/recipes/other/sourdough-bread.webp',
+      '/src/assets/recipes/more/sourdough-bread.avif',
+      '/src/assets/recipes/more/sourdough-bread.gif',
+      '/src/assets/recipes/more/sourdough-bread.jpeg',
+      '/src/assets/recipes/more/sourdough-bread.jpg',
+      '/src/assets/recipes/more/sourdough-bread.png',
+      '/src/assets/recipes/more/sourdough-bread.webp',
     ])
   })
 

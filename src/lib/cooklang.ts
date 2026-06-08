@@ -81,7 +81,7 @@ function toRecipeMeta(recipe: Recipe, slug: string): RecipeMeta {
     slug,
     title: pickFirstString(metadata.title) || slug.replace(/-/g, ' '),
     description: pickFirstString(metadata.description, metadata.introduction),
-    category: pickFirstString(metadata.category, metadata.course) || 'Other',
+    category: pickFirstString(metadata.category, metadata.course) || 'More',
     cuisine: pickFirstString(metadata.cuisine).toLowerCase(),
     tags: metadata.tags ?? [],
     diet: (metadata.diet as string[] | undefined) ?? [],

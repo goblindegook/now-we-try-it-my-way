@@ -47,9 +47,9 @@ describe('parseRecipe', () => {
       expect(r.category).toBe('Mains')
     })
 
-    it('defaults category to Other when absent', () => {
+    it('defaults category to More when absent', () => {
       const r = parseRecipe('Boil water.', 'r')
-      expect(r.category).toBe('Other')
+      expect(r.category).toBe('More')
     })
 
     it('extracts slug as-is', () => {
