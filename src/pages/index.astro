@@ -1,15 +1,23 @@
 ---
-import { Image } from 'astro:assets'
+import { getImage, Image } from 'astro:assets'
 import Navigation from '../components/Navigation.astro'
 import RecipeCard from '../components/RecipeCard.astro'
 import Layout from '../layouts/Layout.astro'
 import { type Category, sortCategories } from '../lib/categories'
 import { loadAllRecipes, sortRecipesByRecency } from '../lib/cooklang'
 import { resolveRecipePhoto } from '../lib/recipe-images'
+import { buildSearchIndex } from '../lib/search'
 
 const recipes = await loadAllRecipes()
 const recentRecipes = sortRecipesByRecency([...recipes])
 const categories = sortCategories([...new Set(recipes.map((r) => r.category as Category))])
+
+const searchIndex = await buildSearchIndex(recipes, async (recipe) => {
+  const photo = resolveRecipePhoto(recipe.photo, recipe.category, recipe.slug)
+  const processed = photo ? await getImage({ src: photo }) : null
+  return processed?.src ?? null
+})
+const searchIndexJson = JSON.stringify(searchIndex.index)
 
 const latest = recentRecipes.slice(0, 3)
 
@@ -61,40 +69,51 @@ const byCategory = categories.map((cat) => ({
     </section>
 
     <div class="content">
-      <section class="section">
-        <div class="section__titlebar">
-          <h2 class="section__heading">Latest recipes</h2>
-          <a href="/recipes" class="section__viewall">Browse all recipes →</a>
-        </div>
-        <div class="grid">
-          {latest.map((recipe) => <RecipeCard recipe={recipe} />)}
-        </div>
-      </section>
+      <recipe-search target="homepage-content"></recipe-search>
+      <div id="homepage-content">
+        <section class="section">
+          <div class="section__titlebar">
+            <h2 class="section__heading">Latest recipes</h2>
+            <a href="/recipes" class="section__viewall">Browse all recipes →</a>
+          </div>
+          <div class="grid">
+            {latest.map((recipe) => <RecipeCard recipe={recipe} />)}
+          </div>
+        </section>
 
-      <section class="section" aria-labelledby="categories-heading">
-        <h2 id="categories-heading" class="section__heading">Categories</h2>
-        <div class="categories">
-          {byCategory.map(({ name, recipes: catRecipes }) => {
-            const slots = [...catRecipes, null, null, null, null].slice(0, 4)
-            return (
-            <a href={`/${name.toLowerCase()}`} class="cat-card">
-              <div class="cat-card__grid">
-                {slots.map((r) => {
-                  if (!r) return <div class="cat-card__img cat-card__img--placeholder" aria-hidden="true" />
-                  const photo = resolveRecipePhoto(r.photo, r.category, r.slug)!
-                  return <Image src={photo} alt={r.title} class="cat-card__img" loading="lazy" />
-                })}
-              </div>
-              <div class="cat-card__footer">
-                <span class="cat-card__name">{name}</span>
-              </div>
-            </a>
-          )
-          })}
-        </div>
-      </section>
+        <section class="section" aria-labelledby="categories-heading">
+          <h2 id="categories-heading" class="section__heading">Categories</h2>
+          <div class="categories">
+            {byCategory.map(({ name, recipes: catRecipes }) => {
+              const slots = [...catRecipes, null, null, null, null].slice(0, 4)
+              return (
+              <a href={`/${name.toLowerCase()}`} class="cat-card">
+                <div class="cat-card__grid">
+                  {slots.map((r) => {
+                    if (!r) return <div class="cat-card__img cat-card__img--placeholder" aria-hidden="true" />
+                    const photo = resolveRecipePhoto(r.photo, r.category, r.slug)!
+                    return <Image src={photo} alt={r.title} class="cat-card__img" loading="lazy" />
+                  })}
+                </div>
+                <div class="cat-card__footer">
+                  <span class="cat-card__name">{name}</span>
+                </div>
+              </a>
+            )
+            })}
+          </div>
+        </section>
+      </div>
     </div>
   </main>
+
+<script is:inline define:vars={{ searchIndexJson }}>
+  window.__SEARCH_INDEX__ = JSON.parse(searchIndexJson)
+</script>
+
+<script>
+  import '../web-components/recipe-search'
+</script>
 </Layout>
 
 <style>

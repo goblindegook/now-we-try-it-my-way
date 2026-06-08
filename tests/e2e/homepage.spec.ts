@@ -1,5 +1,36 @@
 import { expect, test, type Page } from '@playwright/test'
 
+test.describe('homepage search', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+  })
+
+  test('search input renders on homepage', async ({ page }) => {
+    await expect(page.getByRole('searchbox', { name: 'Search recipes' })).toBeVisible()
+  })
+
+  test('typing a query hides latest and categories sections and shows results', async ({ page }) => {
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('spaghetti')
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
+    await expect(page.getByRole('heading', { level: 2, name: 'Latest recipes' })).not.toBeVisible()
+    await expect(page.getByRole('region', { name: 'Categories' })).not.toBeVisible()
+  })
+
+  test('clearing the query restores latest and categories sections', async ({ page }) => {
+    const search = page.getByRole('searchbox', { name: 'Search recipes' })
+    await search.fill('spaghetti')
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
+    await search.fill('')
+    await expect(page.getByRole('heading', { level: 2, name: 'Latest recipes' })).toBeVisible({ timeout: 500 })
+    await expect(page.getByRole('region', { name: 'Categories' })).toBeVisible()
+  })
+
+  test('no-results query shows empty state', async ({ page }) => {
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('zqxjvk')
+    await expect(page.getByText('Nothing found.')).toBeVisible({ timeout: 500 })
+  })
+})
+
 test('canonical URL always points to the production domain', async ({ page }) => {
   await page.goto('/')
   const canonical = await page.evaluate(
