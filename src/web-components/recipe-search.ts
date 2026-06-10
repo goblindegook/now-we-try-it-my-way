@@ -91,11 +91,13 @@ class RecipeSearch extends LitElement {
 
   static properties = {
     mode: { state: true },
+    query: { state: true },
     results: { state: true },
   }
 
   private bs: BloomSearch<RecipeSearchDoc, SearchSummaryField, SearchIndexField> | null = null
   private mode: SearchMode = 'static'
+  private query = ''
   private results: SearchResult[] = []
   private staticContent: HTMLElement | null = null
   private resultsContent: HTMLElement | null = null
@@ -105,6 +107,7 @@ class RecipeSearch extends LitElement {
     super.connectedCallback()
     this.resolveStaticTargets()
     this.initIndex()
+    this.syncQueryFromLocation()
     document.addEventListener('astro:page-load', this.onAstroPageLoad)
   }
 
@@ -127,6 +130,22 @@ class RecipeSearch extends LitElement {
   private onAstroPageLoad = () => {
     this.resolveStaticTargets()
     this.initIndex()
+    this.syncQueryFromLocation()
+  }
+
+  private ensureTargetsCurrent() {
+    const targetId = this.getAttribute('target')
+    const resultsId = targetId ? `${targetId}-search-results` : null
+    const targetChanged = this.staticContent?.id !== targetId || this.resultsContent?.id !== resultsId
+    if (targetChanged || !this.staticContent?.isConnected || !this.resultsContent?.isConnected) {
+      this.resolveStaticTargets()
+    }
+  }
+
+  private ensureIndexReady() {
+    if (this.bs) return true
+    this.initIndex()
+    return this.bs !== null
   }
 
   private resolveStaticTargets() {
@@ -161,14 +180,33 @@ class RecipeSearch extends LitElement {
     }
   }
 
+  private syncQueryFromLocation() {
+    const params = new URLSearchParams(window.location.search)
+    const query = params.get('q') ?? ''
+    this.query = query
+    this.handleQuery(query.trim())
+  }
+
+  private syncLocationQuery(query: string) {
+    const url = new URL(window.location.href)
+    if (query) url.searchParams.set('q', query)
+    else url.searchParams.delete('q')
+    window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`)
+  }
+
   private onInput = (event: Event) => {
-    if (!this.bs) return
+    this.ensureTargetsCurrent()
     const input = event.currentTarget as HTMLInputElement
+    this.query = input.value
+    this.syncLocationQuery(this.query)
     if (this.debounceTimer) clearTimeout(this.debounceTimer)
     this.debounceTimer = setTimeout(() => this.handleQuery(input.value.trim()), 200)
   }
 
   private handleQuery(query: string) {
+    this.ensureTargetsCurrent()
+    if (!this.ensureIndexReady()) return
+
     if (!query) {
       this.mode = 'static'
       this.results = []
@@ -239,6 +277,7 @@ class RecipeSearch extends LitElement {
             class="recipe-search-input"
             placeholder="Search by ingredient, dish, cuisine or diet"
             aria-label="Search recipes"
+            .value=${this.query}
             @input=${this.onInput}
           />
           ${

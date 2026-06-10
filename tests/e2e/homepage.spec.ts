@@ -29,6 +29,19 @@ test.describe('homepage search', () => {
     await page.getByRole('searchbox', { name: 'Search recipes' }).fill('zqxjvk')
     await expect(page.getByText('Nothing found.')).toBeVisible({ timeout: 500 })
   })
+
+  test('search still works after navigating to homepage via link', async ({ page }) => {
+    await page.getByRole('link', { name: /Browse all recipes/i }).click()
+    await page.waitForURL('/recipes')
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('spaghetti')
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
+
+    await page.getByRole('link', { name: 'Now We Try It My Way' }).click()
+    await page.waitForURL('/')
+
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('spaghetti')
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
+  })
 })
 
 test('canonical URL always points to the production domain', async ({ page }) => {

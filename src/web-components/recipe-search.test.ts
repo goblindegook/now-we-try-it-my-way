@@ -26,40 +26,44 @@ async function search(host: SearchHost | null, query: string) {
 
 type SearchHost = HTMLElement & { updateComplete?: Promise<unknown> }
 
+function createSearchIndex() {
+  const bs = new BloomSearch<RecipeSearchDoc, SearchSummaryField, SearchIndexField>(queryConfig)
+  bs.add('spaghetti-carbonara', {
+    slug: 'spaghetti-carbonara',
+    title: 'Spaghetti carbonara',
+    category: 'Mains',
+    cuisine: 'italian',
+    prepTime: '10 min',
+    cookTime: '15 min',
+    photoSrc: '/img.jpg',
+    tags: 'pasta',
+    ingredients: 'spaghetti guanciale pecorino',
+    diet: '',
+    difficulty: 'easy',
+  })
+  bs.add('moussaka', {
+    slug: 'moussaka',
+    title: 'Moussaka',
+    category: 'Mains',
+    cuisine: 'greek',
+    prepTime: '20 min',
+    cookTime: '40 min',
+    photoSrc: '/img2.jpg',
+    tags: 'bake',
+    ingredients: 'aubergine potato',
+    diet: '',
+    difficulty: 'medium',
+  })
+  return bs.index
+}
+
 describe('recipe-search', () => {
   beforeEach(async () => {
     vi.useFakeTimers()
     document.body.innerHTML = ''
+    window.history.replaceState({}, '', '/')
 
-    const bs = new BloomSearch<RecipeSearchDoc, SearchSummaryField, SearchIndexField>(queryConfig)
-    bs.add('spaghetti-carbonara', {
-      slug: 'spaghetti-carbonara',
-      title: 'Spaghetti carbonara',
-      category: 'Mains',
-      cuisine: 'italian',
-      prepTime: '10 min',
-      cookTime: '15 min',
-      photoSrc: '/img.jpg',
-      tags: 'pasta',
-      ingredients: 'spaghetti guanciale pecorino',
-      diet: '',
-      difficulty: 'easy',
-    })
-    bs.add('moussaka', {
-      slug: 'moussaka',
-      title: 'Moussaka',
-      category: 'Mains',
-      cuisine: 'greek',
-      prepTime: '20 min',
-      cookTime: '40 min',
-      photoSrc: '/img2.jpg',
-      tags: 'bake',
-      ingredients: 'aubergine potato',
-      diet: '',
-      difficulty: 'medium',
-    })
-
-    ;(window as Window & { __SEARCH_INDEX__?: unknown }).__SEARCH_INDEX__ = bs.index
+    ;(window as Window & { __SEARCH_INDEX__?: unknown }).__SEARCH_INDEX__ = createSearchIndex()
 
     await import('./recipe-card')
     await import('./recipe-search')
@@ -176,5 +180,78 @@ describe('recipe-search', () => {
 
     expect(document.querySelector('recipe-card')).toBeNull()
     expect(queryByText(document.body, 'Nothing found.')).toBeNull()
+  })
+
+  it('initializes search on input when index becomes available after connect', async () => {
+    delete (window as Window & { __SEARCH_INDEX__?: unknown }).__SEARCH_INDEX__
+    setupDOM()
+
+    const host = document.querySelector<SearchHost>('recipe-search')
+    await host?.updateComplete
+
+    ;(window as Window & { __SEARCH_INDEX__?: unknown }).__SEARCH_INDEX__ = createSearchIndex()
+
+    await search(host, 'spaghetti')
+
+    expect(document.querySelector('recipe-card[slug="spaghetti-carbonara"]')).not.toBeNull()
+  })
+
+  it('syncs search query with q param and hydrates from existing q param', async () => {
+    window.history.replaceState({}, '', '/recipes?q=spaghetti')
+    setupDOM()
+
+    const host = document.querySelector<SearchHost>('recipe-search')
+    await host?.updateComplete
+    document.dispatchEvent(new Event('astro:page-load'))
+    await Promise.resolve()
+
+    const input = getByRole(host?.shadowRoot as unknown as HTMLElement, 'searchbox', {
+      name: /search recipes/i,
+    }) as HTMLInputElement
+
+    expect(input.value).toBe('spaghetti')
+    expect(document.querySelector('recipe-card[slug="spaghetti-carbonara"]')).not.toBeNull()
+
+    input.value = 'moussaka'
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+
+    vi.advanceTimersByTime(200)
+    await Promise.resolve()
+
+    expect(window.location.search).toBe('?q=moussaka')
+
+    input.value = ''
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+
+    vi.advanceTimersByTime(200)
+    await Promise.resolve()
+
+    expect(window.location.search).toBe('')
+  })
+
+  it('re-resolves target content on input when target changes after connect', async () => {
+    document.body.innerHTML = `
+      <div>
+        <recipe-search target="recipes-static-content"></recipe-search>
+        <div id="recipes-static-content">
+          <div class="grid">old grid</div>
+        </div>
+        <div id="homepage-content">
+          <div class="grid">new grid</div>
+        </div>
+      </div>
+    `
+
+    const host = document.querySelector<SearchHost>('recipe-search')
+    await host?.updateComplete
+
+    host?.setAttribute('target', 'homepage-content')
+    document.getElementById('recipes-static-content')?.remove()
+
+    await search(host, 'spaghetti')
+
+    expect(
+      document.querySelector('#homepage-content-search-results recipe-card[slug="spaghetti-carbonara"]'),
+    ).not.toBeNull()
   })
 })

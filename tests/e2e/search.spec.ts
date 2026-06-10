@@ -54,6 +54,23 @@ test.describe('/recipes search', () => {
     await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toHaveAttribute('href', '/recipes/spaghetti-carbonara', { timeout: 500 })
   })
 
+  test('query string updates as user types', async ({ page }) => {
+    const search = page.getByRole('searchbox', { name: 'Search recipes' })
+
+    await search.fill('spaghetti')
+    await expect(page).toHaveURL('/recipes?q=spaghetti')
+
+    await search.fill('')
+    await expect(page).toHaveURL('/recipes')
+  })
+
+  test('opening recipes page with q param shows populated search results', async ({ page }) => {
+    await page.goto('/recipes?q=spaghetti')
+
+    await expect(page.getByRole('searchbox', { name: 'Search recipes' })).toHaveValue('spaghetti')
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
+  })
+
   test('clearing input restores static grid', async ({ page }) => {
     const name = await getFirstRecipeName(page)
     const search = page.getByRole('searchbox', { name: 'Search recipes' })
