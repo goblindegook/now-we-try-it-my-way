@@ -31,7 +31,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
     "@biomejs/biome": "2.5.0",
-    "@playwright/test": "^1.60.0",
+    "@playwright/test": "^1.61.1",
     "@testing-library/dom": "^10.4.1",
     "@types/html-escaper": "^3.0.4",
     "happy-dom": "^20.10.6",
