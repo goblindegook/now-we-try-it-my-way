@@ -1,0 +1,47 @@
+export type IngredientRef = {
+  slug: string
+  name: string
+}
+
+export function normalizeIngredientName(name: string): string {
+  return name.trim().toLowerCase()
+}
+
+function matchIngredientName(a: string, b: string): boolean {
+  return normalizeIngredientName(a) === normalizeIngredientName(b)
+}
+
+export function computeSymmetricPairings(entries: { name: string; pairings?: string[] }[]): Map<string, string[]> {
+  const result = new Map<string, string[]>()
+
+  for (const entry of entries) {
+    result.set(entry.name, [...(entry.pairings ?? [])])
+  }
+
+  for (const entry of entries) {
+    for (const pairingName of entry.pairings ?? []) {
+      const target = entries.find((candidate) => matchIngredientName(candidate.name, pairingName))
+      if (!target) continue
+
+      const existing = result.get(target.name) ?? []
+      const alreadyListed = existing.some((name) => matchIngredientName(name, entry.name))
+      if (!alreadyListed) existing.push(entry.name)
+      result.set(target.name, existing)
+    }
+  }
+
+  return result
+}
+
+export function resolveIngredientSlug(name: string, entries: IngredientRef[]): string | undefined {
+  return entries.find((entry) => matchIngredientName(entry.name, name))?.slug
+}
+
+export function findRecipesUsingIngredient<T extends { ingredients: { name: string }[] }>(
+  ingredientName: string,
+  recipes: T[],
+): T[] {
+  return recipes.filter((recipe) =>
+    recipe.ingredients.some((ingredient) => matchIngredientName(ingredient.name, ingredientName)),
+  )
+}

@@ -1,12 +1,12 @@
 import { BloomSearch } from '@pacote/bloom-search'
 import { getByRole, getByText, queryByText } from '@testing-library/dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
+import { queryConfig, type SearchIndexField, type SearchSummaryField, type SiteSearchDoc } from '../lib/search'
 
 function setupDOM() {
   document.body.innerHTML = `
     <div>
-      <recipe-search target="recipes-static-content"></recipe-search>
+      <site-search target="recipes-static-content"></site-search>
       <div id="recipes-static-content">
         <div class="grid">static grid</div>
       </div>
@@ -27,8 +27,9 @@ async function search(host: SearchHost | null, query: string) {
 type SearchHost = HTMLElement & { updateComplete?: Promise<unknown> }
 
 function createSearchIndex() {
-  const bs = new BloomSearch<RecipeSearchDoc, SearchSummaryField, SearchIndexField>(queryConfig)
+  const bs = new BloomSearch<SiteSearchDoc, SearchSummaryField, SearchIndexField>(queryConfig)
   bs.add('spaghetti-carbonara', {
+    type: 'recipe',
     slug: 'spaghetti-carbonara',
     title: 'Spaghetti carbonara',
     category: 'Mains',
@@ -42,6 +43,7 @@ function createSearchIndex() {
     difficulty: 'easy',
   })
   bs.add('moussaka', {
+    type: 'recipe',
     slug: 'moussaka',
     title: 'Moussaka',
     category: 'Mains',
@@ -54,10 +56,16 @@ function createSearchIndex() {
     diet: '',
     difficulty: 'medium',
   })
+  bs.add('garlic', {
+    type: 'ingredient',
+    slug: 'garlic',
+    name: 'Garlic',
+    body: 'Peel just before cooking.',
+  })
   return bs.index
 }
 
-describe('recipe-search', () => {
+describe('site-search', () => {
   beforeEach(async () => {
     vi.useFakeTimers()
     document.body.innerHTML = ''
@@ -66,7 +74,8 @@ describe('recipe-search', () => {
     ;(window as Window & { __SEARCH_INDEX__?: unknown }).__SEARCH_INDEX__ = createSearchIndex()
 
     await import('./recipe-card')
-    await import('./recipe-search')
+    await import('./ingredient-card')
+    await import('./site-search')
   })
 
   afterEach(() => {
@@ -77,7 +86,7 @@ describe('recipe-search', () => {
   it('renders search results and hides static grid on query', async () => {
     document.body.innerHTML = `
       <div>
-        <recipe-search target="recipes-static-content"></recipe-search>
+        <site-search target="recipes-static-content"></site-search>
         <div id="recipes-static-content">
           <div class="grid">static grid</div>
           <nav aria-label="Recipe pages">pagination</nav>
@@ -85,7 +94,7 @@ describe('recipe-search', () => {
       </div>
     `
 
-    const host = document.querySelector<SearchHost>('recipe-search')
+    const host = document.querySelector<SearchHost>('site-search')
     await host?.updateComplete
     document.dispatchEvent(new Event('astro:page-load'))
 
@@ -103,7 +112,7 @@ describe('recipe-search', () => {
 
   it('shows result count badge with singular text when one result found', async () => {
     setupDOM()
-    const host = document.querySelector<SearchHost>('recipe-search')
+    const host = document.querySelector<SearchHost>('site-search')
     await host?.updateComplete
     document.dispatchEvent(new Event('astro:page-load'))
 
@@ -114,7 +123,7 @@ describe('recipe-search', () => {
 
   it('shows result count badge with plural text when multiple results found', async () => {
     setupDOM()
-    const host = document.querySelector<SearchHost>('recipe-search')
+    const host = document.querySelector<SearchHost>('site-search')
     await host?.updateComplete
     document.dispatchEvent(new Event('astro:page-load'))
 
@@ -128,7 +137,7 @@ describe('recipe-search', () => {
 
   it('hides result count badge when no search term', async () => {
     setupDOM()
-    const host = document.querySelector<SearchHost>('recipe-search')
+    const host = document.querySelector<SearchHost>('site-search')
     await host?.updateComplete
     document.dispatchEvent(new Event('astro:page-load'))
 
@@ -137,7 +146,7 @@ describe('recipe-search', () => {
 
   it('hides result count badge when search has no matches', async () => {
     setupDOM()
-    const host = document.querySelector<SearchHost>('recipe-search')
+    const host = document.querySelector<SearchHost>('site-search')
     await host?.updateComplete
     document.dispatchEvent(new Event('astro:page-load'))
 
@@ -149,7 +158,7 @@ describe('recipe-search', () => {
   it('shows empty state when query has no matches and resets on clear', async () => {
     document.body.innerHTML = `
       <div>
-        <recipe-search target="recipes-static-content"></recipe-search>
+        <site-search target="recipes-static-content"></site-search>
         <div id="recipes-static-content">
           <div class="grid">static grid</div>
           <nav aria-label="Recipe pages">pagination</nav>
@@ -157,7 +166,7 @@ describe('recipe-search', () => {
       </div>
     `
 
-    const host = document.querySelector<SearchHost>('recipe-search')
+    const host = document.querySelector<SearchHost>('site-search')
     await host?.updateComplete
     document.dispatchEvent(new Event('astro:page-load'))
 
@@ -186,7 +195,7 @@ describe('recipe-search', () => {
     delete (window as Window & { __SEARCH_INDEX__?: unknown }).__SEARCH_INDEX__
     setupDOM()
 
-    const host = document.querySelector<SearchHost>('recipe-search')
+    const host = document.querySelector<SearchHost>('site-search')
     await host?.updateComplete
 
     ;(window as Window & { __SEARCH_INDEX__?: unknown }).__SEARCH_INDEX__ = createSearchIndex()
@@ -200,7 +209,7 @@ describe('recipe-search', () => {
     window.history.replaceState({}, '', '/recipes?q=spaghetti')
     setupDOM()
 
-    const host = document.querySelector<SearchHost>('recipe-search')
+    const host = document.querySelector<SearchHost>('site-search')
     await host?.updateComplete
     document.dispatchEvent(new Event('astro:page-load'))
     await Promise.resolve()
@@ -232,7 +241,7 @@ describe('recipe-search', () => {
   it('re-resolves target content on input when target changes after connect', async () => {
     document.body.innerHTML = `
       <div>
-        <recipe-search target="recipes-static-content"></recipe-search>
+        <site-search target="recipes-static-content"></site-search>
         <div id="recipes-static-content">
           <div class="grid">old grid</div>
         </div>
@@ -242,7 +251,7 @@ describe('recipe-search', () => {
       </div>
     `
 
-    const host = document.querySelector<SearchHost>('recipe-search')
+    const host = document.querySelector<SearchHost>('site-search')
     await host?.updateComplete
 
     host?.setAttribute('target', 'homepage-content')
@@ -253,5 +262,17 @@ describe('recipe-search', () => {
     expect(
       document.querySelector('#homepage-content-search-results recipe-card[slug="spaghetti-carbonara"]'),
     ).not.toBeNull()
+  })
+
+  it('renders an ingredient-card for ingredient results, not a recipe-card', async () => {
+    setupDOM()
+    const host = document.querySelector<SearchHost>('site-search')
+    await host?.updateComplete
+    document.dispatchEvent(new Event('astro:page-load'))
+
+    await search(host, 'garlic')
+
+    expect(document.querySelector('ingredient-card[slug="garlic"]')).not.toBeNull()
+    expect(document.querySelector('recipe-card')).toBeNull()
   })
 })

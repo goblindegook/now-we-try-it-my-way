@@ -1,0 +1,27 @@
+---
+import { Image } from 'astro:assets'
+import { resolveIngredientPhoto } from '../lib/ingredient-images'
+import '../styles/recipe-card.css'
+
+interface Props {
+  slug: string
+  name: string
+}
+const { slug, name } = Astro.props
+const photo = resolveIngredientPhoto(slug)
+---
+
+<a href={`/ingredients/${slug}`} class="recipe-card">
+  <div class="recipe-card__image-wrap">
+    {photo
+      ? <Image src={photo} alt={name} class="recipe-card__image" loading="lazy" />
+      : <div class="recipe-card__placeholder" aria-hidden="true" />
+    }
+  </div>
+  <div class="recipe-card__body">
+    <div class="recipe-card__top">
+      <p class="recipe-card__category">Ingredients</p>
+    </div>
+    <h2 class="recipe-card__title">{name}</h2>
+  </div>
+</a>

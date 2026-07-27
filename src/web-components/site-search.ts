@@ -1,28 +1,29 @@
 import { BloomSearch, type Index } from '@pacote/bloom-search'
 import { css, html, LitElement, type PropertyValues } from 'lit'
 
-import { queryConfig, type RecipeSearchDoc, type SearchIndexField, type SearchSummaryField } from '../lib/search'
-import '../styles/recipe-search-results.css'
+import { queryConfig, type SearchIndexField, type SearchSummaryField, type SiteSearchDoc } from '../lib/search'
+import '../styles/site-search-results.css'
 import './recipe-card'
+import './ingredient-card'
 
 declare global {
   interface Window {
-    __SEARCH_INDEX__: Index<RecipeSearchDoc, SearchSummaryField> | undefined
+    __SEARCH_INDEX__: Index<SiteSearchDoc, SearchSummaryField> | undefined
   }
 }
 
-type SearchResult = Pick<RecipeSearchDoc, SearchSummaryField>
+type SearchResult = Pick<SiteSearchDoc, SearchSummaryField>
 type SearchMode = 'static' | 'results' | 'empty'
 
-class RecipeSearch extends LitElement {
+class SiteSearch extends LitElement {
   static styles = css`
-    .recipe-search-wrap {
+    .site-search-wrap {
       padding: 1rem 0 4rem;
     }
-    .recipe-search-field {
+    .site-search-field {
       position: relative;
     }
-    .recipe-search-input {
+    .site-search-input {
       display: block;
       width: 100%;
       padding: 1rem 3.5rem 1rem 1rem;
@@ -40,23 +41,23 @@ class RecipeSearch extends LitElement {
       -webkit-appearance: none;
       appearance: none;
     }
-    .recipe-search-input::-webkit-search-cancel-button,
-    .recipe-search-input::-webkit-search-decoration {
+    .site-search-input::-webkit-search-cancel-button,
+    .site-search-input::-webkit-search-decoration {
       -webkit-appearance: none;
     }
-    .recipe-search-input::placeholder {
+    .site-search-input::placeholder {
       color: var(--color-disabled);
       font-style: normal;
     }
-    .recipe-search-input:hover {
+    .site-search-input:hover {
       border-color: var(--color-interactive);
     }
-    .recipe-search-input:focus {
+    .site-search-input:focus {
       outline: none;
       border-color: var(--color-interactive);
       background: var(--color-tint);
     }
-    .recipe-search-icon {
+    .site-search-icon {
       position: absolute;
       right: 1rem;
       top: 50%;
@@ -67,10 +68,10 @@ class RecipeSearch extends LitElement {
       pointer-events: none;
       transition: color 0.15s;
     }
-    .recipe-search-field:focus-within .recipe-search-icon {
+    .site-search-field:focus-within .site-search-icon {
       color: var(--color-interactive);
     }
-    .recipe-search-count {
+    .site-search-count {
       position: absolute;
       right: 1rem;
       top: 50%;
@@ -95,7 +96,7 @@ class RecipeSearch extends LitElement {
     results: { state: true },
   }
 
-  private bs: BloomSearch<RecipeSearchDoc, SearchSummaryField, SearchIndexField> | null = null
+  private bs: BloomSearch<SiteSearchDoc, SearchSummaryField, SearchIndexField> | null = null
   private mode: SearchMode = 'static'
   private query = ''
   private results: SearchResult[] = []
@@ -243,13 +244,21 @@ class RecipeSearch extends LitElement {
 
     if (this.mode === 'results') {
       const grid = document.createElement('div')
-      grid.className = 'recipe-search-results-grid'
+      grid.className = 'site-search-results-grid'
       for (const result of this.results) {
+        if (result.type === 'ingredient') {
+          const card = document.createElement('ingredient-card')
+          card.setAttribute('slug', result.slug)
+          card.setAttribute('name', result.name ?? '')
+          card.setAttribute('photo-src', result.photoSrc ?? '')
+          grid.append(card)
+          continue
+        }
         const card = document.createElement('recipe-card')
         card.setAttribute('slug', result.slug)
-        card.setAttribute('title', result.title)
-        card.setAttribute('category', result.category)
-        card.setAttribute('cuisine', result.cuisine)
+        card.setAttribute('title', result.title ?? '')
+        card.setAttribute('category', result.category ?? '')
+        card.setAttribute('cuisine', result.cuisine ?? '')
         card.setAttribute('prep-time', result.prepTime ?? '')
         card.setAttribute('cook-time', result.cookTime ?? '')
         card.setAttribute('photo-src', result.photoSrc ?? '')
@@ -260,9 +269,9 @@ class RecipeSearch extends LitElement {
     }
 
     const empty = document.createElement('div')
-    empty.className = 'recipe-search-empty'
+    empty.className = 'site-search-empty'
     const heading = document.createElement('p')
-    heading.className = 'recipe-search-empty__heading'
+    heading.className = 'site-search-empty__heading'
     heading.textContent = 'Nothing found.'
     empty.append(heading)
     this.resultsContent.append(empty)
@@ -270,11 +279,11 @@ class RecipeSearch extends LitElement {
 
   render() {
     return html`
-      <div class="recipe-search-wrap">
-        <div class="recipe-search-field">
+      <div class="site-search-wrap">
+        <div class="site-search-field">
           <input
             type="search"
-            class="recipe-search-input"
+            class="site-search-input"
             placeholder="Search by ingredient, dish, cuisine or diet"
             aria-label="Search recipes"
             .value=${this.query}
@@ -282,9 +291,9 @@ class RecipeSearch extends LitElement {
           />
           ${
             this.mode === 'results'
-              ? html`<span class="recipe-search-count" data-testid="result-count">${this.results.length} ${this.results.length === 1 ? 'result' : 'results'}</span>`
+              ? html`<span class="site-search-count" data-testid="result-count">${this.results.length} ${this.results.length === 1 ? 'result' : 'results'}</span>`
               : html`<svg
-                class="recipe-search-icon"
+                class="site-search-icon"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -303,4 +312,4 @@ class RecipeSearch extends LitElement {
   }
 }
 
-if (!customElements.get('recipe-search')) customElements.define('recipe-search', RecipeSearch)
+if (!customElements.get('site-search')) customElements.define('site-search', SiteSearch)

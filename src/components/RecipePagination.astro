@@ -5,15 +5,16 @@ interface Props {
   currentPage: number
   totalPages: number
   basePath?: string
+  label?: string
 }
 
-const { currentPage, totalPages, basePath = '/recipes' } = Astro.props
+const { currentPage, totalPages, basePath = '/recipes', label = 'Recipe pages' } = Astro.props
 const pages = Array.from({ length: totalPages }, (_, index) => index + 1)
 ---
 
 {
   totalPages > 1 && (
-    <nav class="pagination" aria-label="Recipe pages">
+    <nav class="pagination" aria-label={label}>
       {currentPage > 1 && (
         <a href={pageHref(basePath, currentPage - 1)} aria-label="Previous page" class="pagination__edge">
           Previous page

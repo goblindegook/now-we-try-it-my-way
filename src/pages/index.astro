@@ -1,22 +1,40 @@
 ---
 import { getImage, Image } from 'astro:assets'
+import { getCollection } from 'astro:content'
 import Navigation from '../components/Navigation.astro'
 import RecipeCard from '../components/RecipeCard.astro'
 import Layout from '../layouts/Layout.astro'
 import { type Category, sortCategories } from '../lib/categories'
 import { loadAllRecipes, sortRecipesByRecency } from '../lib/cooklang'
+import { resolveIngredientPhoto } from '../lib/ingredient-images'
 import { resolveRecipePhoto } from '../lib/recipe-images'
-import { buildSearchIndex } from '../lib/search'
+import { buildGlobalSearchIndex } from '../lib/search'
 
 const recipes = await loadAllRecipes()
 const recentRecipes = sortRecipesByRecency([...recipes])
 const categories = sortCategories([...new Set(recipes.map((r) => r.category as Category))])
 
-const searchIndex = await buildSearchIndex(recipes, async (recipe) => {
-  const photo = resolveRecipePhoto(recipe.photo, recipe.category, recipe.slug)
-  const processed = photo ? await getImage({ src: photo }) : null
-  return processed?.src ?? null
-})
+const ingredientEntries = await getCollection('ingredients')
+const ingredientDocs = ingredientEntries.map((entry) => ({
+  slug: entry.id,
+  name: entry.data.name,
+  body: entry.body ?? '',
+}))
+
+const searchIndex = await buildGlobalSearchIndex(
+  recipes,
+  ingredientDocs,
+  async (recipe) => {
+    const photo = resolveRecipePhoto(recipe.photo, recipe.category, recipe.slug)
+    const processed = photo ? await getImage({ src: photo }) : null
+    return processed?.src ?? null
+  },
+  async (ingredient) => {
+    const photo = resolveIngredientPhoto(ingredient.slug)
+    const processed = photo ? await getImage({ src: photo }) : null
+    return processed?.src ?? null
+  },
+)
 const searchIndexJson = JSON.stringify(searchIndex.index)
 
 const latest = recentRecipes.slice(0, 3)
@@ -69,7 +87,7 @@ const byCategory = categories.map((cat) => ({
     </section>
 
     <div class="content">
-      <recipe-search target="homepage-content"></recipe-search>
+      <site-search target="homepage-content"></site-search>
       <div id="homepage-content">
         <section class="section">
           <div class="section__titlebar">
@@ -112,7 +130,7 @@ const byCategory = categories.map((cat) => ({
 </script>
 
 <script>
-  import '../web-components/recipe-search'
+  import '../web-components/site-search'
 </script>
 </Layout>
 

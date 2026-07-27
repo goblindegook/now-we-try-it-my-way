@@ -1,0 +1,114 @@
+---
+import { getCollection, render } from 'astro:content'
+import RecipeCard from '../../components/RecipeCard.astro'
+import IngredientLayout from '../../layouts/IngredientLayout.astro'
+import { type Category, sortCategories } from '../../lib/categories'
+import { loadAllRecipes } from '../../lib/cooklang'
+import { computeSymmetricPairings, findRecipesUsingIngredient, resolveIngredientSlug } from '../../lib/ingredients'
+
+export async function getStaticPaths() {
+  const entries = await getCollection('ingredients')
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }))
+}
+
+const { entry } = Astro.props
+const { Content } = await render(entry)
+
+const allEntries = await getCollection('ingredients')
+const entryRefs = allEntries.map((e) => ({ slug: e.id, name: e.data.name, pairings: e.data.pairings }))
+const pairingsMap = computeSymmetricPairings(entryRefs)
+const pairingNames = pairingsMap.get(entry.data.name) ?? []
+const pairings = pairingNames.map((name) => ({ name, slug: resolveIngredientSlug(name, entryRefs) }))
+
+const allRecipes = await loadAllRecipes()
+const usedInRecipes = findRecipesUsingIngredient(entry.data.name, allRecipes)
+const categories = sortCategories([...new Set(allRecipes.map((r) => r.category as Category))])
+---
+
+<IngredientLayout slug={entry.id} name={entry.data.name} categories={categories}>
+  <div class="ingredient-notes">
+    <Content />
+  </div>
+
+  {pairings.length > 0 && (
+    <section aria-labelledby="pairings-heading">
+      <h2 id="pairings-heading" class="section-heading">Pairs well with</h2>
+      <ul class="pairing-list">
+        {pairings.map(({ name, slug }) => (
+          <li>
+            {slug
+              ? <a class="pairing-chip" href={`/ingredients/${slug}`}>{name}</a>
+              : <span class="pairing-chip pairing-chip--unresolved">{name}</span>
+            }
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {usedInRecipes.length > 0 && (
+    <section aria-labelledby="used-in-heading">
+      <h2 id="used-in-heading" class="section-heading">Used in</h2>
+      <div class="grid">
+        {usedInRecipes.map((recipe) => <RecipeCard recipe={recipe} />)}
+      </div>
+    </section>
+  )}
+</IngredientLayout>
+
+<style>
+  .ingredient-notes {
+    max-width: var(--max-prose);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--color-ink);
+  }
+  section {
+    margin-top: 2.5rem;
+  }
+  .section-heading {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 400;
+    line-height: 1.25;
+    color: var(--color-ink);
+    margin: 0 0 0.5rem;
+  }
+  .pairing-list {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+  }
+  .pairing-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--color-edge);
+    border-radius: 999px;
+    font-size: 0.875rem;
+    color: var(--color-ink);
+    background: var(--color-surface);
+    transition: border-color 0.15s, color 0.15s;
+  }
+  a.pairing-chip:hover {
+    border-color: var(--color-interactive);
+    color: var(--color-interactive);
+  }
+  .pairing-chip--unresolved {
+    color: var(--color-subtle);
+    font-style: italic;
+    border-style: dashed;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.75rem;
+    margin-top: 1rem;
+  }
+</style>

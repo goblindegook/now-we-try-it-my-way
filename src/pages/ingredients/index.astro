@@ -1,0 +1,38 @@
+---
+import { getImage } from 'astro:assets'
+import { getCollection } from 'astro:content'
+import IngredientListing from '../../components/IngredientListing.astro'
+import Navigation from '../../components/Navigation.astro'
+import Layout from '../../layouts/Layout.astro'
+import { type Category, sortCategories } from '../../lib/categories'
+import { loadAllRecipes } from '../../lib/cooklang'
+import { resolveIngredientPhoto } from '../../lib/ingredient-images'
+import { paginateRecipes } from '../../lib/recipes-pagination'
+import { buildIngredientSearchIndex } from '../../lib/search'
+
+const ingredients = await getCollection('ingredients')
+const sortedIngredients = [...ingredients]
+  .map((entry) => ({ slug: entry.id, name: entry.data.name, body: entry.body ?? '' }))
+  .sort((a, b) => a.name.localeCompare(b.name))
+const { pageItems: visibleIngredients, totalPages } = paginateRecipes(sortedIngredients, 1)
+
+const allRecipes = await loadAllRecipes()
+const categories = sortCategories([...new Set(allRecipes.map((r) => r.category as Category))])
+
+const searchIndex = await buildIngredientSearchIndex(sortedIngredients, async (ingredient) => {
+  const photo = resolveIngredientPhoto(ingredient.slug)
+  const processed = photo ? await getImage({ src: photo }) : null
+  return processed?.src ?? null
+})
+const searchIndexJson = JSON.stringify(searchIndex.index)
+---
+
+<Layout title="All Ingredients — Now We Try It My Way">
+  <Navigation categories={categories} />
+  <IngredientListing
+    visibleIngredients={visibleIngredients}
+    currentPage={1}
+    totalPages={totalPages}
+    searchIndex={searchIndexJson}
+  />
+</Layout>

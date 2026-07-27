@@ -1,10 +1,12 @@
 ---
 import { getImage } from 'astro:assets'
+import { getCollection } from 'astro:content'
 import type { FixedValue, Ingredient, Item, QuantityPart, Range, TimerItem } from '@tmlmt/cooklang-parser'
 import { escape as escapeHtml } from 'html-escaper'
 import RecipeLayout from '../../layouts/RecipeLayout.astro'
 import { type Category, sortCategories } from '../../lib/categories'
 import { loadAllRecipes } from '../../lib/cooklang'
+import { normalizeIngredientName } from '../../lib/ingredients'
 import { resolveRecipePhoto } from '../../lib/recipe-images'
 
 export async function getStaticPaths() {
@@ -19,6 +21,14 @@ const { slug } = Astro.props
 const allRecipes = await loadAllRecipes()
 const categories = sortCategories([...new Set(allRecipes.map((r) => r.category as Category))])
 const recipe = allRecipes.find((r) => r.slug === slug)
+const ingredientEntries = await getCollection('ingredients')
+const ingredientSlugByName = new Map(
+  ingredientEntries.map((entry) => [normalizeIngredientName(entry.data.name), entry.id]),
+)
+
+function slugForIngredientName(name: string): string | undefined {
+  return ingredientSlugByName.get(normalizeIngredientName(name))
+}
 const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category, recipe?.slug)
 const recipeImage = recipePhoto ? await getImage({ src: recipePhoto }) : null
 const recipeImageUrl = recipeImage ? new URL(recipeImage.src, Astro.site).toString() : undefined
@@ -258,10 +268,16 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
       <section class="ingredients-section">
         {section.name && <h3 class="ingredients-section__title">{section.name}</h3>}
         <ul class="ingredients-list">
-          {section.ingredients.map(({ ingredient, quantity, units }) => (
+          {section.ingredients.map(({ ingredient, quantity, units }) => {
+            const ingredientSlug = slugForIngredientName(ingredient.name)
+            return (
             <li>
               <span class="ingredient__name">
-                <span class="p-ingredient">{ingredient.name}</span>
+                <span class="p-ingredient">
+                  {ingredientSlug
+                    ? <a href={`/ingredients/${ingredientSlug}`}>{ingredient.name}</a>
+                    : ingredient.name}
+                </span>
                 {ingredient.preparation && <span class="ingredient__prep">{ingredient.preparation}</span>}
               </span>
               <span class="ingredient__amount">
@@ -272,7 +288,8 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
                 )}
               </span>
             </li>
-          ))}
+            )
+          })}
         </ul>
       </section>
     ))}

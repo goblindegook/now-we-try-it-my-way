@@ -121,6 +121,34 @@ test.describe('category page search', () => {
   })
 })
 
+test.describe('homepage search', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+  })
+
+  test('returns both a matching recipe and a matching ingredient for a shared term', async ({ page }) => {
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('garlic')
+    await expect(page.getByRole('link', { name: 'Garlic' })).toBeVisible({ timeout: 500 })
+    await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible({ timeout: 500 })
+  })
+})
+
+test.describe('/recipes search stays recipe-only', () => {
+  test('searching for an ingredient-only term returns no results', async ({ page }) => {
+    await page.goto('/recipes')
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('saffron')
+    await expect(page.getByText('Nothing found.')).toBeVisible({ timeout: 500 })
+  })
+})
+
+test.describe('/ingredients search stays ingredient-only', () => {
+  test('searching for a recipe-only term returns no results', async ({ page }) => {
+    await page.goto('/ingredients')
+    await page.getByRole('searchbox', { name: 'Search recipes' }).fill('carbonara')
+    await expect(page.getByText('Nothing found.')).toBeVisible({ timeout: 500 })
+  })
+})
+
 async function getFirstRecipeName(page: Page) {
   const firstRecipeHeading = page.getByRole('main').getByRole('heading', { level: 2 }).first()
   await expect(firstRecipeHeading).toBeVisible()

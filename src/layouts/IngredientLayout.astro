@@ -1,0 +1,54 @@
+---
+import { Image } from 'astro:assets'
+import Navigation from '../components/Navigation.astro'
+import { resolveIngredientPhoto } from '../lib/ingredient-images'
+import '../styles/hero.css'
+import Layout from './Layout.astro'
+
+interface Props {
+  slug: string
+  name: string
+  categories: string[]
+}
+const { slug, name, categories } = Astro.props
+const photo = resolveIngredientPhoto(slug)
+---
+
+<Layout title={`${name} — Now We Try It My Way`} description={`Flavor pairings for ${name}.`} ogType="article">
+  <Navigation categories={categories} />
+
+  <article class="h-ingredient">
+    <div class:list={['hero', { 'hero--no-photo': !photo }]}>
+      {photo
+        ? <Image src={photo} alt={name} class="hero__img" />
+        : <div class="hero__placeholder" />
+      }
+      <div class="hero__overlay">
+        <div class="hero__overlay-content">
+          <div class="hero__meta">Ingredients</div>
+          <h1 class="hero__title">{name}</h1>
+        </div>
+      </div>
+    </div>
+
+    <div class="ingredient-body">
+      <slot />
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .hero__title {
+    margin-bottom: 0;
+  }
+  .ingredient-body {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+  @media print {
+    .ingredient-body {
+      padding: 1rem 0;
+    }
+  }
+</style>

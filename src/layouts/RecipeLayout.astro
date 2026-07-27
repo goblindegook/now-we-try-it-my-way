@@ -4,6 +4,7 @@ import Navigation from '../components/Navigation.astro'
 import type { ParsedRecipe } from '../lib/cooklang'
 import { cuisineToFlag } from '../lib/cuisine'
 import { resolveRecipePhoto } from '../lib/recipe-images'
+import '../styles/hero.css'
 import Layout from './Layout.astro'
 
 interface Props {
@@ -73,58 +74,6 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
 </Layout>
 
 <style>
-  .hero {
-    position: relative;
-    height: clamp(300px, 40vw, 520px);
-    overflow: hidden;
-    background: var(--color-edge);
-  }
-  .hero--no-photo {
-    height: clamp(220px, 30vw, 340px);
-  }
-  .hero__img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-  }
-  .hero__placeholder {
-    width: 100%;
-    height: 100%;
-    background-color: var(--color-void);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 16L16 0M0 0L16 16' stroke='%232e2a26' stroke-width='0.75' fill='none'/%3E%3C/svg%3E");
-    background-size: 16px 16px;
-  }
-  .hero__overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.38) 40%, rgba(0,0,0,0.08) 70%, transparent 100%);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    color: #fff;
-  }
-  .hero__overlay-content {
-    width: 100%;
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: 2rem 1.5rem 3rem;
-  }
-  .hero__meta {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-    margin-bottom: 0.625rem;
-  }
-  .hero__title {
-    font-family: var(--font-serif);
-    font-size: clamp(2.5rem, 5.5vw, 4.5rem);
-    margin: 0 0 0.75rem;
-    line-height: 1.1;
-    text-shadow: 0 2px 12px rgba(0,0,0,0.35);
-  }
   .hero__times {
     display: flex;
     gap: 0;
@@ -197,36 +146,8 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
     }
   }
   @media print {
-    .hero {
-      height: auto;
-      background: none;
-      overflow: visible;
-    }
-    .hero__img,
-    .hero__placeholder {
-      display: none;
-    }
-    .hero__overlay {
-      position: static;
-      background: none;
-      color: var(--color-ink);
-      display: block;
-    }
-    .hero__overlay-content {
-      max-width: none;
-      margin: 0;
-      padding: 0 0 1rem;
-    }
-    .hero__meta,
     .hero__times {
       display: none;
-    }
-    .hero__title {
-      margin: 0;
-      font-size: 1.8rem;
-      line-height: 1.2;
-      text-shadow: none;
-      color: var(--color-ink);
     }
     .recipe-body { display: block; }
   }

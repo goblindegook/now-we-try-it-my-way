@@ -1,7 +1,7 @@
 import type { Ingredient } from '@tmlmt/cooklang-parser'
 import { describe, expect, it } from 'vitest'
 import type { ParsedRecipe } from './cooklang'
-import { buildSearchIndex } from './search'
+import { buildGlobalSearchIndex, buildIngredientSearchIndex, buildSearchIndex } from './search'
 
 function makeRecipe(overrides: Partial<ParsedRecipe> = {}): ParsedRecipe {
   return {
@@ -118,5 +118,75 @@ describe('search index', () => {
       makeRecipe({ slug: 'carbonara', difficulty: '' }),
     ])
     expect(bs.search('easy').map((r) => r.slug)).toContain('risotto')
+  })
+})
+
+describe('ingredient search index', () => {
+  it('returns slug for matching ingredient name query', async () => {
+    const bs = await buildIngredientSearchIndex([
+      { slug: 'garlic', name: 'Garlic', body: 'Peel just before cooking.' },
+      { slug: 'tomato', name: 'Tomato', body: 'Ripeness matters more than variety.' },
+    ])
+    expect(bs.search('garlic').map((r) => r.slug)).toContain('garlic')
+  })
+
+  it('does not return unrelated ingredients', async () => {
+    const bs = await buildIngredientSearchIndex([
+      { slug: 'garlic', name: 'Garlic', body: 'Peel just before cooking.' },
+      { slug: 'tomato', name: 'Tomato', body: 'Ripeness matters more than variety.' },
+    ])
+    expect(bs.search('garlic').map((r) => r.slug)).not.toContain('tomato')
+  })
+
+  it('matches on the notes body text', async () => {
+    const bs = await buildIngredientSearchIndex([{ slug: 'garlic', name: 'Garlic', body: 'Peel just before cooking.' }])
+    expect(bs.search('cooking').map((r) => r.slug)).toContain('garlic')
+  })
+
+  it('tags every result with type "ingredient"', async () => {
+    const bs = await buildIngredientSearchIndex([{ slug: 'garlic', name: 'Garlic', body: 'Notes.' }])
+    const result = bs.search('garlic').find((r) => r.slug === 'garlic')
+    expect(result?.type).toBe('ingredient')
+  })
+
+  it('builds index with photoSrc resolved per ingredient', async () => {
+    const bs = await buildIngredientSearchIndex(
+      [{ slug: 'garlic', name: 'Garlic', body: 'Notes.' }],
+      async (ingredient) => `/_astro/${ingredient.slug}.webp`,
+    )
+    const result = bs.search('garlic').find((r) => r.slug === 'garlic')
+    expect(result?.photoSrc).toBe('/_astro/garlic.webp')
+  })
+
+  it('stores null photoSrc when resolver is omitted', async () => {
+    const bs = await buildIngredientSearchIndex([{ slug: 'garlic', name: 'Garlic', body: 'Notes.' }])
+    const result = bs.search('garlic').find((r) => r.slug === 'garlic')
+    expect(result?.photoSrc).toBeNull()
+  })
+})
+
+describe('global search index', () => {
+  it('matches both a recipe term and an ingredient term, tagged with the correct type', async () => {
+    const bs = await buildGlobalSearchIndex(
+      [makeRecipe({ slug: 'carbonara', title: 'Spaghetti carbonara' })],
+      [{ slug: 'garlic', name: 'Garlic', body: 'Notes.' }],
+    )
+    const recipeResult = bs.search('carbonara').find((r) => r.slug === 'carbonara')
+    const ingredientResult = bs.search('garlic').find((r) => r.slug === 'garlic')
+    expect(recipeResult?.type).toBe('recipe')
+    expect(ingredientResult?.type).toBe('ingredient')
+  })
+
+  it('keeps both documents when a recipe and an ingredient share the same slug', async () => {
+    const bs = await buildGlobalSearchIndex(
+      [makeRecipe({ slug: 'tomato', title: 'Tomato Galette' })],
+      [{ slug: 'tomato', name: 'Tomato', body: 'Ripeness matters more than variety.' }],
+    )
+
+    const recipeResult = bs.search('galette').find((r) => r.slug === 'tomato' && r.type === 'recipe')
+    const ingredientResult = bs.search('ripeness').find((r) => r.slug === 'tomato' && r.type === 'ingredient')
+
+    expect(recipeResult?.type).toBe('recipe')
+    expect(ingredientResult?.type).toBe('ingredient')
   })
 })
