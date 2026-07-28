@@ -17,7 +17,7 @@ const cuisineFlag = cuisineToFlag(recipe.cuisine)
 <a href={href} class="recipe-card">
   <div class="recipe-card__image-wrap">
     {recipePhoto
-      ? <Image src={recipePhoto} alt={recipe.title} class="recipe-card__image" loading="lazy" />
+      ? <Image src={recipePhoto} alt="" class="recipe-card__image" loading="lazy" />
       : <div class="recipe-card__placeholder" aria-hidden="true" />
     }
   </div>

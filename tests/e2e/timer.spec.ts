@@ -10,19 +10,26 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('shows initial idle state with play icon and duration', async ({ page }) => {
-  const btn = page.getByRole('button', { name: /10:00|Done/ }).first()
+  const btn = page.getByRole('button', { name: /^(Start|Pause|Reset) timer:/ }).first()
   await expect(btn).toHaveAttribute('title', /^Start/)
   await expect(btn).toContainText('10:00')
 })
 
+test('accessible name describes the action, not just the remaining time', async ({ page }) => {
+  const btn = page.getByRole('button', { name: /^(Start|Pause|Reset) timer:/ }).first()
+  await expect(btn).toHaveAccessibleName(/^Start timer: /)
+  await btn.click()
+  await expect(btn).toHaveAccessibleName(/^Pause timer: /)
+})
+
 test('transitions to running state after clicking start', async ({ page }) => {
-  const btn = page.getByRole('button', { name: /10:00|Done/ }).first()
+  const btn = page.getByRole('button', { name: /^(Start|Pause|Reset) timer:/ }).first()
   await btn.click()
   await expect(btn).toHaveAttribute('title', /^Pause/)
 })
 
 test('pauses when clicked while running', async ({ page }) => {
-  const btn = page.getByRole('button', { name: /10:00|Done/ }).first()
+  const btn = page.getByRole('button', { name: /^(Start|Pause|Reset) timer:/ }).first()
   await btn.click()
   await expect(btn).toHaveAttribute('title', /^Pause/)
   await btn.click()
@@ -30,7 +37,7 @@ test('pauses when clicked while running', async ({ page }) => {
 })
 
 test('transitions to done state when time expires', async ({ page }) => {
-  const btn = page.getByRole('button', { name: /10:00|Done/ }).first()
+  const btn = page.getByRole('button', { name: /^(Start|Pause|Reset) timer:/ }).first()
   await btn.click()
   await expect(btn).toHaveAttribute('title', /^Pause/)
 
@@ -47,7 +54,7 @@ test('transitions to done state when time expires', async ({ page }) => {
 })
 
 test('resets to idle after clicking in done state', async ({ page }) => {
-  const btn = page.getByRole('button', { name: /10:00|Done/ }).first()
+  const btn = page.getByRole('button', { name: /^(Start|Pause|Reset) timer:/ }).first()
   await btn.click()
   await page.evaluate(() => {
     const KEY = 'cookbook-timers'
@@ -63,7 +70,7 @@ test('resets to idle after clicking in done state', async ({ page }) => {
 })
 
 test('timer-dock appears when a timer is started', async ({ page }) => {
-  await page.getByRole('button', { name: /10:00|Done/ }).first().click()
+  await page.getByRole('button', { name: /^(Start|Pause|Reset) timer:/ }).first().click()
   await expect(page.getByText('Timers')).toBeVisible({ timeout: 2000 })
 })
 
@@ -117,7 +124,7 @@ test('timer dock fits within viewport on small screen (375px wide)', async ({ pa
   await page.evaluate(() => { localStorage.clear(); sessionStorage.clear() })
   await page.reload()
 
-  await page.getByRole('button', { name: /10:00|Done/ }).first().click()
+  await page.getByRole('button', { name: /^(Start|Pause|Reset) timer:/ }).first().click()
   await expect(page.getByText('Timers')).toBeVisible({ timeout: 2000 })
 
   const box = await page.locator('timer-dock').boundingBox()
@@ -134,7 +141,7 @@ test('timer dock stays within viewport when resize fires before first timer on m
 
   await page.evaluate(() => window.dispatchEvent(new Event('resize')))
 
-  await page.getByRole('button', { name: /10:00|Done/ }).first().click()
+  await page.getByRole('button', { name: /^(Start|Pause|Reset) timer:/ }).first().click()
   await expect(page.getByText('Timers')).toBeVisible({ timeout: 2000 })
 
   const box = await page.locator('timer-dock').boundingBox()

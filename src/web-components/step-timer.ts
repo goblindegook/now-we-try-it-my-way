@@ -225,11 +225,13 @@ export class StepTimer extends LitElement {
       : this.running
         ? html`<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="3" y="2.5" width="3.5" height="11" rx="1"/><rect x="9.5" y="2.5" width="3.5" height="11" rx="1"/></svg>`
         : html`<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 3L13 8 4 13V3z"/></svg>`
+    const description = `${this.done ? 'Reset' : this.running ? 'Pause' : 'Start'} timer: ${this.label || this.fmt(this.duration)}`
     return html`
       <button
         class=${cls}
         @click=${this.toggle}
-        title="${this.done ? 'Reset' : this.running ? 'Pause' : 'Start'} timer: ${this.label || this.fmt(this.duration)}"
+        aria-label=${description}
+        title=${description}
       >
         <span class="timer__icon">${icon}</span>
         <span class="timer__time">${this.done ? 'Done' : this.fmt(this.remaining)}</span>

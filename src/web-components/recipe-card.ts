@@ -31,7 +31,7 @@ class RecipeCardElement extends LitElement {
       <div class="recipe-card__image-wrap">
         ${
           this.photoSrc
-            ? html`<img src=${this.photoSrc} alt=${this.title} class="recipe-card__image" loading="lazy" />`
+            ? html`<img src=${this.photoSrc} alt="" class="recipe-card__image" loading="lazy" />`
             : html`<div class="recipe-card__placeholder" aria-hidden="true"></div>`
         }
       </div>

@@ -17,24 +17,26 @@ const photo = resolveIngredientPhoto(slug)
 <Layout title={`${name} — Now We Try It My Way`} description={`Flavor pairings for ${name}.`} ogType="article">
   <Navigation categories={categories} />
 
-  <article class="h-ingredient">
-    <div class:list={['hero', { 'hero--no-photo': !photo }]}>
-      {photo
-        ? <Image src={photo} alt={name} class="hero__img" />
-        : <div class="hero__placeholder" />
-      }
-      <div class="hero__overlay">
-        <div class="hero__overlay-content">
-          <div class="hero__meta">Ingredients</div>
-          <h1 class="hero__title">{name}</h1>
+  <main>
+    <article class="h-ingredient">
+      <div class:list={['hero', { 'hero--no-photo': !photo }]}>
+        {photo
+          ? <Image src={photo} alt={name} class="hero__img" />
+          : <div class="hero__placeholder" />
+        }
+        <div class="hero__overlay">
+          <div class="hero__overlay-content">
+            <div class="hero__meta">Ingredients</div>
+            <h1 class="hero__title">{name}</h1>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="ingredient-body">
-      <slot />
-    </div>
-  </article>
+      <div class="ingredient-body">
+        <slot />
+      </div>
+    </article>
+  </main>
 </Layout>
 
 <style>
@@ -45,10 +47,29 @@ const photo = resolveIngredientPhoto(slug)
   .ingredient-body {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 2.5rem 1.5rem 4rem;
+    padding: 4rem 1.5rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    grid-template-areas:
+      "notes pairings"
+      "used-in used-in";
+    column-gap: 3rem;
+    row-gap: 4rem;
+    align-items: start;
+  }
+  @media (max-width: 1023px) {
+    .ingredient-body {
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "notes"
+        "pairings"
+        "used-in";
+      row-gap: 2rem;
+    }
   }
   @media print {
     .ingredient-body {
+      display: block;
       padding: 1rem 0;
     }
   }

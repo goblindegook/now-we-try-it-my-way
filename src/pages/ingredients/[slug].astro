@@ -34,8 +34,8 @@ const categories = sortCategories([...new Set(allRecipes.map((r) => r.category a
   </div>
 
   {pairings.length > 0 && (
-    <section aria-labelledby="pairings-heading">
-      <h2 id="pairings-heading" class="section-heading">Pairs well with</h2>
+    <section class="pairings-section" aria-labelledby="pairings-heading">
+      <h2 id="pairings-heading" class="section-heading">Pairings</h2>
       <ul class="pairing-list">
         {pairings.map(({ name, slug }) => (
           <li>
@@ -50,7 +50,7 @@ const categories = sortCategories([...new Set(allRecipes.map((r) => r.category a
   )}
 
   {usedInRecipes.length > 0 && (
-    <section aria-labelledby="used-in-heading">
+    <section class="used-in-section" aria-labelledby="used-in-heading">
       <h2 id="used-in-heading" class="section-heading">Used in</h2>
       <div class="grid">
         {usedInRecipes.map((recipe) => <RecipeCard recipe={recipe} />)}
@@ -61,13 +61,50 @@ const categories = sortCategories([...new Set(allRecipes.map((r) => r.category a
 
 <style>
   .ingredient-notes {
-    max-width: var(--max-prose);
-    font-size: 1.0625rem;
+    grid-area: notes;
+    font-size: 1rem;
     line-height: 1.7;
     color: var(--color-ink);
   }
-  section {
-    margin-top: 2.5rem;
+  .ingredient-notes :global(h2) {
+    margin: 4rem 0 1rem;
+  }
+  .ingredient-notes > :global(:first-child) {
+    margin-top: 0;
+  }
+  .ingredient-notes > :global(:last-child) {
+    margin-bottom: 0;
+  }
+  .ingredient-notes :global(table) {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    margin: 1.75rem 0;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+  .ingredient-notes :global(th),
+  .ingredient-notes :global(td) {
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--color-edge);
+    text-align: left;
+  }
+  .ingredient-notes :global(th) {
+    background: var(--color-canvas);
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-subtle);
+  }
+  .ingredient-notes :global(tbody tr:nth-child(even)) {
+    background: var(--color-canvas);
+  }
+  .pairings-section {
+    grid-area: pairings;
+  }
+  .used-in-section {
+    grid-area: used-in;
   }
   .section-heading {
     font-family: var(--font-serif);

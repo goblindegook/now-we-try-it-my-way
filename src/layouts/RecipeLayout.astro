@@ -54,7 +54,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
     </div>
   </div>
 
-  <div class="recipe-body">
+  <main class="recipe-body">
     {recipe?.description && <p class="recipe-description">{recipe.description}</p>}
 
     <aside class="recipe-sidebar">
@@ -62,10 +62,10 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
       <slot name="sidebar" />
     </aside>
 
-    <main class="recipe-steps">
+    <div class="recipe-steps">
       <slot />
-    </main>
-  </div>
+    </div>
+  </main>
   </article>
 
   <script>
@@ -103,7 +103,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
   .recipe-body {
     max-width: var(--max-width);
     margin: 0 auto;
-    padding: 2.5rem 1.5rem 4rem;
+    padding: 4rem 1.5rem 4rem;
     display: grid;
     grid-template-columns: 280px 1fr;
     grid-template-rows: auto 1fr;
@@ -118,6 +118,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
     grid-area: description;
     font-size: 1.0625rem;
     color: var(--color-subtle);
+    margin: 0;
     padding: 0 0 2rem;
     font-style: italic;
   }
@@ -129,6 +130,7 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
     font-size: 1.5rem;
     font-weight: 400;
     color: var(--color-ink);
+    margin: 0;
     padding: 0 0 1rem;
   }
   .recipe-steps {

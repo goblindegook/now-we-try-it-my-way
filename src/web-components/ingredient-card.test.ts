@@ -18,7 +18,7 @@ describe('ingredient-card', () => {
     const root = document.body
     const link = getByRole(root, 'link', { name: /garlic/i })
     expect(link.getAttribute('href')).toBe('/ingredients/garlic')
-    expect(getByRole(root, 'img', { name: /garlic/i }).getAttribute('src')).toBe('/_astro/garlic.webp')
+    expect(root.querySelector('img')?.getAttribute('src')).toBe('/_astro/garlic.webp')
     expect(root.textContent).toContain('Ingredient')
   })
 

@@ -388,6 +388,7 @@ export class TimerDock extends LitElement {
           <button
             class="dock__toggle"
             @click=${() => this.toggleMinimized()}
+            aria-label=${this.minimized ? 'Expand timers' : 'Minimise timers'}
             title=${this.minimized ? 'Expand timers' : 'Minimise timers'}
           >${
             this.minimized
@@ -405,7 +406,7 @@ export class TimerDock extends LitElement {
               ${
                 t.done
                   ? html`<div class="timer-item__done">Done</div>`
-                  : html`<button class="dock-btn" @click=${() => this.toggleTimer(t)} title=${running ? 'Pause' : 'Resume'}>${
+                  : html`<button class="dock-btn" @click=${() => this.toggleTimer(t)} aria-label=${running ? 'Pause' : 'Resume'} title=${running ? 'Pause' : 'Resume'}>${
                       running
                         ? html`<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><rect x="4.5" y="3.5" width="4" height="13" rx="1.5"/><rect x="11.5" y="3.5" width="4" height="13" rx="1.5"/></svg>`
                         : html`<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M6 4.25L16 10 6 15.75V4.25z"/></svg>`
@@ -419,6 +420,7 @@ export class TimerDock extends LitElement {
               <button
                 class="dock-btn dock-btn--dismiss ${this.pendingClearId === t.id ? 'dock-btn--pending' : ''}"
                 @click=${() => this.handleClear(t.id)}
+                aria-label=${this.pendingClearId === t.id ? 'Tap again to clear' : 'Clear'}
                 title=${this.pendingClearId === t.id ? 'Tap again to clear' : 'Clear'}
               ><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M2 2l12 12M14 2L2 14"/></svg></button>
             </div>

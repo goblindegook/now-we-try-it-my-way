@@ -28,7 +28,7 @@ class SiteSearch extends LitElement {
       width: 100%;
       padding: 1rem 3.5rem 1rem 1rem;
       font-size: 1rem;
-      font-family: var(--font-sans-serif);
+      font-family: var(--font-sans);
       font-style: normal;
       font-weight: 400;
       border: 1px solid var(--color-edge);
@@ -46,7 +46,7 @@ class SiteSearch extends LitElement {
       -webkit-appearance: none;
     }
     .site-search-input::placeholder {
-      color: var(--color-disabled);
+      color: var(--color-subtle);
       font-style: normal;
     }
     .site-search-input:hover {

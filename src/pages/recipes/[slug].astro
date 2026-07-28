@@ -302,7 +302,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
       <ol class="steps">
         {section.steps.map(({ number, step, timers }) => (
           <li class="step" id={`step-${number}`} data-checked="false">
-            <button class="step__checkbox" aria-label={`Mark step ${number} complete`}>
+            <button class="step__checkbox" aria-label={`Mark step ${number} complete`} aria-pressed="false">
               <span class="step__num">{number}</span>
               <span class="step__check">✓</span>
             </button>
@@ -402,7 +402,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
   }
   .servings-control__wake-lock [data-eye] { display: inline-flex; align-items: center; }
   .servings-control__wake-lock [data-eye="open"] { display: none; }
-  .servings-control__wake-lock[aria-pressed="true"] { border-color: var(--color-accent); color: var(--color-accent); }
+  .servings-control__wake-lock[aria-pressed="true"] { border-color: var(--color-interactive); color: var(--color-interactive); }
   .servings-control__wake-lock[aria-pressed="true"] [data-eye="open"] { display: inline-flex; align-items: center; }
   .servings-control__wake-lock[aria-pressed="true"] [data-eye="slash"] { display: none; }
   .servings-control__count {
@@ -618,9 +618,17 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
       const state: boolean[] = parsed.state;
       const steps = root.querySelectorAll<HTMLElement>('li.step');
       steps.forEach((li, i) => {
-        if (state[i] !== undefined) li.setAttribute('data-checked', String(state[i]));
+        if (state[i] !== undefined) {
+          li.setAttribute('data-checked', String(state[i]));
+          syncCheckboxPressed(li);
+        }
       });
     } catch (_) {}
+  }
+
+  function syncCheckboxPressed(li: HTMLElement): void {
+    const btn = li.querySelector<HTMLElement>('.step__checkbox');
+    if (btn) btn.setAttribute('aria-pressed', li.getAttribute('data-checked') === 'true' ? 'true' : 'false');
   }
 
   function saveChecklistState(root: Element): void {
@@ -691,6 +699,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
 
         const checked = li.getAttribute('data-checked') === 'true';
         li.setAttribute('data-checked', String(!checked));
+        syncCheckboxPressed(li as HTMLElement);
         saveChecklistState(checklistRoot);
         updateResetVisibility();
 
@@ -705,6 +714,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
       resetBtn?.addEventListener('click', () => {
         checklistRoot.querySelectorAll<HTMLElement>('li.step').forEach(li => {
           li.setAttribute('data-checked', 'false');
+          syncCheckboxPressed(li);
         });
         try { localStorage.removeItem(checklistStorageKey()); } catch (_) {}
         updateResetVisibility();

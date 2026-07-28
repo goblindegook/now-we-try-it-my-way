@@ -14,7 +14,7 @@ const photo = resolveIngredientPhoto(slug)
 <a href={`/ingredients/${slug}`} class="recipe-card">
   <div class="recipe-card__image-wrap">
     {photo
-      ? <Image src={photo} alt={name} class="recipe-card__image" loading="lazy" />
+      ? <Image src={photo} alt="" class="recipe-card__image" loading="lazy" />
       : <div class="recipe-card__placeholder" aria-hidden="true" />
     }
   </div>

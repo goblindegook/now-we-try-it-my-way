@@ -26,7 +26,7 @@ describe('recipe-card', () => {
     const root = document.body
     const link = getByRole(root, 'link', { name: /spaghetti carbonara/i })
     expect(link.getAttribute('href')).toBe('/recipes/spaghetti-carbonara')
-    expect(getByRole(root, 'img', { name: /spaghetti carbonara/i }).getAttribute('src')).toBe('/_astro/spaghetti.webp')
+    expect(root.querySelector('img')?.getAttribute('src')).toBe('/_astro/spaghetti.webp')
     expect(root.textContent).toContain('Mains')
     expect(root.textContent).toContain('Prep: 10 minutes')
     expect(root.textContent).toContain('Cook: 20 minutes')

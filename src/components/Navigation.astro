@@ -103,8 +103,8 @@ const { categories, current } = Astro.props
   }
   .site-navigation__link:hover,
   .site-navigation__link.active {
-    color: var(--color-accent);
-    border-bottom-color: var(--color-accent);
+    color: color-mix(in oklch, var(--color-accent) 80%, white);
+    border-bottom-color: color-mix(in oklch, var(--color-accent) 80%, white);
   }
   @media (max-width: 700px) {
     .site-navigation__inner {
