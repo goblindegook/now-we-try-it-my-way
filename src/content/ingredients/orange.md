@@ -2,6 +2,8 @@
 name: Orange
 aliases:
   - oranges
+  - orange peel
+  - orange zest
 pairings:
   - almond
   - chocolate
@@ -13,7 +15,7 @@ pairings:
 
 ## Peel
 
-The peel is rich in essential oils and is the primary aromatic ingredient of the orange. The zest can be infused early in the cooking process, where the aroma begins releasing between 40°C and 60°C. The aromas extract into fat starting at 60°C, it's especially effective with cream sauces, butters, animal fat, olive oil, or chocolate. The essential oils also dissolve into alcohol. The zest also be added raw at the end.
+The peel is rich in essential oils and is the primary aromatic ingredient of the orange. The zest can be infused early in the cooking process, and the aroma begins releasing between 40°C and 60°C, with extraction into fat happening from 60°C onwards. Extraction is especially effective with cream sauces, butters, animal fat, olive oil, or chocolate. The essential oils also dissolve into alcohol. The zest also be added raw at the end.
 
 ## Juice
 
@@ -21,4 +23,4 @@ The juice of the orange contributes acidity, sweetness, and moisture. Can be use
 
 ## Pith
 
-The white parts of the orange are tart. Unless a hint of bitterness is desired, it's best to cut it out of the pulp or not go too deep when zesting.
+The white parts of the orange are tart. Unless a hint of bitterness is desired, it's best to cut it out of the pulp and not go too deep when zesting.

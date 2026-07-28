@@ -91,6 +91,10 @@ recipe-card {
   color: var(--color-interactive);
 }
 
+.ingredient-card__title {
+  text-transform: capitalize;
+}
+
 .recipe-card__meta {
   display: flex;
   gap: 0;

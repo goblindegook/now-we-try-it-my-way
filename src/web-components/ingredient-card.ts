@@ -29,7 +29,7 @@ class IngredientCardElement extends LitElement {
         <div class="recipe-card__top">
           <p class="recipe-card__category">Ingredients</p>
         </div>
-        <h2 class="recipe-card__title">${this.name}</h2>
+        <h2 class="recipe-card__title ingredient-card__title">${this.name}</h2>
       </div>
     </a>`
   }

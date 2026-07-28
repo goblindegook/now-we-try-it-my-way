@@ -63,22 +63,22 @@ describe('resolveIngredientSlug', () => {
 
 describe('buildIngredientSlugIndex', () => {
   it('resolves a slug for the canonical name', () => {
-    const index = buildIngredientSlugIndex([{ slug: 'orange', name: 'Orange' }])
+    const index = buildIngredientSlugIndex([{ slug: 'orange', name: 'orange' }])
     expect(index.get(normalizeIngredientName('Orange'))).toBe('orange')
   })
 
   it('resolves a slug for an alias', () => {
-    const index = buildIngredientSlugIndex([{ slug: 'orange', name: 'Orange', aliases: ['oranges'] }])
+    const index = buildIngredientSlugIndex([{ slug: 'orange', name: 'orange', aliases: ['oranges'] }])
     expect(index.get(normalizeIngredientName('oranges'))).toBe('orange')
   })
 
   it('does not resolve a name with no matching entry or alias', () => {
-    const index = buildIngredientSlugIndex([{ slug: 'orange', name: 'Orange', aliases: ['oranges'] }])
+    const index = buildIngredientSlugIndex([{ slug: 'orange', name: 'orange', aliases: ['oranges'] }])
     expect(index.get(normalizeIngredientName('lemons'))).toBeUndefined()
   })
 
   it('handles entries with no aliases declared', () => {
-    const index = buildIngredientSlugIndex([{ slug: 'garlic', name: 'Garlic' }])
+    const index = buildIngredientSlugIndex([{ slug: 'garlic', name: 'garlic' }])
     expect(index.get(normalizeIngredientName('Garlic'))).toBe('garlic')
   })
 })
@@ -90,15 +90,20 @@ describe('findRecipesUsingIngredient', () => {
   ]
 
   it('returns recipes containing a case-insensitive match', () => {
-    expect(findRecipesUsingIngredient('garlic', recipes).map((r) => r.slug)).toEqual(['carbonara'])
+    expect(findRecipesUsingIngredient(['garlic'], recipes).map((r) => r.slug)).toEqual(['carbonara'])
   })
 
   it('returns an empty array when no recipe matches', () => {
-    expect(findRecipesUsingIngredient('saffron', recipes)).toEqual([])
+    expect(findRecipesUsingIngredient(['saffron'], recipes)).toEqual([])
   })
 
   it('does not fuzzy-match a compound ingredient name as a substring', () => {
     const compound = [{ slug: 'aubergine-rolls', ingredients: [{ name: 'garlic clove' }] }]
-    expect(findRecipesUsingIngredient('garlic', compound)).toEqual([])
+    expect(findRecipesUsingIngredient(['garlic'], compound)).toEqual([])
+  })
+
+  it('matches a recipe that uses any of several given names', () => {
+    const aliasRecipes = [{ slug: 'orange-soup', ingredients: [{ name: 'oranges' }] }]
+    expect(findRecipesUsingIngredient(['orange', 'oranges'], aliasRecipes).map((r) => r.slug)).toEqual(['orange-soup'])
   })
 })

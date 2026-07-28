@@ -25,6 +25,12 @@ test.describe('/ingredients/[slug]', () => {
     await expect(page.getByRole('heading', { level: 2, name: 'Used in' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Moussaka' })).toBeVisible()
   })
+
+  test('shows recipes that use one of the ingredient aliases', async ({ page }) => {
+    await page.goto('/ingredients/orange')
+    await expect(page.getByRole('heading', { level: 2, name: 'Used in' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Orange soup' })).toBeVisible()
+  })
 })
 
 test.describe('/ingredients index', () => {

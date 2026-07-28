@@ -43,17 +43,17 @@ export function buildIngredientSlugIndex(
   const index = new Map<string, string>()
   for (const entry of entries) {
     for (const name of [entry.name, ...(entry.aliases ?? [])]) {
-      index.set(normalizeIngredientName(name), entry.slug)
+      index.set(name, entry.slug)
     }
   }
   return index
 }
 
 export function findRecipesUsingIngredient<T extends { ingredients: { name: string }[] }>(
-  ingredientName: string,
+  names: string[],
   recipes: T[],
 ): T[] {
   return recipes.filter((recipe) =>
-    recipe.ingredients.some((ingredient) => matchIngredientName(ingredient.name, ingredientName)),
+    recipe.ingredients.some((ingredient) => names.some((name) => matchIngredientName(ingredient.name, name))),
   )
 }

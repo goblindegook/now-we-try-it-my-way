@@ -24,7 +24,7 @@ const pairingNames = pairingsMap.get(entry.data.name) ?? []
 const pairings = pairingNames.map((name) => ({ name, slug: resolveIngredientSlug(name, entryRefs) }))
 
 const allRecipes = await loadAllRecipes()
-const usedInRecipes = findRecipesUsingIngredient(entry.data.name, allRecipes)
+const usedInRecipes = findRecipesUsingIngredient([entry.data.name, ...(entry.data.aliases ?? [])], allRecipes)
 const categories = sortCategories([...new Set(allRecipes.map((r) => r.category as Category))])
 ---
 
