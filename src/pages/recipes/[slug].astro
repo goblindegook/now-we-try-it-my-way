@@ -6,7 +6,7 @@ import { escape as escapeHtml } from 'html-escaper'
 import RecipeLayout from '../../layouts/RecipeLayout.astro'
 import { type Category, sortCategories } from '../../lib/categories'
 import { loadAllRecipes } from '../../lib/cooklang'
-import { normalizeIngredientName } from '../../lib/ingredients'
+import { buildIngredientSlugIndex, normalizeIngredientName } from '../../lib/ingredients'
 import { resolveRecipePhoto } from '../../lib/recipe-images'
 
 export async function getStaticPaths() {
@@ -22,8 +22,8 @@ const allRecipes = await loadAllRecipes()
 const categories = sortCategories([...new Set(allRecipes.map((r) => r.category as Category))])
 const recipe = allRecipes.find((r) => r.slug === slug)
 const ingredientEntries = await getCollection('ingredients')
-const ingredientSlugByName = new Map(
-  ingredientEntries.map((entry) => [normalizeIngredientName(entry.data.name), entry.id]),
+const ingredientSlugByName = buildIngredientSlugIndex(
+  ingredientEntries.map((entry) => ({ slug: entry.id, name: entry.data.name, aliases: entry.data.aliases })),
 )
 
 function slugForIngredientName(name: string): string | undefined {

@@ -6,6 +6,7 @@ import type { ParsedRecipe } from './cooklang'
 export type IngredientForSearch = {
   slug: string
   name: string
+  aliases?: string[]
   body: string
 }
 
@@ -28,6 +29,7 @@ export type SiteSearchDoc = {
   cookTime?: string
   photoSrc?: string | null
   name?: string
+  aliases?: string
   body?: string
 }
 
@@ -40,6 +42,7 @@ export type SearchIndexField =
   | 'diet'
   | 'difficulty'
   | 'name'
+  | 'aliases'
   | 'body'
 
 export type SearchSummaryField =
@@ -64,6 +67,7 @@ export const queryConfig: Options<SiteSearchDoc, SearchSummaryField, SearchIndex
     diet: 1,
     difficulty: 1,
     name: 3,
+    aliases: 3,
     body: 1,
   },
   summary: ['slug', 'title', 'category', 'cuisine', 'prepTime', 'cookTime', 'photoSrc', 'type', 'name'],
@@ -107,6 +111,7 @@ async function addIngredientDoc(
     type: 'ingredient',
     slug: ingredient.slug,
     name: ingredient.name,
+    aliases: ingredient.aliases?.join(' '),
     body: ingredient.body,
     photoSrc,
   })

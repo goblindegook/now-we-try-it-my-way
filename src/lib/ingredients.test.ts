@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildIngredientSlugIndex,
   computeSymmetricPairings,
   findRecipesUsingIngredient,
   normalizeIngredientName,
@@ -57,6 +58,28 @@ describe('resolveIngredientSlug', () => {
 
   it('returns undefined when no entry matches', () => {
     expect(resolveIngredientSlug('olive oil', entries)).toBeUndefined()
+  })
+})
+
+describe('buildIngredientSlugIndex', () => {
+  it('resolves a slug for the canonical name', () => {
+    const index = buildIngredientSlugIndex([{ slug: 'orange', name: 'Orange' }])
+    expect(index.get(normalizeIngredientName('Orange'))).toBe('orange')
+  })
+
+  it('resolves a slug for an alias', () => {
+    const index = buildIngredientSlugIndex([{ slug: 'orange', name: 'Orange', aliases: ['oranges'] }])
+    expect(index.get(normalizeIngredientName('oranges'))).toBe('orange')
+  })
+
+  it('does not resolve a name with no matching entry or alias', () => {
+    const index = buildIngredientSlugIndex([{ slug: 'orange', name: 'Orange', aliases: ['oranges'] }])
+    expect(index.get(normalizeIngredientName('lemons'))).toBeUndefined()
+  })
+
+  it('handles entries with no aliases declared', () => {
+    const index = buildIngredientSlugIndex([{ slug: 'garlic', name: 'Garlic' }])
+    expect(index.get(normalizeIngredientName('Garlic'))).toBe('garlic')
   })
 })
 

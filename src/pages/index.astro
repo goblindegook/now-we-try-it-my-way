@@ -18,6 +18,7 @@ const ingredientEntries = await getCollection('ingredients')
 const ingredientDocs = ingredientEntries.map((entry) => ({
   slug: entry.id,
   name: entry.data.name,
+  aliases: entry.data.aliases,
   body: entry.body ?? '',
 }))
 

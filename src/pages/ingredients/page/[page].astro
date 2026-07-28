@@ -20,7 +20,7 @@ export async function getStaticPaths() {
 
 const ingredients = await getCollection('ingredients')
 const sortedIngredients = [...ingredients]
-  .map((entry) => ({ slug: entry.id, name: entry.data.name, body: entry.body ?? '' }))
+  .map((entry) => ({ slug: entry.id, name: entry.data.name, aliases: entry.data.aliases, body: entry.body ?? '' }))
   .sort((a, b) => a.name.localeCompare(b.name))
 const currentPage = Number(Astro.params.page ?? '1')
 const { pageItems: visibleIngredients, totalPages } = paginateRecipes(sortedIngredients, currentPage)

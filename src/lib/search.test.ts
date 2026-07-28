@@ -163,6 +163,18 @@ describe('ingredient search index', () => {
     const result = bs.search('garlic').find((r) => r.slug === 'garlic')
     expect(result?.photoSrc).toBeNull()
   })
+
+  it('matches an ingredient by one of its aliases', async () => {
+    const bs = await buildIngredientSearchIndex([
+      { slug: 'orange', name: 'Orange', aliases: ['clementine'], body: 'Citrus notes.' },
+    ])
+    expect(bs.search('clementine').map((r) => r.slug)).toContain('orange')
+  })
+
+  it('does not require an alias to match', async () => {
+    const bs = await buildIngredientSearchIndex([{ slug: 'garlic', name: 'Garlic', body: 'Notes.' }])
+    expect(bs.search('garlic').map((r) => r.slug)).toContain('garlic')
+  })
 })
 
 describe('global search index', () => {

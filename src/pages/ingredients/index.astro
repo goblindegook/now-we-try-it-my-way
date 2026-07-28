@@ -12,7 +12,7 @@ import { buildIngredientSearchIndex } from '../../lib/search'
 
 const ingredients = await getCollection('ingredients')
 const sortedIngredients = [...ingredients]
-  .map((entry) => ({ slug: entry.id, name: entry.data.name, body: entry.body ?? '' }))
+  .map((entry) => ({ slug: entry.id, name: entry.data.name, aliases: entry.data.aliases, body: entry.body ?? '' }))
   .sort((a, b) => a.name.localeCompare(b.name))
 const { pageItems: visibleIngredients, totalPages } = paginateRecipes(sortedIngredients, 1)
 

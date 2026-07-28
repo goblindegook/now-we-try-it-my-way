@@ -1,5 +1,7 @@
 ---
 name: Orange
+aliases:
+  - oranges
 pairings:
   - almond
   - chocolate

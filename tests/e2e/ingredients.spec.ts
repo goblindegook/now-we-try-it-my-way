@@ -59,4 +59,12 @@ test.describe('recipe ingredient linking', () => {
     await expect(page.getByText('onion', { exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'onion', exact: true })).toHaveCount(0)
   })
+
+  test('sidebar links an ingredient referenced by one of its aliases', async ({ page }) => {
+    await page.goto('/recipes/orange-soup')
+    await expect(page.getByRole('link', { name: 'oranges', exact: true })).toHaveAttribute(
+      'href',
+      '/ingredients/orange',
+    )
+  })
 })

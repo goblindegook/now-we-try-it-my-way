@@ -37,6 +37,18 @@ export function resolveIngredientSlug(name: string, entries: IngredientRef[]): s
   return entries.find((entry) => matchIngredientName(entry.name, name))?.slug
 }
 
+export function buildIngredientSlugIndex(
+  entries: { slug: string; name: string; aliases?: string[] }[],
+): Map<string, string> {
+  const index = new Map<string, string>()
+  for (const entry of entries) {
+    for (const name of [entry.name, ...(entry.aliases ?? [])]) {
+      index.set(normalizeIngredientName(name), entry.slug)
+    }
+  }
+  return index
+}
+
 export function findRecipesUsingIngredient<T extends { ingredients: { name: string }[] }>(
   ingredientName: string,
   recipes: T[],
