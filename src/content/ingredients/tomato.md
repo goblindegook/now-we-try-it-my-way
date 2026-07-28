@@ -1,5 +1,11 @@
 ---
 name: Tomato
+aliases:
+  - tomatoes
+  - cherry tomatoes
+  - peeled tomatoes
+  - sun-dried tomatoes
+  - tomato purée
 pairings:
   - garlic
   - basil
