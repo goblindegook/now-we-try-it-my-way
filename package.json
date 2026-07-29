@@ -26,6 +26,8 @@
     "astro": "^7.1.4",
     "html-escaper": "^3.0.3",
     "lit": "^3.3.3",
+    "retext": "^9.0.0",
+    "retext-smartypants": "^6.2.0",
     "stemmer": "^2.0.1"
   },
   "devDependencies": {

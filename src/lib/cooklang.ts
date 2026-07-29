@@ -1,4 +1,16 @@
 import { type Cookware, type Ingredient, type Item, type Metadata, Recipe, type Timer } from '@tmlmt/cooklang-parser'
+import { retext } from 'retext'
+import retextSmartypants from 'retext-smartypants'
+
+const smartypantsProcessor = retext().use(retextSmartypants)
+
+function smarten(text: string): string {
+  return String(smartypantsProcessor.processSync(text))
+}
+
+function smartenItems(items: Item[]): Item[] {
+  return items.map((item) => (item.type === 'text' ? { ...item, value: smarten(item.value) } : item))
+}
 
 export type RecipeStep = {
   items: Item[]
@@ -79,8 +91,8 @@ function toRecipeMeta(recipe: Recipe, slug: string): RecipeMeta {
 
   return {
     slug,
-    title: pickFirstString(metadata.title) || slug.replace(/-/g, ' '),
-    description: pickFirstString(metadata.description, metadata.introduction),
+    title: smarten(pickFirstString(metadata.title) || slug.replace(/-/g, ' ')),
+    description: smarten(pickFirstString(metadata.description, metadata.introduction)),
     category: pickFirstString(metadata.category, metadata.course) || 'More',
     cuisine: pickFirstString(metadata.cuisine).toLowerCase(),
     tags: metadata.tags ?? [],
@@ -150,12 +162,13 @@ export function parseRecipe(content: string, slug: string): ParsedRecipe {
 
     for (const part of section.content) {
       if (part.type === 'note') {
+        const note = smarten(part.note)
         const previous = sectionSteps[sectionSteps.length - 1]
-        if (previous) previous.note = previous.note ? `${previous.note}\n${part.note}` : part.note
+        if (previous) previous.note = previous.note ? `${previous.note}\n${note}` : note
         continue
       }
       if (part.type === 'step') {
-        const step: RecipeStep = { items: part.items, note: null }
+        const step: RecipeStep = { items: smartenItems(part.items), note: null }
         sectionSteps.push(step)
         steps.push(step)
       }

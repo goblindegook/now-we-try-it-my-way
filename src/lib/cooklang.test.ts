@@ -130,6 +130,36 @@ describe('parseRecipe', () => {
       expect(r.steps).toHaveLength(2)
     })
   })
+
+  describe('smart punctuation', () => {
+    it('curls apostrophes in the title', () => {
+      const r = parseRecipe(withFrontmatter("title: Nonna's Sunday Sauce"), 'r')
+      expect(r.title).toBe('Nonna’s Sunday Sauce')
+    })
+
+    it('curls quotes in the description', () => {
+      const r = parseRecipe(withFrontmatter('description: The chef\'s "secret" trick'), 'r')
+      expect(r.description).toBe('The chef’s “secret” trick')
+    })
+
+    it('curls apostrophes in step text', () => {
+      const r = parseRecipe("Simmer, don't rush it, until thick.", 'r')
+      const text = r.steps[0].items.find((i) => i.type === 'text')
+      expect(text?.value).toContain('don’t')
+    })
+
+    it('curls quotes in step notes', () => {
+      const r = parseRecipe('Add salt.\n\n> Use "flaky" salt.', 'r')
+      expect(r.steps[0].note).toBe('Use “flaky” salt.')
+    })
+
+    it('leaves ingredient, cookware, and timer names untouched', () => {
+      const r = parseRecipe('Add @spaghetti{400%g} to the #pot{} and cook for ~{10%minutes}.', 'r')
+      expect(r.ingredients[0].name).toBe('spaghetti')
+      expect(r.cookware[0].name).toBe('pot')
+      expect(r.timers[0].unit).toBe('minutes')
+    })
+  })
 })
 
 describe('sorting helpers', () => {
