@@ -9,7 +9,7 @@ pairings:
 
 How garlic is prepared matters a lot. When garlic is damaged, the alliinase in it converts alliin into allicin, which imparts its distinctive pungent aroma. The more cells you rupture, the more allicin is produced, and the stronger the aroma becomes.
 
-For a mild flavour, leave it whole. Then, in increasing order of pungency: sliced, chopped, minced, pressed, and ground (usually with mortar and pestle).
+For a mild flavour, leave it whole. Then, in increasing order of pungency: sliced, chopped, minced, pressed, and ground (usually with mortar and pestle). You may also remove the germ from the centre of the clove.
 
 Allow cut garlic to sit for a few minutes for maximum sharpness.
 
