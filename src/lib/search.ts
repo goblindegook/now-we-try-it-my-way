@@ -57,7 +57,7 @@ export type SearchSummaryField =
   | 'name'
 
 export const queryConfig: Options<SiteSearchDoc, SearchSummaryField, SearchIndexField> = {
-  errorRate: 0.000001,
+  errorRate: 0.0000001,
   fields: {
     title: 3,
     ingredients: 2,
