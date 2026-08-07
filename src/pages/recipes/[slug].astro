@@ -172,6 +172,7 @@ const recipeSchema = recipe
       name: recipe.title,
       description: recipe.description || undefined,
       recipeCategory: recipe.category || undefined,
+      recipeCuisine: recipe.cuisine || undefined,
       image: recipeImageUrl,
       url: new URL(`/recipes/${recipe.slug}`, Astro.site).toString(),
       prepTime: toIsoDuration(recipe.prepTime),
@@ -183,6 +184,7 @@ const recipeSchema = recipe
         '@type': 'HowToStep',
         name: `Step ${index + 1}`,
         text: step.items.map(textForItem).join('').replaceAll(/\s+/g, ' ').trim(),
+        url: new URL(`/recipes/${recipe.slug}#step-${index + 1}`, Astro.site).toString(),
       })),
     }
   : null

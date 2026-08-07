@@ -27,6 +27,8 @@ test('recipe page has valid Recipe schema.org JSON-LD', async ({ page }) => {
   expect(schema.image).not.toContain('/src/assets/')
   expect(schema.prepTime).toBe('PT10M')
   expect(schema.cookTime).toBe('PT20M')
+  expect(schema.recipeCuisine).toBe('italian')
+  expect(schema.recipeInstructions[0].url).toBe(`https://nowwetry.it${RECIPE_URL}#step-1`)
 })
 
 test('recipe page sets article OG and Twitter card metadata', async ({ page }) => {
