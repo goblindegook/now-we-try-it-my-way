@@ -1,4 +1,5 @@
 import { css, html, LitElement } from 'lit'
+import { smarten } from '../lib/smarten'
 import type { TimerRecord } from '../lib/timer-store'
 import { getRemaining, getTimers, isRunning, markExpired, removeTimer, upsertTimer } from '../lib/timer-store'
 
@@ -414,7 +415,7 @@ export class TimerDock extends LitElement {
                   <div class="timer-item__time">${this.fmt(remaining)}</div>`
               }
               <a class="timer-item__info" href=${t.recipeUrl}>
-                <span class="timer-item__recipe">${t.recipeName}</span>
+                <span class="timer-item__recipe">${smarten(t.recipeName)}</span>
                 <span class="timer-item__label">${t.label}</span>
               </a>
               <button

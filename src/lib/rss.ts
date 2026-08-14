@@ -4,6 +4,7 @@ import { escape as escapeEntities } from 'html-escaper'
 import type { ParsedRecipe } from './cooklang'
 import { sortRecipesByRecency } from './cooklang'
 import { resolveRecipePhoto } from './recipe-images'
+import { smarten } from './smarten'
 
 const RSS_FALLBACK_DATE = new Date('1970-01-01T00:00:00.000Z')
 
@@ -41,7 +42,7 @@ function ingredientText(recipe: ParsedRecipe, index: number, quantityPartIndex?:
 }
 
 function itemText(recipe: ParsedRecipe, item: ParsedRecipe['steps'][number]['items'][number]): string {
-  if (item.type === 'text') return item.value
+  if (item.type === 'text') return smarten(item.value)
   if (item.type === 'ingredient') return ingredientText(recipe, item.index, item.quantityPartIndex, item.displayName)
   if (item.type === 'cookware') return recipe.cookware[item.index]?.name ?? ''
 
@@ -151,8 +152,8 @@ export function buildRecipeRssItems(recipes: ParsedRecipe[], site: URL): RSSFeed
     const image = resolveRecipePhoto(recipe.photo, recipe.category, recipe.slug)
 
     return {
-      title: recipe.title,
-      description: recipe.description || recipe.title,
+      title: smarten(recipe.title),
+      description: smarten(recipe.description || recipe.title),
       link: new URL(`/recipes/${recipe.slug}`, site).toString(),
       pubDate: toFeedDate(recipe.date),
       categories: recipeCategories(recipe),

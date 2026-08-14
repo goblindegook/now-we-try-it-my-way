@@ -131,26 +131,26 @@ describe('parseRecipe', () => {
     })
   })
 
-  describe('smart punctuation', () => {
-    it('curls apostrophes in the title', () => {
+  describe('punctuation', () => {
+    it('leaves apostrophes in the title untouched', () => {
       const r = parseRecipe(withFrontmatter("title: Nonna's Sunday Sauce"), 'r')
-      expect(r.title).toBe('Nonna’s Sunday Sauce')
+      expect(r.title).toBe("Nonna's Sunday Sauce")
     })
 
-    it('curls quotes in the description', () => {
+    it('leaves quotes in the description untouched', () => {
       const r = parseRecipe(withFrontmatter('description: The chef\'s "secret" trick'), 'r')
-      expect(r.description).toBe('The chef’s “secret” trick')
+      expect(r.description).toBe('The chef\'s "secret" trick')
     })
 
-    it('curls apostrophes in step text', () => {
+    it('leaves apostrophes in step text untouched', () => {
       const r = parseRecipe("Simmer, don't rush it, until thick.", 'r')
       const text = r.steps[0].items.find((i) => i.type === 'text')
-      expect(text?.value).toContain('don’t')
+      expect(text?.value).toContain("don't")
     })
 
-    it('curls quotes in step notes', () => {
+    it('leaves quotes in step notes untouched', () => {
       const r = parseRecipe('Add salt.\n\n> Use "flaky" salt.', 'r')
-      expect(r.steps[0].note).toBe('Use “flaky” salt.')
+      expect(r.steps[0].note).toBe('Use "flaky" salt.')
     })
 
     it('leaves ingredient, cookware, and timer names untouched', () => {

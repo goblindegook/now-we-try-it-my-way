@@ -3,6 +3,7 @@ import { Image } from 'astro:assets'
 import type { RecipeMeta } from '../lib/cooklang'
 import { cuisineToFlag } from '../lib/cuisine'
 import { resolveRecipePhoto } from '../lib/recipe-images'
+import { smarten } from '../lib/smarten'
 import '../styles/recipe-card.css'
 
 interface Props {
@@ -12,6 +13,7 @@ const { recipe } = Astro.props
 const href = `/recipes/${recipe.slug}`
 const recipePhoto = resolveRecipePhoto(recipe.photo, recipe.category, recipe.slug)
 const cuisineFlag = cuisineToFlag(recipe.cuisine)
+const title = smarten(recipe.title)
 ---
 
 <a href={href} class="recipe-card">
@@ -26,7 +28,7 @@ const cuisineFlag = cuisineToFlag(recipe.cuisine)
       <p class="recipe-card__category">{recipe.category}</p>
       {cuisineFlag && <span class="recipe-card__flag">{cuisineFlag}</span>}
     </div>
-    <h2 class="recipe-card__title">{recipe.title}</h2>
+    <h2 class="recipe-card__title">{title}</h2>
     <div class="recipe-card__meta">
       {recipe.prepTime && <span>Prep: {recipe.prepTime}</span>}
       {recipe.cookTime && <span>Cook: {recipe.cookTime}</span>}

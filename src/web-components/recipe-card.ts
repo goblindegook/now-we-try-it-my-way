@@ -1,5 +1,6 @@
 import { html, LitElement } from 'lit'
 import { cuisineToFlag } from '../lib/cuisine'
+import { smarten } from '../lib/smarten'
 
 class RecipeCardElement extends LitElement {
   static properties = {
@@ -40,7 +41,7 @@ class RecipeCardElement extends LitElement {
           <p class="recipe-card__category">${this.category}</p>
           ${flag ? html`<span class="recipe-card__flag">${flag}</span>` : null}
         </div>
-        <h2 class="recipe-card__title">${this.title}</h2>
+        <h2 class="recipe-card__title">${smarten(this.title)}</h2>
         ${
           this.prepTime || this.cookTime
             ? html`<div class="recipe-card__meta">

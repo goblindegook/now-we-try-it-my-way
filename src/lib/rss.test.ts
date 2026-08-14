@@ -69,6 +69,19 @@ describe('buildRecipeRssItems', () => {
     expect(items[0].description).toBe('Focaccia')
   })
 
+  it('applies smart punctuation to title and description', () => {
+    const site = new URL('https://nowwetry.it')
+    const items = buildRecipeRssItems(
+      [recipe({ title: "Nonna's Sauce", description: 'The chef\'s "secret" trick' })],
+      site,
+    )
+
+    expect(items[0]).toMatchObject({
+      title: 'Nonna’s Sauce',
+      description: 'The chef’s “secret” trick',
+    })
+  })
+
   it('includes full recipe body content in each feed item', () => {
     const parsed = parseRecipe(
       withFrontmatter(

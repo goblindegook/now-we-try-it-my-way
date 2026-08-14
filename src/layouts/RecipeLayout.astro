@@ -4,23 +4,26 @@ import Navigation from '../components/Navigation.astro'
 import type { ParsedRecipe } from '../lib/cooklang'
 import { cuisineToFlag } from '../lib/cuisine'
 import { resolveRecipePhoto } from '../lib/recipe-images'
+import { smarten } from '../lib/smarten'
 import '../styles/hero.css'
 import Layout from './Layout.astro'
 
 interface Props {
-  recipe?: ParsedRecipe
+  recipe: ParsedRecipe
   categories: string[]
   recipeSchemaJson?: string
   socialImage?: string
 }
 const { recipe, categories, recipeSchemaJson = '', socialImage } = Astro.props
-const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category, recipe?.slug)
-const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
+const recipePhoto = resolveRecipePhoto(recipe.photo, recipe.category, recipe.slug)
+const cuisineFlag = cuisineToFlag(recipe.cuisine)
+const title = smarten(recipe.title)
+const description = smarten(recipe.description)
 ---
 
 <Layout
-  title={`${recipe?.title} — Now We Try It My Way`}
-  description={recipe?.description}
+  title={`${title} — Now We Try It My Way`}
+  description={description}
   socialImage={socialImage}
   ogType="article"
 >
@@ -32,30 +35,30 @@ const cuisineFlag = cuisineToFlag(recipe?.cuisine ?? '')
       set:html={recipeSchemaJson}
     />
   )}
-  <Navigation categories={categories} current={recipe?.category} />
+  <Navigation categories={categories} current={recipe.category} />
 
   <article class="h-recipe">
   <div class:list={['hero', { 'hero--no-photo': !recipePhoto }]}>
     {recipePhoto
-      ? <Image src={recipePhoto} alt={recipe?.title ?? ''} class="hero__img u-photo" />
+      ? <Image src={recipePhoto} alt={title} class="hero__img u-photo" />
       : <div class="hero__placeholder" />
     }
     <div class="hero__overlay">
       <div class="hero__overlay-content">
-        <div class="hero__meta p-category">{recipe?.category}</div>
-        <h1 class="hero__title p-name">{recipe?.title}</h1>
-        {recipe?.description && <p class="p-summary" hidden>{recipe.description}</p>}
+        <div class="hero__meta p-category">{recipe.category}</div>
+        <h1 class="hero__title p-name">{title}</h1>
+        {description && <p class="p-summary" hidden>{description}</p>}
         <div class="hero__times">
           {cuisineFlag && <span class="hero__cuisine-flag">{cuisineFlag}</span>}
-          {recipe?.prepTime && <time class="dt-prep-time" datetime={recipe.prepTime}>Prep: {recipe.prepTime}</time>}
-          {recipe?.cookTime && <time class="dt-cook-time" datetime={recipe.cookTime}>Cook: {recipe.cookTime}</time>}
+          {recipe.prepTime && <time class="dt-prep-time" datetime={recipe.prepTime}>Prep: {recipe.prepTime}</time>}
+          {recipe.cookTime && <time class="dt-cook-time" datetime={recipe.cookTime}>Cook: {recipe.cookTime}</time>}
         </div>
       </div>
     </div>
   </div>
 
   <main class="recipe-body">
-    {recipe?.description && <p class="recipe-description">{recipe.description}</p>}
+    {description && <p class="recipe-description">{description}</p>}
 
     <aside class="recipe-sidebar">
       <h2 class="recipe-sidebar__title">Ingredients</h2>

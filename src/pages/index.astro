@@ -9,6 +9,7 @@ import { loadAllRecipes, sortRecipesByRecency } from '../lib/cooklang'
 import { resolveIngredientPhoto } from '../lib/ingredient-images'
 import { resolveRecipePhoto } from '../lib/recipe-images'
 import { buildGlobalSearchIndex } from '../lib/search'
+import { smarten } from '../lib/smarten'
 
 const recipes = await loadAllRecipes()
 const recentRecipes = sortRecipesByRecency([...recipes])
@@ -111,7 +112,7 @@ const byCategory = categories.map((cat) => ({
                   {slots.map((r) => {
                     if (!r) return <div class="cat-card__img cat-card__img--placeholder" aria-hidden="true" />
                     const photo = resolveRecipePhoto(r.photo, r.category, r.slug)!
-                    return <Image src={photo} alt={r.title} class="cat-card__img" loading="lazy" />
+                    return <Image src={photo} alt={smarten(r.title)} class="cat-card__img" loading="lazy" />
                   })}
                 </div>
                 <div class="cat-card__footer">
