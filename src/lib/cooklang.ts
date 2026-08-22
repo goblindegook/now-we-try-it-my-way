@@ -187,18 +187,7 @@ export function parseRecipe(content: string, slug: string): ParsedRecipe {
 }
 
 export async function loadAllRecipes(): Promise<ParsedRecipe[]> {
-  const files = import.meta.glob('/src/content/recipes/**/*.cook', {
-    query: '?raw',
-    import: 'default',
-  })
-  const recipes: ParsedRecipe[] = []
-
-  for (const [path, load] of Object.entries(files)) {
-    const content = await (load as () => Promise<string>)()
-    const slug = path.split('/').pop()?.replace('.cook', '') ?? ''
-    const recipe = parseRecipe(content, slug)
-    recipes.push(recipe)
-  }
-
-  return sortRecipesAlphabetically(recipes)
+  const { getCollection } = await import('astro:content')
+  const entries = await getCollection('recipes')
+  return sortRecipesAlphabetically(entries.map((entry) => entry.data as ParsedRecipe))
 }

@@ -9,12 +9,12 @@ export default defineConfig({
       {
         name: 'cook-hmr',
         configureServer(server) {
-          const restartOnCookFileChange = (file: string) => {
-            if (file.endsWith('.cook')) server.restart()
+          const reloadOnCookFileChange = (file: string) => {
+            if (file.endsWith('.cook')) server.ws.send({ type: 'full-reload' })
           }
 
-          server.watcher.on('add', restartOnCookFileChange)
-          server.watcher.on('unlink', restartOnCookFileChange)
+          server.watcher.on('add', reloadOnCookFileChange)
+          server.watcher.on('unlink', reloadOnCookFileChange)
         },
         handleHotUpdate({ file, server }) {
           if (file.endsWith('.cook')) {
