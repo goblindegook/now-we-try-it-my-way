@@ -35,9 +35,8 @@ describe('writeState', () => {
   it('writes enabled:true with a future expiresAt', () => {
     const before = Date.now()
     writeState(true)
-    const raw = localStorage.getItem(STORAGE_KEY)
-    expect(raw).not.toBeNull()
-    const parsed = JSON.parse(raw!)
+    // biome-ignore lint/style/noNonNullAssertion: test fails if null
+    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY)!)
     expect(parsed.enabled).toBe(true)
     expect(parsed.expiresAt).toBeGreaterThan(before)
   })
