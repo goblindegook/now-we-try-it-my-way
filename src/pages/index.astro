@@ -84,7 +84,7 @@ const byCategory = categories.map((cat) => ({
       </div>
       <div class="hero__inner">
         <h1 class="hero__title">Let’s skip <span class="hero__title-crossed">the life story.</span></h1>
-        <p class="hero__sub">Made for myself, not search engines.</p>
+        <p class="hero__sub">Made for myself, not search engines. <a class="hero__sub-link" href="/myway">Read more.</a></p>
       </div>
     </section>
 
@@ -219,6 +219,11 @@ const byCategory = categories.map((cat) => ({
     @media (max-width: 700px) {
       font-size: 0.875rem;
     }
+  }
+  .hero__sub-link {
+    color: var(--color-interactive);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
   @keyframes hero-enter {
     from { opacity: 0; translate: 0 6px; }
