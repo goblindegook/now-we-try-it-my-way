@@ -84,7 +84,7 @@ const byCategory = categories.map((cat) => ({
       </div>
       <div class="hero__inner">
         <h1 class="hero__title">Let’s skip <span class="hero__title-crossed">the life story.</span></h1>
-        <p class="hero__sub">Made for myself, not search engines. <a class="hero__sub-link" href="/myway">Read more.</a></p>
+        <p class="hero__sub">Made for myself, not search engines. <a class="hero__sub-link" href="/myway/">Read more.</a></p>
       </div>
     </section>
 
@@ -94,7 +94,7 @@ const byCategory = categories.map((cat) => ({
         <section class="section">
           <div class="section__titlebar">
             <h2 class="section__heading">Latest recipes</h2>
-            <a href="/recipes" class="section__viewall">Browse all recipes →</a>
+            <a href="/recipes/" class="section__viewall">Browse all recipes →</a>
           </div>
           <div class="grid">
             {latest.map((recipe) => <RecipeCard recipe={recipe} />)}
@@ -107,7 +107,7 @@ const byCategory = categories.map((cat) => ({
             {byCategory.map(({ name, recipes: catRecipes }) => {
               const slots = [...catRecipes, null, null, null, null].slice(0, 4)
               return (
-              <a href={`/${name.toLowerCase()}`} class="cat-card">
+              <a href={`/${name.toLowerCase()}/`} class="cat-card">
                 <div class="cat-card__grid">
                   {slots.map((r) => {
                     if (!r) return <div class="cat-card__img cat-card__img--placeholder" aria-hidden="true" />

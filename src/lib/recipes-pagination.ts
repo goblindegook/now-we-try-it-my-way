@@ -21,7 +21,7 @@ export function paginateRecipes<T>(
 }
 
 export function pageHref(basePath: string, page: number): string {
-  return page <= 1 ? basePath : `${basePath}/page/${page}`
+  return page <= 1 ? `${basePath}/` : `${basePath}/page/${page}/`
 }
 
 export function recipePageHref(page: number): string {

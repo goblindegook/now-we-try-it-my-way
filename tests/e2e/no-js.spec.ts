@@ -31,7 +31,7 @@ test('recipe page has valid Recipe schema.org JSON-LD', async ({ page }) => {
     recipeCuisine: 'italian',
   })
   expect(schema.recipeInstructions[0]).toMatchObject({
-    url: 'https://nowwetry.it/recipes/spaghetti-carbonara#step-1',
+    url: 'https://nowwetry.it/recipes/spaghetti-carbonara/#step-1',
   })
   expect(schema.image).toContain('nowwetry.it')
   expect(schema.image).not.toContain('/src/assets/')

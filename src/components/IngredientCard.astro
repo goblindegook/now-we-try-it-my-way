@@ -11,7 +11,7 @@ const { slug, name } = Astro.props
 const photo = resolveIngredientPhoto(slug)
 ---
 
-<a href={`/ingredients/${slug}`} class="recipe-card">
+<a href={`/ingredients/${slug}/`} class="recipe-card">
   <div class="recipe-card__image-wrap">
     {photo
       ? <Image src={photo} alt="" class="recipe-card__image" loading="lazy" />

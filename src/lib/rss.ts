@@ -154,7 +154,7 @@ export function buildRecipeRssItems(recipes: ParsedRecipe[], site: URL): RSSFeed
     return {
       title: smarten(recipe.title),
       description: smarten(recipe.description || recipe.title),
-      link: new URL(`/recipes/${recipe.slug}`, site).toString(),
+      link: new URL(`/recipes/${recipe.slug}/`, site).toString(),
       pubDate: toFeedDate(recipe.date),
       categories: recipeCategories(recipe),
       content: renderRecipeContent(recipe),

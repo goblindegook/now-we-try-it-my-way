@@ -32,7 +32,7 @@ test.describe('homepage search', () => {
 
   test('search still works after navigating to homepage via link', async ({ page }) => {
     await page.getByRole('link', { name: /Browse all recipes/i }).click()
-    await page.waitForURL('/recipes')
+    await page.waitForURL('/recipes/')
     await page.getByRole('searchbox', { name: 'Search recipes' }).fill('spaghetti')
     await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toBeVisible({ timeout: 500 })
 

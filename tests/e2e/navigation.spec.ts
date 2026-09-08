@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
 
 test('scaler works on second recipe page after navigation', async ({ page }) => {
   await page.getByRole('link', { name: 'All recipes' }).click()
-  await page.waitForURL('/recipes')
+  await page.waitForURL('/recipes/')
 
   const firstTitle = await page.getByRole('main').getByRole('heading', { level: 2 }).first().textContent()
   await page.getByRole('link', { name: firstTitle! }).first().click()
@@ -28,7 +28,7 @@ test('scaler works on second recipe page after navigation', async ({ page }) => 
 
 test('checklist works on second recipe page after navigation', async ({ page }) => {
   await page.getByRole('link', { name: 'All recipes' }).click()
-  await page.waitForURL('/recipes')
+  await page.waitForURL('/recipes/')
 
   const firstTitle = await page.getByRole('main').getByRole('heading', { level: 2 }).first().textContent()
   await page.getByRole('link', { name: firstTitle! }).first().click()

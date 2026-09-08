@@ -10,7 +10,7 @@ test.describe('/ingredients/[slug]', () => {
     await page.goto('/ingredients/garlic')
     await expect(page.getByRole('link', { name: 'tomato', exact: true })).toHaveAttribute(
       'href',
-      '/ingredients/tomato',
+      '/ingredients/tomato/',
     )
   })
 
@@ -41,9 +41,9 @@ test.describe('/ingredients index', () => {
 
   test('lists every seeded ingredient by name, linking to its page', async ({ page }) => {
     await page.goto('/ingredients')
-    await expect(page.getByRole('link', { name: 'Garlic' })).toHaveAttribute('href', '/ingredients/garlic')
-    await expect(page.getByRole('link', { name: 'Orange' })).toHaveAttribute('href', '/ingredients/orange')
-    await expect(page.getByRole('link', { name: 'Tomato' })).toHaveAttribute('href', '/ingredients/tomato')
+    await expect(page.getByRole('link', { name: 'Garlic' })).toHaveAttribute('href', '/ingredients/garlic/')
+    await expect(page.getByRole('link', { name: 'Orange' })).toHaveAttribute('href', '/ingredients/orange/')
+    await expect(page.getByRole('link', { name: 'Tomato' })).toHaveAttribute('href', '/ingredients/tomato/')
   })
 
   test('search input renders and is scoped to ingredients only', async ({ page }) => {
@@ -57,7 +57,7 @@ test.describe('/ingredients index', () => {
 test.describe('recipe ingredient linking', () => {
   test('sidebar links a curated ingredient to its page', async ({ page }) => {
     await page.goto('/recipes/moussaka')
-    await expect(page.getByRole('link', { name: 'garlic' })).toHaveAttribute('href', '/ingredients/garlic')
+    await expect(page.getByRole('link', { name: 'garlic' })).toHaveAttribute('href', '/ingredients/garlic/')
   })
 
   test('uncurated ingredients render as plain text, not links', async ({ page }) => {
@@ -70,7 +70,7 @@ test.describe('recipe ingredient linking', () => {
     await page.goto('/recipes/orange-soup')
     await expect(page.getByRole('link', { name: 'oranges', exact: true })).toHaveAttribute(
       'href',
-      '/ingredients/orange',
+      '/ingredients/orange/',
     )
   })
 })

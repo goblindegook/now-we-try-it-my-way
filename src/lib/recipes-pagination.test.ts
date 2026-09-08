@@ -22,12 +22,12 @@ describe('recipes-pagination', () => {
   })
 
   it('builds default recipes page hrefs', () => {
-    expect(recipePageHref(1)).toBe('/recipes')
-    expect(recipePageHref(2)).toBe('/recipes/page/2')
+    expect(recipePageHref(1)).toBe('/recipes/')
+    expect(recipePageHref(2)).toBe('/recipes/page/2/')
   })
 
   it('builds category page hrefs from base path', () => {
-    expect(pageHref('/mains', 1)).toBe('/mains')
-    expect(pageHref('/mains', 2)).toBe('/mains/page/2')
+    expect(pageHref('/mains', 1)).toBe('/mains/')
+    expect(pageHref('/mains', 2)).toBe('/mains/page/2/')
   })
 })

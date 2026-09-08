@@ -40,7 +40,7 @@ const categories = sortCategories([...new Set(allRecipes.map((r) => r.category a
         {pairings.map(({ name, slug }) => (
           <li>
             {slug
-              ? <a class="pairing-chip" href={`/ingredients/${slug}`}>{name}</a>
+              ? <a class="pairing-chip" href={`/ingredients/${slug}/`}>{name}</a>
               : <span class="pairing-chip pairing-chip--unresolved">{name}</span>
             }
           </li>

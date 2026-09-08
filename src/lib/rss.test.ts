@@ -43,8 +43,8 @@ describe('buildRecipeRssItems', () => {
 
     expect(items.map((item) => item.title)).toEqual(['Newer', 'Older'])
     expect(items.map((item) => item.link)).toEqual([
-      'https://nowwetry.it/recipes/newer',
-      'https://nowwetry.it/recipes/older',
+      'https://nowwetry.it/recipes/newer/',
+      'https://nowwetry.it/recipes/older/',
     ])
   })
 

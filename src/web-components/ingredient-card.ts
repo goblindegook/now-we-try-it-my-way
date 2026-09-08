@@ -16,7 +16,7 @@ class IngredientCardElement extends LitElement {
   }
 
   render() {
-    const href = `/ingredients/${this.slug}`
+    const href = `/ingredients/${this.slug}/`
     return html`<a href=${href} class="recipe-card">
       <div class="recipe-card__image-wrap">
         ${

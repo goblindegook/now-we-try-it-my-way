@@ -26,7 +26,7 @@ class RecipeCardElement extends LitElement {
   }
 
   render() {
-    const href = `/recipes/${this.slug}`
+    const href = `/recipes/${this.slug}/`
     const flag = cuisineToFlag(this.cuisine)
     return html`<a href=${href} class="recipe-card">
       <div class="recipe-card__image-wrap">

@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 
 test.describe('/recipes search', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/recipes')
+    await page.goto('/recipes/')
   })
 
   test('shows 12 recipes per page with pagination controls', async ({ page }) => {
@@ -11,8 +11,8 @@ test.describe('/recipes search', () => {
     const pagination = page.getByRole('navigation', { name: 'Recipe pages' })
     await expect(pagination).toBeVisible()
     await expect(pagination.getByRole('link', { name: 'Page 1' })).toHaveAttribute('aria-current', 'page')
-    await expect(pagination.getByRole('link', { name: 'Page 2' })).toHaveAttribute('href', '/recipes/page/2')
-    await expect(pagination.getByRole('link', { name: 'Next page' })).toHaveAttribute('href', '/recipes/page/2')
+    await expect(pagination.getByRole('link', { name: 'Page 2' })).toHaveAttribute('href', '/recipes/page/2/')
+    await expect(pagination.getByRole('link', { name: 'Next page' })).toHaveAttribute('href', '/recipes/page/2/')
     await expect(page.getByText('current page')).toHaveCount(0)
   })
 
@@ -24,7 +24,7 @@ test.describe('/recipes search', () => {
     expect(recipeCount).toBeGreaterThan(0)
     expect(recipeCount).toBeLessThanOrEqual(12)
     const pagination = page.getByRole('navigation', { name: 'Recipe pages' })
-    await expect(pagination.getByRole('link', { name: 'Previous page' })).toHaveAttribute('href', '/recipes')
+    await expect(pagination.getByRole('link', { name: 'Previous page' })).toHaveAttribute('href', '/recipes/')
     await expect(pagination.getByRole('link', { name: 'Page 2' })).toHaveAttribute('aria-current', 'page')
     await expect(page.getByText('current page')).toHaveCount(0)
   })
@@ -51,17 +51,17 @@ test.describe('/recipes search', () => {
 
   test('result cards link to recipe pages', async ({ page }) => {
     await page.getByRole('searchbox', { name: 'Search recipes' }).fill('spaghetti')
-    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toHaveAttribute('href', '/recipes/spaghetti-carbonara', { timeout: 500 })
+    await expect(page.getByRole('link', { name: 'Spaghetti carbonara' })).toHaveAttribute('href', '/recipes/spaghetti-carbonara/', { timeout: 500 })
   })
 
   test('query string updates as user types', async ({ page }) => {
     const search = page.getByRole('searchbox', { name: 'Search recipes' })
 
     await search.fill('spaghetti')
-    await expect(page).toHaveURL('/recipes?q=spaghetti')
+    await expect(page).toHaveURL('/recipes/?q=spaghetti')
 
     await search.fill('')
-    await expect(page).toHaveURL('/recipes')
+    await expect(page).toHaveURL('/recipes/')
   })
 
   test('opening recipes page with q param shows populated search results', async ({ page }) => {

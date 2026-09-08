@@ -15,7 +15,7 @@ const { categories, current } = Astro.props
       {categories.map(cat => (
         <li>
           <a
-            href={`/${cat.toLowerCase()}`}
+            href={`/${cat.toLowerCase()}/`}
             class:list={['site-navigation__link', { active: current === cat }]}
           >
             {cat}
@@ -144,4 +144,3 @@ const { categories, current } = Astro.props
     window.addEventListener('resize', update, { passive: true })
   }
 </script>
-
