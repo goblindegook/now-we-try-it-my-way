@@ -159,6 +159,7 @@ const description = smarten(recipe.description)
   }
   .recipe-wine--mobile {
     display: none;
+    grid-area: wine;
   }
   .recipe-wine--desktop {
     margin-top: 2rem;
@@ -190,7 +191,8 @@ const description = smarten(recipe.description)
       grid-template-areas:
         "description"
         "ingredients"
-        "steps";
+        "steps"
+        "wine";
       column-gap: 0;
       row-gap: 2rem;
     }
