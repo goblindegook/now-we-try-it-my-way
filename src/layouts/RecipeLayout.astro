@@ -63,11 +63,29 @@ const description = smarten(recipe.description)
     <aside class="recipe-sidebar">
       <h2 class="recipe-sidebar__title">Ingredients</h2>
       <slot name="sidebar" />
+
+      {recipe.winePairings.length > 0 && (
+        <div class="recipe-wine recipe-wine--desktop">
+          <h2 class="recipe-wine__title">Wine Pairings</h2>
+          <ul class="recipe-wine__list">
+            {recipe.winePairings.map((wine) => <li>{wine}</li>)}
+          </ul>
+        </div>
+      )}
     </aside>
 
     <div class="recipe-steps">
       <slot />
     </div>
+
+    {recipe.winePairings.length > 0 && (
+      <div class="recipe-wine recipe-wine--mobile">
+        <h2 class="recipe-wine__title">Wine Pairings</h2>
+        <ul class="recipe-wine__list">
+          {recipe.winePairings.map((wine) => <li>{wine}</li>)}
+        </ul>
+      </div>
+    )}
   </main>
   </article>
 
@@ -139,6 +157,33 @@ const description = smarten(recipe.description)
   .recipe-steps {
     grid-area: steps;
   }
+  .recipe-wine--mobile {
+    display: none;
+  }
+  .recipe-wine--desktop {
+    margin-top: 2rem;
+  }
+  .recipe-wine__title {
+    font-family: var(--font-serif);
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--color-ink);
+    margin: 0;
+    padding: 0 0 1rem;
+  }
+  .recipe-wine__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .recipe-wine__list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-edge);
+    font-size: 0.9rem;
+  }
+  .recipe-wine__list li:last-child {
+    border-bottom: none;
+  }
   @media (max-width: 700px) {
     .recipe-body {
       grid-template-columns: 1fr;
@@ -148,6 +193,13 @@ const description = smarten(recipe.description)
         "steps";
       column-gap: 0;
       row-gap: 2rem;
+    }
+    .recipe-wine--desktop {
+      display: none;
+    }
+    .recipe-wine--mobile {
+      display: block;
+      margin-top: 2rem;
     }
   }
   @media print {

@@ -31,6 +31,7 @@ const recipes = defineCollection({
     prepTime: z.string(),
     cookTime: z.string(),
     date: z.string(),
+    winePairings: z.array(z.string()),
     ingredients: z.array(z.custom<Ingredient>()),
     timers: z.array(z.custom<Timer>()),
     sections: z.array(z.custom<RecipeSection>()),

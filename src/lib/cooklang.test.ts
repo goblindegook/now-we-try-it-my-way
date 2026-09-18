@@ -82,6 +82,16 @@ describe('parseRecipe', () => {
       expect(r.diet).toEqual([])
     })
 
+    it('parses block-list wine pairings into an array', () => {
+      const r = parseRecipe(withFrontmatter('wine pairings:\n  - Vermentino\n  - Pecorino abruzzese'), 'r')
+      expect(r.winePairings).toEqual(['Vermentino', 'Pecorino abruzzese'])
+    })
+
+    it('returns empty wine pairings array when metadata is absent', () => {
+      const r = parseRecipe('Boil water.', 'r')
+      expect(r.winePairings).toEqual([])
+    })
+
     it('extracts difficulty normalized to lowercase', () => {
       const r = parseRecipe(withFrontmatter('difficulty: Easy'), 'r')
       expect(r.difficulty).toBe('easy')
@@ -178,6 +188,7 @@ describe('sorting helpers', () => {
       date,
       difficulty: '',
       diet: [],
+      winePairings: [],
       ingredients: [],
       timers: [],
       sections: [],
@@ -213,6 +224,7 @@ describe('getAllTags', () => {
       date: '',
       difficulty: '',
       diet: [],
+      winePairings: [],
       ingredients: [],
       timers: [],
       sections: [],

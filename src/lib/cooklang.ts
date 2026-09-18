@@ -24,6 +24,7 @@ export type RecipeMeta = {
   prepTime: string
   cookTime: string
   date: string
+  winePairings: string[]
 }
 
 export type ParsedRecipe = RecipeMeta & {
@@ -96,6 +97,7 @@ function toRecipeMeta(recipe: Recipe, slug: string): RecipeMeta {
       (metadata as Record<string, unknown>)['last modified'],
       (metadata as Record<string, unknown>).updated,
     ),
+    winePairings: ((metadata as Record<string, unknown>)['wine pairings'] as string[] | undefined) ?? [],
   }
 }
 
@@ -171,6 +173,7 @@ export function parseRecipe(content: string, slug: string): ParsedRecipe {
   return {
     ...baseMeta,
     diet: extractBlockList(content, 'diet'),
+    winePairings: extractBlockList(content, 'wine pairings'),
     date: pickFirstString(
       frontmatter.created,
       frontmatter.date,
