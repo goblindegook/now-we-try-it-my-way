@@ -33,6 +33,7 @@ function slugForIngredientName(name: string): string | undefined {
 const recipePhoto = resolveRecipePhoto(recipe?.photo, recipe?.category, recipe?.slug)
 const recipeImage = recipePhoto ? await getImage({ src: recipePhoto }) : null
 const recipeImageUrl = recipeImage ? new URL(recipeImage.src, Astro.site).toString() : undefined
+const socialImage = recipePhoto ? await getImage({ src: recipePhoto, width: 1200, height: 1200, fit: 'cover' }) : null
 
 type QuantityValue =
   | { type: 'text'; value: string }
@@ -235,7 +236,7 @@ const sectionViews = recipe?.sections.map((section, sectionIndex) => {
   recipe={recipe!}
   categories={categories}
   recipeSchemaJson={recipeSchemaJson}
-  socialImage={recipeImage?.src}
+  socialImage={socialImage?.src}
 >
   <div slot="sidebar" class="section-ingredients">
     <div class="servings-control" data-enhanced="false">

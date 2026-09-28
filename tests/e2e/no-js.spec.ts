@@ -50,11 +50,10 @@ test('recipe page defaults prepTime to zero when not specified', async ({ page }
 
 test('recipe page sets article OG and Twitter card metadata', async ({ page }) => {
   await page.goto('/recipes/spaghetti-carbonara')
-  const schema = await getRecipeSchema(page)
 
   await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article')
-  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', schema.image)
-  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', schema.image)
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /nowwetry\.it/)
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /nowwetry\.it/)
   await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image')
 })
 
