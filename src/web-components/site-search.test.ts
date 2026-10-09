@@ -1,4 +1,4 @@
-import { BloomSearch } from '@pacote/bloom-search'
+import { SignatureSearch } from '@pacote/signature-search'
 import { getByRole, getByText, queryByText } from '@testing-library/dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { queryConfig, type SearchIndexField, type SearchSummaryField, type SiteSearchDoc } from '../lib/search'
@@ -27,7 +27,7 @@ async function search(host: SearchHost | null, query: string) {
 type SearchHost = HTMLElement & { updateComplete?: Promise<unknown> }
 
 function createSearchIndex() {
-  const bs = new BloomSearch<SiteSearchDoc, SearchSummaryField, SearchIndexField>(queryConfig)
+  const bs = new SignatureSearch<SiteSearchDoc, SearchSummaryField, SearchIndexField>(queryConfig)
   bs.add('spaghetti-carbonara', {
     type: 'recipe',
     slug: 'spaghetti-carbonara',

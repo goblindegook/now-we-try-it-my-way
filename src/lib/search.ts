@@ -1,5 +1,5 @@
-import type { Options } from '@pacote/bloom-search'
-import { BloomSearch } from '@pacote/bloom-search'
+import type { Options } from '@pacote/signature-search'
+import { SignatureSearch } from '@pacote/signature-search'
 import { stemmer } from 'stemmer'
 import type { ParsedRecipe } from './cooklang'
 
@@ -10,11 +10,11 @@ export type IngredientForSearch = {
   body: string
 }
 
-// Flat, not a discriminated union: @pacote/bloom-search's Options/BloomSearch
-// generics constrain SummaryField/IndexField to `keyof Document`. `keyof` of a
-// union collapses to only the properties common to every member (just
-// `type`/`slug` here), which would make fields like `title`/`name` untypeable.
-// Keeping SiteSearchDoc flat, with each variant's fields optional, sidesteps that.
+// Options/SignatureSearch generics constrain SummaryField/IndexField to `keyof
+// Document`. `keyof` of a union collapses to only the properties common to
+// every member (just `type`/`slug` here), which would make fields like
+// `title`/`name` untypeable. Keeping SiteSearchDoc flat, with each variant's
+// fields optional, sidesteps that.
 export type SiteSearchDoc = {
   type: 'recipe' | 'ingredient'
   slug: string
@@ -81,9 +81,9 @@ export const buildConfig: Options<SiteSearchDoc, SearchSummaryField, SearchIndex
 
 type PhotoSrcResolver = (recipe: ParsedRecipe) => Promise<string | null> | string | null
 type IngredientPhotoSrcResolver = (ingredient: IngredientForSearch) => Promise<string | null> | string | null
-type SiteBloomSearch = BloomSearch<SiteSearchDoc, SearchSummaryField, SearchIndexField>
+type SiteSignatureSearch = SignatureSearch<SiteSearchDoc, SearchSummaryField, SearchIndexField>
 
-async function addRecipeDoc(bs: SiteBloomSearch, recipe: ParsedRecipe, resolvePhotoSrc: PhotoSrcResolver) {
+async function addRecipeDoc(bs: SiteSignatureSearch, recipe: ParsedRecipe, resolvePhotoSrc: PhotoSrcResolver) {
   const photoSrc = await resolvePhotoSrc(recipe)
   bs.add(`recipe:${recipe.slug}`, {
     type: 'recipe',
@@ -102,7 +102,7 @@ async function addRecipeDoc(bs: SiteBloomSearch, recipe: ParsedRecipe, resolvePh
 }
 
 async function addIngredientDoc(
-  bs: SiteBloomSearch,
+  bs: SiteSignatureSearch,
   ingredient: IngredientForSearch,
   resolvePhotoSrc: IngredientPhotoSrcResolver,
 ) {
@@ -118,7 +118,7 @@ async function addIngredientDoc(
 }
 
 export async function buildSearchIndex(recipes: ParsedRecipe[], resolvePhotoSrc: PhotoSrcResolver = () => null) {
-  const bs = new BloomSearch(buildConfig)
+  const bs = new SignatureSearch(buildConfig)
   for (const recipe of recipes) await addRecipeDoc(bs, recipe, resolvePhotoSrc)
   return bs
 }
@@ -127,7 +127,7 @@ export async function buildIngredientSearchIndex(
   ingredients: IngredientForSearch[],
   resolvePhotoSrc: IngredientPhotoSrcResolver = () => null,
 ) {
-  const bs = new BloomSearch(buildConfig)
+  const bs = new SignatureSearch(buildConfig)
   for (const ingredient of ingredients) await addIngredientDoc(bs, ingredient, resolvePhotoSrc)
   return bs
 }
@@ -138,7 +138,7 @@ export async function buildGlobalSearchIndex(
   resolveRecipePhotoSrc: PhotoSrcResolver = () => null,
   resolveIngredientPhotoSrc: IngredientPhotoSrcResolver = () => null,
 ) {
-  const bs = new BloomSearch(buildConfig)
+  const bs = new SignatureSearch(buildConfig)
   for (const recipe of recipes) await addRecipeDoc(bs, recipe, resolveRecipePhotoSrc)
   for (const ingredient of ingredients) await addIngredientDoc(bs, ingredient, resolveIngredientPhotoSrc)
   return bs

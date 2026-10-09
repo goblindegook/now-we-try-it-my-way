@@ -27,3 +27,16 @@ pnpm-debug.log*
 /test-results/
 
 .obsidian/
+.impact/
+
+# agents
+/AGENTS.md
+/CLAUDE.md
+/PRODUCT.md
+/.claude/
+/.impeccable.md
+/.impeccable
+/docs/superpowers
+
+# local execution artifacts (not project source)
+docs/plans/*.md

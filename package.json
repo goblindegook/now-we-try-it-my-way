@@ -21,7 +21,7 @@
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
-    "@pacote/bloom-search": "^0.18.3",
+    "@pacote/signature-search": "^0.2.0",
     "@tmlmt/cooklang-parser": "^2.1.8",
     "astro": "^7.2.9",
     "html-escaper": "^3.0.3",

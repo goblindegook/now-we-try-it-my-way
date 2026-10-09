@@ -1,4 +1,4 @@
-import { BloomSearch, type Index } from '@pacote/bloom-search'
+import { type Index, SignatureSearch } from '@pacote/signature-search'
 import { css, html, LitElement, type PropertyValues } from 'lit'
 
 import { queryConfig, type SearchIndexField, type SearchSummaryField, type SiteSearchDoc } from '../lib/search'
@@ -96,7 +96,7 @@ class SiteSearch extends LitElement {
     results: { state: true },
   }
 
-  private bs: BloomSearch<SiteSearchDoc, SearchSummaryField, SearchIndexField> | null = null
+  private bs: SignatureSearch<SiteSearchDoc, SearchSummaryField, SearchIndexField> | null = null
   private mode: SearchMode = 'static'
   private query = ''
   private results: SearchResult[] = []
@@ -174,7 +174,7 @@ class SiteSearch extends LitElement {
     try {
       const index = window.__SEARCH_INDEX__
       if (!index) return
-      this.bs = new BloomSearch(queryConfig)
+      this.bs = new SignatureSearch(queryConfig)
       this.bs.load(index)
     } catch {
       this.bs = null
