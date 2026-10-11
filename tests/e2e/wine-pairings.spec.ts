@@ -10,7 +10,7 @@ test('shows the wine pairings heading and listed wines for a recipe with pairing
   await expect(page.getByText('Arinto (Alentejo)').first()).toBeVisible()
   await expect(page.getByText('Trebbiano (Abruzzo)').first()).toBeVisible()
   await expect(page.getByText('Malvasia puntinata (Latium)').first()).toBeVisible()
-  await expect(page.getByText('Vermentino (Toscana)').first()).toBeVisible()
+  await expect(page.getByText('Vermentino (Tuscany)').first()).toBeVisible()
   await expect(page.getByText('Pecorino (Abruzzo)').first()).toBeVisible()
 })
 
