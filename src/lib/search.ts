@@ -83,9 +83,8 @@ type PhotoSrcResolver = (recipe: ParsedRecipe) => Promise<string | null> | strin
 type IngredientPhotoSrcResolver = (ingredient: IngredientForSearch) => Promise<string | null> | string | null
 type SiteSignatureSearch = SignatureSearch<SiteSearchDoc, SearchSummaryField, SearchIndexField>
 
-async function addRecipeDoc(bs: SiteSignatureSearch, recipe: ParsedRecipe, resolvePhotoSrc: PhotoSrcResolver) {
-  const photoSrc = await resolvePhotoSrc(recipe)
-  bs.add(`recipe:${recipe.slug}`, {
+function addRecipeDoc(bs: SiteSignatureSearch, index: number, recipe: ParsedRecipe, photoSrc: string | null) {
+  bs.add(String(index), {
     type: 'recipe',
     slug: recipe.slug,
     title: recipe.title,
@@ -101,13 +100,13 @@ async function addRecipeDoc(bs: SiteSignatureSearch, recipe: ParsedRecipe, resol
   })
 }
 
-async function addIngredientDoc(
+function addIngredientDoc(
   bs: SiteSignatureSearch,
+  index: number,
   ingredient: IngredientForSearch,
-  resolvePhotoSrc: IngredientPhotoSrcResolver,
+  photoSrc: string | null,
 ) {
-  const photoSrc = await resolvePhotoSrc(ingredient)
-  bs.add(`ingredient:${ingredient.slug}`, {
+  bs.add(String(index), {
     type: 'ingredient',
     slug: ingredient.slug,
     name: ingredient.name,
@@ -119,7 +118,7 @@ async function addIngredientDoc(
 
 export async function buildSearchIndex(recipes: ParsedRecipe[], resolvePhotoSrc: PhotoSrcResolver = () => null) {
   const bs = new SignatureSearch(buildConfig)
-  for (const recipe of recipes) await addRecipeDoc(bs, recipe, resolvePhotoSrc)
+  for (const [i, recipe] of recipes.entries()) addRecipeDoc(bs, i, recipe, await resolvePhotoSrc(recipe))
   return bs
 }
 
@@ -128,7 +127,8 @@ export async function buildIngredientSearchIndex(
   resolvePhotoSrc: IngredientPhotoSrcResolver = () => null,
 ) {
   const bs = new SignatureSearch(buildConfig)
-  for (const ingredient of ingredients) await addIngredientDoc(bs, ingredient, resolvePhotoSrc)
+  for (const [i, ingredient] of ingredients.entries())
+    addIngredientDoc(bs, i, ingredient, await resolvePhotoSrc(ingredient))
   return bs
 }
 
@@ -139,7 +139,9 @@ export async function buildGlobalSearchIndex(
   resolveIngredientPhotoSrc: IngredientPhotoSrcResolver = () => null,
 ) {
   const bs = new SignatureSearch(buildConfig)
-  for (const recipe of recipes) await addRecipeDoc(bs, recipe, resolveRecipePhotoSrc)
-  for (const ingredient of ingredients) await addIngredientDoc(bs, ingredient, resolveIngredientPhotoSrc)
+  for (const [i, recipe] of recipes.entries()) addRecipeDoc(bs, i, recipe, await resolveRecipePhotoSrc(recipe))
+  for (const [i, ingredient] of ingredients.entries()) {
+    addIngredientDoc(bs, recipes.length + i, ingredient, await resolveIngredientPhotoSrc(ingredient))
+  }
   return bs
 }
