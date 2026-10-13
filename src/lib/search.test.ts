@@ -18,6 +18,7 @@ function makeRecipe(overrides: Partial<ParsedRecipe> = {}): ParsedRecipe {
     prepTime: '10 minutes',
     cookTime: '20 minutes',
     date: '',
+    winePairings: [],
     ingredients: [],
     timers: [],
     sections: [],
@@ -102,6 +103,12 @@ describe('search index', () => {
     const bs = await buildSearchIndex([makeRecipe({ slug: 'carbonara', title: 'Spaghetti Carbonara' })])
     const result = bs.search('carbonara').find((r) => r.slug === 'carbonara')
     expect(result?.photoSrc).toBeNull()
+  })
+
+  it('exposes the recipe title as name on results', async () => {
+    const bs = await buildSearchIndex([makeRecipe({ slug: 'carbonara', title: 'Spaghetti Carbonara' })])
+    const result = bs.search('carbonara').find((r) => r.slug === 'carbonara')
+    expect(result?.name).toBe('Spaghetti Carbonara')
   })
 
   it('returns slug for matching diet query', async () => {

@@ -31,7 +31,7 @@ function createSearchIndex() {
   bs.add('spaghetti-carbonara', {
     type: 'recipe',
     slug: 'spaghetti-carbonara',
-    title: 'Spaghetti carbonara',
+    name: 'Spaghetti carbonara',
     category: 'Mains',
     cuisine: 'italian',
     prepTime: '10 min',
@@ -45,7 +45,7 @@ function createSearchIndex() {
   bs.add('moussaka', {
     type: 'recipe',
     slug: 'moussaka',
-    title: 'Moussaka',
+    name: 'Moussaka',
     category: 'Mains',
     cuisine: 'greek',
     prepTime: '20 min',

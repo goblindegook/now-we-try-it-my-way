@@ -17,6 +17,7 @@ function recipe(overrides: Partial<ParsedRecipe>): ParsedRecipe {
     prepTime: '',
     cookTime: '',
     date: '',
+    winePairings: [],
     ingredients: [],
     timers: [],
     sections: [],

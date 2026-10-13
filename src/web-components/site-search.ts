@@ -256,7 +256,7 @@ class SiteSearch extends LitElement {
         }
         const card = document.createElement('recipe-card')
         card.setAttribute('slug', result.slug)
-        card.setAttribute('title', result.title ?? '')
+        card.setAttribute('title', result.name ?? '')
         card.setAttribute('category', result.category ?? '')
         card.setAttribute('cuisine', result.cuisine ?? '')
         card.setAttribute('prep-time', result.prepTime ?? '')

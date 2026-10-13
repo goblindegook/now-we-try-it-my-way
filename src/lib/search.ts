@@ -13,12 +13,11 @@ export type IngredientForSearch = {
 // Options/SignatureSearch generics constrain SummaryField/IndexField to `keyof
 // Document`. `keyof` of a union collapses to only the properties common to
 // every member (just `type`/`slug` here), which would make fields like
-// `title`/`name` untypeable. Keeping SiteSearchDoc flat, with each variant's
+// `name` untypeable. Keeping SiteSearchDoc flat, with each variant's
 // fields optional, sidesteps that.
 export type SiteSearchDoc = {
   type: 'recipe' | 'ingredient'
   slug: string
-  title?: string
   tags?: string
   ingredients?: string
   cuisine?: string
@@ -34,32 +33,29 @@ export type SiteSearchDoc = {
 }
 
 export type SearchIndexField =
-  | 'title'
+  | 'name'
   | 'tags'
   | 'ingredients'
   | 'cuisine'
   | 'category'
   | 'diet'
   | 'difficulty'
-  | 'name'
   | 'aliases'
   | 'body'
 
 export type SearchSummaryField =
   | 'slug'
-  | 'title'
+  | 'name'
   | 'category'
   | 'cuisine'
   | 'prepTime'
   | 'cookTime'
   | 'photoSrc'
   | 'type'
-  | 'name'
 
 export const queryConfig: Options<SiteSearchDoc, SearchSummaryField, SearchIndexField> = {
   errorRate: 0.0000001,
   fields: {
-    title: 3,
     ingredients: 2,
     tags: 1,
     cuisine: 1,
@@ -70,7 +66,7 @@ export const queryConfig: Options<SiteSearchDoc, SearchSummaryField, SearchIndex
     aliases: 3,
     body: 1,
   },
-  summary: ['slug', 'title', 'category', 'cuisine', 'prepTime', 'cookTime', 'photoSrc', 'type', 'name'],
+  summary: ['slug', 'name', 'category', 'cuisine', 'prepTime', 'cookTime', 'photoSrc', 'type'],
   stemmer,
 }
 
@@ -87,7 +83,7 @@ function addRecipeDoc(bs: SiteSignatureSearch, index: number, recipe: ParsedReci
   bs.add(String(index), {
     type: 'recipe',
     slug: recipe.slug,
-    title: recipe.title,
+    name: recipe.title,
     tags: recipe.tags.join(' '),
     ingredients: recipe.ingredients.map((i) => i.name).join(' '),
     diet: recipe.diet.join(' '),
