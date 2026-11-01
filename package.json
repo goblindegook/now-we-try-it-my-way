@@ -23,7 +23,7 @@
     "@astrojs/sitemap": "^3.7.4",
     "@pacote/signature-search": "^0.2.0",
     "@tmlmt/cooklang-parser": "^2.1.8",
-    "astro": "^7.2.9",
+    "astro": "^7.4.0",
     "html-escaper": "^3.0.3",
     "lit": "^3.3.3",
     "retext": "^9.0.0",
