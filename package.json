@@ -32,7 +32,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "@biomejs/biome": "^2.6.5",
+    "@biomejs/biome": "^2.6.7",
     "@playwright/test": "^1.65.0",
     "@testing-library/dom": "^10.4.2",
     "@types/html-escaper": "^3.0.4",
